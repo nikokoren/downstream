@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — OSM names checked (license and a sample); D10 proposed: name streams from OpenStreetMap (ODbL).
 - 2026-09-28 — D9 decided: GeoNames cities15000, language-tagged names, geographic Europe without Russia.
 - 2026-09-28 — D7 decided. D1 decided: Europe first. Town sources checked; D9 proposed: GeoNames cities5000 (CC BY 4.0).
 - 2026-09-28 — D8 decided: the recipe rotates through a fixed list of towns; the user's location is dropped.
@@ -13,7 +14,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
+1. Author decides D10 (OSM names). USGS NHDPlus names (US option) are parked until a US version.
 2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
 3. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
 4. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
@@ -34,6 +35,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D7 | German names of rivers, lakes, seas: curated table only, `name_de` not used (see below) | Decided | 2026-09-28 |
 | D8 | Rotate through a fixed list of towns; drop the user's location (see below) | Decided | 2026-09-28 |
 | D9 | Towns: GeoNames cities15000, language-tagged names, geographic Europe without Russia (see below) | Decided | 2026-09-28 |
+| D10 | Name streams and rivers from OpenStreetMap (ODbL), publish the name table (see below) | Proposed | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -91,6 +93,24 @@ Boundary defaults, set by the agent and easy to change: include Iceland, the Bri
 
 Still open (D8): how to pick the rotation from ~7,000 towns so it spreads across river basins.
 
+### D10 — Stream and river names from OpenStreetMap (proposed 2026-09-28)
+
+Natural Earth names only major rivers, so most paths would start with "a stream". OpenStreetMap names nearly every stream. Checked 2026-09-28 (facts below): the license allows it, with conditions we can meet.
+
+How ODbL applies here (sources: ODbL 1.0 text; OSMF Community Guidelines, all board-endorsed; not legal advice):
+- The **name table** (HydroATLAS reach ID → OSM name, name:de, name:en) is a substantial extraction of OSM, so it's a **Derivative Database** (ODbL §4.4b). Because the screen shows it, it counts as publicly used (§4.4c). So: license the name table under ODbL, and offer it free in machine-readable form, or the method that made it (§4.6). **Plan: publish the name table as a file under ODbL** (e.g. in the repo or a public R2 path) with the ODbL notice next to it (§4.2).
+- **HydroATLAS geometry stays out of share-alike.** Per the Collective Database Guideline (endorsed 2016-06-17), adding a property (the name) to our own primary features, with that property all from OSM or all non-OSM within a regional cut, keeps the datasets "independent". Even if it didn't, HydroATLAS (CC BY 4.0), GeoNames (CC BY 4.0) and Natural Earth (public domain) can all be released under ODbL, so the worst case is publishing more files, not a license conflict.
+- Mixing: if our curated table (D7) or Natural Earth names override OSM names for the same property, the table counts as a mixed source. That's fine; they just become part of the published ODbL name table. Nothing in them is restricted.
+- **On screen:** the display is a Produced Work (§4.5b; Produced Work Guideline: images are "usually" Produced Works). It needs a notice that makes viewers aware the content comes from OSM under ODbL (§4.3). Attribution Guideline (adopted 2021-06-25): the text must say "OpenStreetMap"; "© OpenStreetMap contributors" is acceptable; place it next to the map or where credits are expected; there must be a way to find the license. Where a link isn't possible, print the URL `openstreetmap.org/copyright` (the rule for printed and non-linkable media). The OSM basemap credit (R16) may already cover this if it's worded to cover the names too. Settle the wording in TEXT_REQUIREMENTS.
+- Not a problem: we don't restrict the table (§4.7), and we don't sublicense.
+
+Data quality, one sample only (Munich area, see facts): rivers 225/279 ways named, streams 1,891/3,533, and every tributary on the Starnberg → Würm → Amper → Isar path is named. The unnamed ways are mostly tiny ditches that HydroATLAS doesn't have anyway (it starts at 10 km² catchment). `name:de` coverage outside German-speaking countries isn't checked.
+
+Costs and risks:
+- The name join (P3) gets harder: matching thousands of small OSM streams onto 500 m-resolution HydroATLAS reaches, instead of ~2,000 Natural Earth rivers. OSM `type=waterway` relations group a river's ways under one name and may help; not checked.
+- Download: Geofabrik's Europe extract is the usual source, but download.geofabrik.de was unreachable from this container on 2026-09-28 (4/4 attempts: connection reset by the proxy). Its size isn't verified. Needs the host allowed in this environment's network settings, or the pipeline running elsewhere (GitHub Actions).
+- If D10 is accepted, the Natural Earth Europe supplement (D6) matters less for names, but Natural Earth stays the source for seas and lakes (endpoints).
+
 ## Verified facts about outside systems
 
 All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of these.**
@@ -132,6 +152,13 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - Agreement: HydroSHEDS TechDoc v1.4, Appendix A. Excerpts and the verbatim Exhibit B statement are in `docs/sources/HYDROSHEDS_LICENSE.md`. Open questions are in D5.
 - Exhibit B's statement must go in "the documentation or metadata" of the product. The agreement allows no short form (searched pages 24–29 for "short", "abbreviat", "screen": zero relevant hits). So the on-screen credit (R16) is extra, and the full statement goes in the README and store listing. This answers the brief's "confirm the short form satisfies the license agreement".
 - (Superseded by D5.) Correction to R17: two citations apply. HydroRIVERS and HydroBASINS ask for Lehner & Grill (2013); Exhibit B gives Lehner, Verdin & Jarvis (2008) for HydroSHEDS. The README carries both.
+
+### OpenStreetMap (names, ODbL)
+
+- License: https://www.openstreetmap.org/copyright: OSM data is under the Open Database License (ODbL) 1.0; credit "OpenStreetMap and its contributors". ODbL text: https://opendatacommons.org/licenses/odbl/1-0/. Clauses used in D10: §4.2 (notices for a conveyed database), §4.3 (notice for a Produced Work; example: "Contains information from DATABASE NAME, which is made available here under the Open Database License (ODbL)"), §4.4 (share-alike; b: extraction of a substantial part into a new database is a Derivative Database; c: a Derivative Database is publicly used if a Produced Work from it is), §4.5 (limits: Collective Databases; Produced Works don't create Derivative Databases), §4.6 (offer the Derivative Database or the method, free of charge online).
+- OSMF Community Guidelines index: https://osmfoundation.org/wiki/Licence/Community_Guidelines. Read on 2026-09-28: Collective Database (endorsed 2016-06-17), Horizontal Map Layers (2014-06-06), Produced Work (2014-06-06), Substantial (2014-06-06; "insubstantial" is under 100 features or an area of up to 1,000 inhabitants, one-off; ours is far above that), Attribution Guideline (adopted 2021-06-25).
+- Sample, Overpass API, bbox 47.95–48.45 N, 11.2–11.75 E (Munich area), `way[waterway~river|stream|canal]`, OSM base 2026-09-28T19:34:04Z, via the maps.mail.ru mirror (overpass-api.de: connection reset; overpass.kumi.systems: HTTP 504): 4,127 ways; river 225 named / 54 unnamed; stream 1,891 / 1,642; canal 213 / 102; 296 distinct names. Present by name: Würm (54 ways, wikidata Q258243 on some), Amper (67, Q166301), Isar (23), Glonn (19), Maisach (16), Hachinger Bach (58), Moosach (47). `wikidata` tags are only on some ways.
+- download.geofabrik.de: unreachable from this container on 2026-09-28 (see D10).
 
 ### GeoNames (towns)
 
