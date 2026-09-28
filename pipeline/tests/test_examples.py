@@ -12,17 +12,23 @@ from pathlib import Path
 import pytest
 
 DATA = Path(__file__).resolve().parents[2] / "data"
-OSM = DATA / "raw" / "osm_waterways_bayern.fgb"
-OSM_LAKES = DATA / "raw" / "osm_lakes_bayern.fgb"
-NEEDED = [DATA / "raw" / "reaches_eu.fgb", DATA / "raw" / "basins_l12_europe.fgb", OSM, OSM_LAKES]
+OSM_DIR = DATA / "raw" / "osm"
+NEEDED = [
+    DATA / "raw" / "reaches_eu.fgb",
+    DATA / "raw" / "basins_l12_europe.fgb",
+    OSM_DIR / "waterways-europe-germany-bayern.fgb",
+    OSM_DIR / "lakes-europe-germany-bayern.fgb",
+]
 
+# Checked by hand against a map; a leading None is "a stream" (BRIEF R6). Munich's first reach
+# runs 4.8 km through the city past several channels and no name covers half of it (2026-09-28).
 EXPECTED = {
-    "munich": (["Isar", "Danube"], "Black Sea"),
+    "munich": ([None, "Isar", "Danube"], "Black Sea"),
     "garmisch-partenkirchen": (["Partnach", "Loisach", "Isar", "Danube"], "Black Sea"),
     "starnberg": ([None, "Lake Starnberg", "Würm", "Amper", "Isar", "Danube"], "Black Sea"),
     "nuremberg": (["Pegnitz", "Regnitz", "Main", "Rhine"], "North Sea"),
     "cologne": (["Rhine"], "North Sea"),
-    "vienna": ([None, "Danube"], "Black Sea"),
+    "vienna": (["Donaukanal", "Danube"], "Black Sea"),
 }
 
 
@@ -34,15 +40,7 @@ def label(group):
 @pytest.mark.skipif(not all(p.exists() for p in NEEDED), reason="real data not downloaded")
 def test_example_paths():
     subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "downstream.paths",
-            "--waterways",
-            str(OSM),
-            "--lakes",
-            str(OSM_LAKES),
-        ],
+        [sys.executable, "-m", "downstream.paths"],
         check=True,
         cwd=Path(__file__).resolve().parents[1],
         capture_output=True,

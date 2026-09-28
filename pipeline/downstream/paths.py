@@ -5,7 +5,6 @@ Usage: uv run python -m downstream.paths [--waterways OSM_WATERWAYS.fgb ...] [--
 
 import argparse
 import json
-from pathlib import Path
 
 import geopandas as gpd
 import pyogrio
@@ -63,13 +62,16 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
     btree = STRtree(basins.geometry.values)
 
     sources = []
-    for f in osm_files:
-        sources.append(naming.NameSource.build(f"osm:{Path(f).stem}", gpd.read_file(f), 600))
+    if osm_files:  # one source for all regions; border ways appear in both neighbours, harmless
+        osm = pd_concat([gpd.read_file(f) for f in osm_files])
+        sources.append(naming.NameSource.build("osm", osm, 600, authoritative=True))
     ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), load_ne(RAW / "ne_rivers_europe.zip")])
     sources.append(naming.NameSource.build("naturalearth", ne.to_crs("EPSG:4326"), 3000))
-    lake_sources = [
-        naming.LakeSource.build(f"lake:osm:{Path(f).stem}", gpd.read_file(f)) for f in osm_lakes
-    ]
+    lake_sources = []
+    if osm_lakes:
+        lake_sources.append(
+            naming.LakeSource.build("lake:osm", pd_concat([gpd.read_file(f) for f in osm_lakes]))
+        )
     ne_lakes = pd_concat([load_ne(RAW / "ne_lakes.zip"), load_ne(RAW / "ne_lakes_europe.zip")])
     ne_lakes = ne_lakes[ne_lakes["featurecla"].isin(["Lake", "Alkaline Lake"])]
     lake_sources.append(naming.LakeSource.build("lake:naturalearth", ne_lakes.to_crs("EPSG:4326")))
@@ -87,8 +89,7 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
         start, how = start_reach(net, basins, btree, lon, lat)
         ids = net.downstream(start)
         reaches = net.reaches.loc[ids]
-        names = naming.name_reaches(reaches, sources)
-        names = naming.mark_lakes(reaches, names, lake_sources)
+        names = naming.name_reaches(reaches, sources, lake_sources)
         groups = naming.chain(reaches, names, curated)
         first, last = reaches.iloc[0], reaches.iloc[-1]
         end = classify(last.geometry.coords[-1], bool(last["ENDORHEIC"]), marine, lakes)

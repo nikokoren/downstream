@@ -31,12 +31,13 @@ def extract(path: str | Path) -> gpd.GeoDataFrame:
             "osm_id": obj.id,
             "waterway": obj.tags.get("waterway"),
             "wikidata": obj.tags.get("wikidata"),
+            "tunnel": obj.tags.get("tunnel"),  # culverts and sewer mains are skipped when naming
             "geometry": LineString(coords),
         }
         for tag, column in NAME_TAGS.items():
             row[column] = obj.tags.get(tag)
         rows.append(row)
-    columns = ["osm_id", "waterway", *NAME_TAGS.values(), "wikidata", "geometry"]
+    columns = ["osm_id", "waterway", *NAME_TAGS.values(), "wikidata", "tunnel", "geometry"]
     return gpd.GeoDataFrame(rows, columns=columns, geometry="geometry", crs="EPSG:4326")
 
 
