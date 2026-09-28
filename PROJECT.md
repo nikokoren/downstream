@@ -9,10 +9,10 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Author decides D5 and D6 (below).
+1. Author decides D5 (below). D6 is decided.
 2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
 3. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
-4. Pipeline on a small region first (R21): HydroRIVERS `eu` + HydroBASINS `eu`, so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
+4. Pipeline on a small region first (R21), clipped from the D5 source to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
 5. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 6. Not yet verified, needed later: Cloudflare R2 and KV free allowances (D1), TRMNL polling size limit (R3), USGS NLDI, Open-Meteo terms (D2), TRMNL Framework 3.3 and TRMNLMaps docs.
 
@@ -25,24 +25,26 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D2 | Live element (e.g. Open-Meteo "raining here now") | Open | — |
 | D3 | Show travel time at all | Open | — |
 | D4 | Ask Global River Runner maintainers for permission | Open, not needed for v1 | — |
-| D5 | HydroSHEDS license fit (see below) | **Open, blocking** | 2026-09-28 |
-| D6 | Use Natural Earth's Europe supplement in v1 (see below) | **Open, blocking acceptance test #1** | 2026-09-28 |
+| D5 | Switch to HydroATLAS (CC BY 4.0) to avoid the HydroSHEDS v1 agreement (see below) | **Proposed, awaiting author** | 2026-09-28 |
+| D6 | Natural Earth Europe supplement is in v1 (see below) | Decided | 2026-09-28 |
 
-### D5 — HydroSHEDS license fit (raised 2026-09-28)
+### D5 — HydroSHEDS license fit (raised 2026-09-28; proposal 2026-09-28)
 
-The product pages say "free for … commercial use", but the actual agreement (verbatim in `docs/sources/HYDROSHEDS_LICENSE.md`) is written as a distribution contract. Clauses that are awkward for a free TRMNL recipe:
+**Problem.** The HydroRIVERS/HydroBASINS downloads fall under the HydroSHEDS v1 License Agreement (verbatim excerpts in `docs/sources/HYDROSHEDS_LICENSE.md`). It's written as a distribution contract: a written end-user license agreement (§2.1.2, §1.2), two years of records of "the identity and address of each End User" (§10.7), no use of WWF's name or logos (§8.1), termination at WWF's "sole discretion" (§7.1). A TRMNL recipe can't meet §2.1.2 or §10.7. Author's position (2026-09-28): not asking WWF for anything that involves handing over identity or address data, and not relying on their goodwill.
 
-- §2.1.2: distribution to End Users must be under an end user license "at least as protective" as the agreement; §1.2 defines End Users as parties with a *written* license agreement. A TRMNL recipe has no EULA.
-- §10.7: keep records of "the identity and address of each End User" for two years.
-- §2.1.2: never distribute the data "as a stand-alone product". Implication regardless of outcome: the R2 tiles must stay private (Worker-only), never a public bucket, and derived data never goes into this repo.
-- §8.1: no use of WWF's name, trademarks or logos without written consent. The brief's on-screen credit "River data: HydroSHEDS © WWF" uses the name; Exhibit B itself names "© World Wildlife Fund, Inc.", so a copyright line is probably what they expect, but no logo.
-- §7.1: WWF can terminate "in sole discretion".
+**Proposal: switch the source to HydroATLAS (RiverATLAS + BasinATLAS) v1.0, CC BY 4.0.** Same authors, same reaches, same sub-basins, but published under an open license (facts below). This follows the brief's rule (§2: CC BY allowed) with no permission needed.
 
-Options: (a) proceed on the plain-language "free for commercial use" reading and the Exhibit B attribution; (b) **recommended:** email the HydroSHEDS team (Bernhard Lehner, contact on the TechDocs) describing the recipe, ask whether it's fine without a EULA or end-user records, and ask which on-screen credit they'd like. Store the reply in `docs/permissions/`. Not legal advice.
+- RiverATLAS includes all HydroRIVERS reaches and the routing columns we need: `HYRIV_ID`, `NEXT_DOWN`, `MAIN_RIV`, `LENGTH_KM`, `DIST_DN_KM`, `ENDORHEIC`, `HYBAS_L12`, and others (HydroATLAS TechDoc v1.0.1, Appendix 2). BasinATLAS includes the HydroBASINS polygons and columns for levels 1–12 (Appendix 1).
+- Remaining ambiguity: TechDoc §4.1 says the collection "as a whole is licensed under" CC BY 4.0, and that "all attribute columns" are CC BY 4.0 or ODbL. But it also says "the individual parts (content) of this Collective Database are still governed by their own licenses" and "the licenses of the underpinning source datasets in their original format are not affected". The reach geometry isn't an "attribute column", so the doc doesn't say in so many words which license covers it. figshare lists the whole dataset (data zips included) as CC BY 4.0. Reading: using the data as downloaded from HydroATLAS is CC BY 4.0. Not legal advice.
+- Optional, no personal data needed: one email to the listed contact asking "may the RiverATLAS/BasinATLAS geometry be used under CC BY 4.0 in a free app?" A yes goes in `docs/permissions/`. Not a precondition.
+- Cost: bigger downloads (RiverATLAS shapefile 2.4 GB, BasinATLAS shapefile 4.3 GB with all 12 levels, both global only on figshare), versus 68 MB + 361 MB for the Europe HydroRIVERS/HydroBASINS zips. Build-time only; the pipeline drops the ~280 extra attribute columns in P2.
+- If even that is judged not enough: other sources to check (**none verified**): OpenStreetMap waterways (ODbL; names in many languages, but no clean routing topology or distances), USGS NHD/NLDI (US only, public domain), EU-Hydro (Copernicus, Europe only). Each would be much more pipeline work.
 
-### D6 — Isar needs the Natural Earth Europe supplement (raised 2026-09-28)
+Status: **awaiting author's go** to switch the pipeline's input to HydroATLAS.
 
-`ne_10m_rivers_lake_centerlines` v5.0.0 has Danube/Donau and Rhine/Rhein but **no Isar** (searched all 1,473 features by `name`, zero hits). Isar is in `ne_10m_rivers_europe` v5.0.0 (the "Europe supplement"). BRIEF §13 puts the supplement out of scope for v1, and §4.3 says its terms need checking. The terms are now checked: public domain (see facts below). Recommended: bring the Europe supplement into v1; without it, Munich would read "streams → Danube → Black Sea" and acceptance test #1 fails. The North America and Australia supplements' terms are not checked yet.
+### D6 — Natural Earth Europe supplement: in v1 (decided 2026-09-28)
+
+`ne_10m_rivers_lake_centerlines` v5.0.0 has Danube and Rhine but **no Isar** (searched all 1,473 features by `name`, zero hits). Isar is only in `ne_10m_rivers_europe` v5.0.0. **Decision (author, 2026-09-28): the Europe supplement is in v1.** This overrides BRIEF §13 for this item. Why the brief had it out of scope: §4.3 said its terms "need checking before use" (it's derived from European Commission research data, and the original CCM data is non-commercial). They're now checked: Natural Earth releases the supplement as public domain (facts below). The North America and Australia supplements stay out until their terms are checked.
 
 ## Verified facts about outside systems
 
@@ -70,7 +72,17 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - Columns: `HYBAS_ID` (10 digits: region, level, 6-digit ID, side), `NEXT_DOWN`, `NEXT_SINK`, `MAIN_BAS`, `DIST_SINK`, `DIST_MAIN`, `SUB_AREA`, `UP_AREA`, `PFAF_ID`, `ENDO`, `COAST`, `ORDER` (TechDoc §3.2).
 - `ENDO`: 0 = not endorheic, 1 = part of an endorheic basin, 2 = sink of one. `ENDO` = 2 with `NEXT_DOWN` > 0 marks a **virtual connection** (small inland sink linked to a larger basin). `COAST` = 1 marks lumped coastal basins. Both are candidates for the P4 endpoint check and the R9 "start point already at the coast" state.
 
-### HydroSHEDS license (applies to HydroRIVERS and HydroBASINS)
+### HydroATLAS v1.0 (RiverATLAS, BasinATLAS): candidate source for D5
+
+- Page https://www.hydrosheds.org/products/hydroatlas: "licensed under a Creative Commons Attribution (CC-BY) 4.0 International License". The HydroRIVERS page says "the overarching HydroATLAS database fully contains all river reaches of HydroRIVERS".
+- TechDoc: HydroATLAS_TechDoc_v10_1.pdf, v1.0.1, June 2022, 18 pages. §4.1 license text quoted in D5. Appendix 1 lists the HydroBASINS columns carried by BasinATLAS (incl. `HYBAS_ID`, `NEXT_DOWN`, `ENDO`, `COAST`); Appendix 2 lists the HydroRIVERS columns carried by RiverATLAS (`HYRIV_ID`, `NEXT_DOWN`, `MAIN_RIV`, `LENGTH_KM`, `DIST_DN_KM`, `DIST_UP_KM`, `CATCH_SKM`, `UPLAND_SKM`, `ENDORHEIC`, `DIS_AV_CMS`, `ORD_STRA`, `ORD_CLAS`, `ORD_FLOW`, `HYBAS_L12`).
+- RiverATLAS catalog (57 pages): each of the ~56 added variables has its own license line. All are CC BY 4.0 in HydroATLAS form, some noting a different original license (e.g. "Original: Free for non-commercial use -- HydroATLAS: Creative Commons CC-BY 4.0"). We need none of the added variables.
+- figshare https://doi.org/10.6084/m9.figshare.9890531 (API `https://api.figshare.com/v2/articles/9890531`): "HydroATLAS version 1.0", license CC BY 4.0, published 2019-12-07. Files: `RiverATLAS_Data_v10_shp.zip` 2,418,581,202 bytes; `RiverATLAS_Data_v10.gdb.zip` 2,506,480,742; `BasinATLAS_Data_v10_shp.zip` 4,276,492,333; `BasinATLAS_Data_v10.gdb.zip` 2,695,658,577. Download via `https://ndownloader.figshare.com/files/{id}` (ids 20087486, 20087321, 20087237, 20082137).
+- TechDoc §3b: RiverATLAS shapefiles come in regional tiles (split north/south where needed); BasinATLAS as global per-level layers `BasinATLAS_v10_levXX`.
+- Citation requested (§4.4): Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P., Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-environmental sub-basin and river reach characteristics at high spatial resolution. Scientific Data 6: 283. https://doi.org/10.1038/s41597-019-0300-6. Plus the source data (Lehner & Grill 2013) and a link to https://www.hydrosheds.org/hydroatlas "if possible".
+- HydroSHEDS v2 (https://www.hydrosheds.org/products/hydrosheds-v2) is also CC BY 4.0, but covers only the Americas so far and has no HydroRIVERS/HydroBASINS equivalent yet ("future releases will include … HydroRIVERS products"). Not usable for v1.
+
+### HydroSHEDS license v1 agreement (applies to the HydroRIVERS and HydroBASINS downloads)
 
 - Agreement: HydroSHEDS TechDoc v1.4, Appendix A. Excerpts and the verbatim Exhibit B statement are in `docs/sources/HYDROSHEDS_LICENSE.md`. Open questions are in D5.
 - Exhibit B's statement must go in "the documentation or metadata" of the product. The agreement allows no short form (searched pages 24–29 for "short", "abbreviat", "screen": zero relevant hits). So the on-screen credit (R16) is extra, and the full statement goes in the README and store listing. This answers the brief's "confirm the short form satisfies the license agreement".

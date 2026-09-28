@@ -22,7 +22,7 @@ TRMNL recipe: from the user's location, show where a raindrop ends up (river cha
 
 ## Hard rules
 
-- **Licensing:** no NC-licensed data (CC BY-NC, BY-NC-SA, …) unless written permission is stored in `docs/permissions/`. Allowed: public domain, CC0, CC BY, and terms that explicitly allow commercial use. Global River Runner is **excluded** (D4).
+- **Licensing:** no NC-licensed data (CC BY-NC, BY-NC-SA, …) unless written permission is stored in `docs/permissions/`. Allowed: public domain, CC0, CC BY, and terms that explicitly allow commercial use. Global River Runner is **excluded** (D4). The HydroSHEDS v1 License Agreement (HydroRIVERS/HydroBASINS downloads) is not acceptable (needs a EULA and end-user records); proposed replacement is HydroATLAS, CC BY 4.0 (D5 in PROJECT.md).
 - **Language:** all on-screen words come from the backend LOCALES (en + de); templates contain no literal words (R13). Plain language, no hydrology jargon (R15).
 - **Estimates** are labeled as estimates on screen, and the assumption is documented in `PROJECT.md` (R10).
 - **Attribution** on every view (R16); full HydroSHEDS Exhibit B statement + Lehner & Grill 2013 and Lehner, Verdin & Jarvis 2008 citations in README and store listing (R17).
