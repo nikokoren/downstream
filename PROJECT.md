@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — D9 decided: GeoNames cities15000, language-tagged names, geographic Europe without Russia.
 - 2026-09-28 — D7 decided. D1 decided: Europe first. Town sources checked; D9 proposed: GeoNames cities5000 (CC BY 4.0).
 - 2026-09-28 — D8 decided: the recipe rotates through a fixed list of towns; the user's location is dropped.
 - 2026-09-28 — D5 decided (HydroATLAS), D6 decided (Europe supplement in v1), D7 proposed (German names from the curated table only).
@@ -12,13 +13,12 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Author confirms D9 (town source).
-2. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
-3. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-4. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
-5. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
-6. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
-7. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
+1. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
+2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
+3. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
+4. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
+5. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+6. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Decisions
 
@@ -33,7 +33,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D6 | Natural Earth Europe supplement is in v1 (see below) | Decided | 2026-09-28 |
 | D7 | German names of rivers, lakes, seas: curated table only, `name_de` not used (see below) | Decided | 2026-09-28 |
 | D8 | Rotate through a fixed list of towns; drop the user's location (see below) | Decided | 2026-09-28 |
-| D9 | Town source: GeoNames cities5000, names from its language-tagged alternate names (see below) | Proposed | 2026-09-28 |
+| D9 | Towns: GeoNames cities15000, language-tagged names, geographic Europe without Russia (see below) | Decided | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -78,15 +78,18 @@ Open inside D8:
 - Rotation order and cadence (per refresh, per hour, per day), depending on how TRMNL refreshes a recipe (not verified).
 - **Names for small streams.** Natural Earth names only major rivers (about 1,400 base plus 549 in the Europe supplement), so small tributaries will show as "a stream". Naming nearly every stream needs OpenStreetMap waterways (ODbL; share-alike terms for the name table need checking) or, for the US, USGS NHDPlus (public domain). Not verified.
 
-### D9 — Town source: GeoNames (proposed 2026-09-28)
+### D9 — Towns: GeoNames cities15000, Europe without Russia (decided 2026-09-28)
 
-Compared on 2026-09-28 (facts below): GeoNames `cities5000` has **22,015** towns in Europe; Natural Earth populated places has **1,386** (only 58 in Germany; no Garmisch-Partenkirchen). GeoNames is CC BY 4.0, which BRIEF §2 allows.
+**Decision (author, 2026-09-28):**
+- **Source:** GeoNames `cities15000` (population > 15,000 or capitals), CC BY 4.0. Natural Earth populated places isn't used (too few towns; its `NAME_DE` has the D7 problem).
+- **Names:** per language from GeoNames `alternateNamesV2` (isolanguage `de` / `en`; preferred name first, skipping colloquial and historic names), falling back to the town's `name`. Don't use `name` alone, since it mixes English and local forms ("Munich", "Köln"). Names are baked into each town's result at build time.
+- **Area:** geographic Europe, drawn as a polygon, not selected by country code. **Russia is excluded entirely**, including Kaliningrad.
 
-Proposal:
-- **Source:** GeoNames `cities5000` (population > 5,000 or first-level admin seats). `cities15000` (8,167 in Europe) is the fallback if the list needs thinning. The rotation needs far fewer towns than either; the selection rule is still open (D8).
-- **Town names per language:** use GeoNames' language-tagged alternate names (`alternateNamesV2`, isolanguage `de` / `en`, preferred name first), falling back to the town's `name`. For most towns without a `de`/`en` entry, the local name is the right name in both languages (e.g. "Passau"). Names get baked into each town's result at build time, so the 195 MB alternate-names file is only a build input.
-- **Not** Natural Earth places: too few towns, and its `name_de` has the same problem as D7.
-- **Europe filter:** GeoNames' continent code `EU` includes all of Russia (2,759 of the 22,015 towns), including Siberia. The filter should use geography (e.g. HydroATLAS region `eu` or a bounding polygon), not the country code.
+Count for orientation (2026-09-28): cities15000 has 7,059 towns in GeoNames' `EU` continent countries without Russia (Russia would add 1,108). The polygon will shift this number a little.
+
+Boundary defaults, set by the agent and easy to change: include Iceland, the British Isles, Mediterranean islands, and European Turkey (Thrace, incl. Istanbul: GeoNames lists TR under Asia, 432 towns in all of TR). Exclude the Canary Islands, Azores, Madeira, Svalbard, Cyprus, and the Caucasus countries (GE, AM, AZ) and Kazakhstan. The polygon file goes in the repo (e.g. `pipeline/europe.geojson`) with this list in its header.
+
+Still open (D8): how to pick the rotation from ~7,000 towns so it spreads across river basins.
 
 ## Verified facts about outside systems
 
