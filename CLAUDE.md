@@ -1,6 +1,6 @@
 # CLAUDE.md — Downstream
 
-TRMNL recipe: from the user's location, show where a raindrop ends up (river chain, total distance, endpoint). Munich → Isar → Danube → Black Sea is acceptance test #1.
+TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a raindrop falling there ends up: a full-screen map of the path, plus the town, every stream and river in order, and the endpoint. The user's location is not used (D8 in PROJECT.md overrides BRIEF R1, R2, R4, R19 and P5). Munich → Isar → Danube → Black Sea is acceptance test #1.
 
 ## Read first, every session
 
@@ -42,7 +42,7 @@ TRMNL recipe: from the user's location, show where a raindrop ends up (river cha
 | `docs/permissions/` | Written data-use permissions, if any are ever granted |
 | `PROJECT.md` | Decisions log, verified facts, status, estimate assumptions |
 | `pipeline/` | Build-time data prep, P1–P7 |
-| `worker/` | Cloudflare Worker, R1–R10 |
+| `worker/` | Cloudflare Worker: serves the next town's precomputed result (D8) |
 | `recipe/` | TRMNL markup, four views (Framework 3.3) |
 | `fixtures/` | Captured payloads + generator script (R23) |
 | `data/` | Local downloads and build output (git-ignored) |

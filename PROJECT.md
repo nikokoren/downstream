@@ -4,31 +4,34 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — D8 decided: the recipe rotates through a fixed list of towns; the user's location is dropped.
 - 2026-09-28 — D5 decided (HydroATLAS), D6 decided (Europe supplement in v1), D7 proposed (German names from the curated table only).
 - 2026-09-28 — Step 1 done: all 7 sources in BRIEF §14 re-fetched, plus the HydroSHEDS license (TechDoc v1.4), HydroBASINS TechDoc v1.c and Natural Earth's terms and physical downloads page. Facts are recorded below. Two findings block v1 as the brief describes it: **D5** (license terms) and **D6** (Isar isn't in the base Natural Earth river set).
 - 2026-09-28 — Repo scaffolded: brief stored (`docs/BRIEF.md`), agent rules (`CLAUDE.md`), empty `pipeline/`, `worker/`, `recipe/`, `fixtures/`.
 
 ## Next steps (in order)
 
-1. Author confirms D7 (German names).
-2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-3. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
-4. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
-5. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
-6. Not yet verified, needed later: Cloudflare R2 and KV free allowances (D1), TRMNL polling size limit (R3), USGS NLDI, Open-Meteo terms (D2), TRMNL Framework 3.3 and TRMNLMaps docs.
+1. Author confirms D7 (German names) and picks the first region for D8 (recommended: Europe).
+2. Verify town sources (Natural Earth populated places; GeoNames cities5000/cities15000, CC BY): content, fields, license, German names. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
+3. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
+4. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
+5. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
+6. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+7. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Decisions
 
 | ID | Decision | Status | Date |
 |---|---|---|---|
 | L | No NC-licensed data without written permission (BRIEF §2) | Decided | 2026-09 (brief) |
-| D1 | Coverage for v1: global vs. regions | Open — recommended global if it fits R2 free tier; measure after first build | — |
-| D2 | Live element (e.g. Open-Meteo "raining here now") | Open | — |
+| D1 | Coverage for v1 → now: which town list (US, Europe or world) | Open — reframed by D8 | 2026-09-28 |
+| D2 | Live element (e.g. Open-Meteo "raining here now") | Likely moot: the rotation provides the change (D8) | 2026-09-28 |
 | D3 | Show travel time at all | Open | — |
 | D4 | Ask Global River Runner maintainers for permission | Open, not needed for v1 | — |
 | D5 | River data from HydroATLAS (CC BY 4.0), not the HydroRIVERS/HydroBASINS downloads (see below) | Decided | 2026-09-28 |
 | D6 | Natural Earth Europe supplement is in v1 (see below) | Decided | 2026-09-28 |
 | D7 | German names: curated table only, `name_de` not used (see below) | Proposed | 2026-09-28 |
+| D8 | Rotate through a fixed list of towns; drop the user's location (see below) | Decided | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -55,6 +58,23 @@ Natural Earth's `name_de` isn't reliable German. It appears to come from Wikidat
 - 221 differ from today's German label (e.g. "Vaupés" vs "Río Vaupés").
 
 Proposal: German names on screen come **only** from the curated table (R8). Everything else shows NE's `name` (the local or English form), never `name_de`. Wikidata isn't queried at build or request time. The table only needs the rivers, seas and lakes that realistically appear on paths; the pipeline's build report (P7) should list the named features that do appear, so the table can be checked against them.
+
+### D8 — Rotate through a fixed list of towns (decided 2026-09-28)
+
+**Decision (author, 2026-09-28): the recipe cycles through a fixed list of towns and shows each one's path on a full-screen map, with a text list: the starting town, then every stream and river in order, then the endpoint. The user's own location is dropped.** Reason: a user's watershed never changes, so it isn't interesting to look at twice.
+
+Effect on the brief (BRIEF.md stays verbatim; this overrides it):
+- **Gone:** R1's `lat_lon` input; R2 (per-location cache); P5 tiling and the request-time lookup; R19 ("location not set"). The R9 states "start point already in the sea" and "no reach found nearby" become build-time checks: such towns get dropped from the list and don't need screen states.
+- **Moved to build time:** R4 to R7 (snap town to nearest reach, follow `NEXT_DOWN`, group names, distance) run once per town in the pipeline. Output: one small result per town (name, path geometry simplified for the map, river chain, distance, endpoint). The Worker (or a static file) serves the next town in the rotation.
+- **Unchanged:** R3 (payload), R6, R8 to R18, R20 (as the test list, each checked town can also be in the rotation), R21 to R24.
+- **D1** becomes "which towns": US, Europe or world. Size stops being a concern, since the output is a few KB per town.
+- **D2** is likely moot: the rotation provides the change.
+- BasinATLAS is still useful at build time to snap a town into the right sub-basin (R4), but it never ships.
+
+Open inside D8:
+- Town source and selection rule (population threshold, spread across basins so the rotation doesn't show ten Danube towns in a row).
+- Rotation order and cadence (per refresh, per hour, per day), depending on how TRMNL refreshes a recipe (not verified).
+- **Names for small streams.** Natural Earth names only major rivers (about 1,400 base plus 549 in the Europe supplement), so small tributaries will show as "a stream". Naming nearly every stream needs OpenStreetMap waterways (ODbL; share-alike terms for the name table need checking) or, for the US, USGS NHDPlus (public domain). Not verified.
 
 ## Verified facts about outside systems
 
