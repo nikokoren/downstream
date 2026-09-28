@@ -18,7 +18,8 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
 2. Author answers the open questions under "Pipeline test results" (delta arms, lake starts). Then: OSM extracts for the rest of the Danube and Rhine countries via the workflow, more example towns, and the published ODbL name table.
-3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+3. Remaining pipeline work: Europe border filter (D9), town selection for the rotation (D8), build report (P7), OSM for the rest of Europe.
+4. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Deferred (come back after everything else is built)
@@ -143,6 +144,12 @@ Author's decision. A reach that lies at least 50 % and at least 500 m inside a n
 Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path runs through them. The OSM Loisach runs 3.9 km inside Kochelsee (5.87 km²), but the HydroATLAS path from Garmisch-Partenkirchen passes 2.92 km from the lake, so Garmisch shows no Kochelsee. Possible fix later: check whether the OSM line of the river matched to a stretch crosses a named lake.
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
+
+## Name table and build workflow (2026-09-28)
+
+- `pipeline/downstream/name_table.py` writes `name_table.csv` (hyriv_id, kind, name, source, display_en, display_de) and `NOTICE.md` (ODbL notice, OSM attribution, build commit and time). For the 14 example towns: 1,689 rows over 1,344 segments; 345 segments carry more than one name because clean-up depends on the path (e.g. a lower-Danube segment is "Donau" on Munich's path, "Dunav / Дунав" on Graz's). The NOTICE says the table holds names as used on screen, after clean-up.
+- `.github/workflows/build.yml` (manual): fetch all inputs (128 s, 895 MB), compute paths (~2 min), run all tests on the real data, publish the `name-table` release. First run 2026-09-28 (run 36498634719): 15/15 tests passed on GitHub, none skipped; same 14 chains as locally; the published CSV is identical to the local one (1,690 lines incl. header). Release: https://github.com/nikokoren/downstream/releases/tag/name-table
+- D10's publishing condition (ODbL 4.4/4.6) is met for the current outputs. Rebuild whenever names or towns change.
 
 ## Pipeline test results, round 3: + Slovenia, Croatia, Hungary; tunnel re-extraction (2026-09-28)
 
