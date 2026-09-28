@@ -59,3 +59,19 @@ def pick_name(town: dict, alts: dict[str, list], lang: str) -> str:
         if not a[2]:
             return a[0]
     return town["name"]
+
+
+def europe_towns(raw_dir: Path):
+    """cities15000 towns inside the Europe border (D9), as a GeoDataFrame (EPSG:4326)."""
+    import geopandas as gpd
+
+    from downstream.europe import Europe
+
+    cities = load_cities(raw_dir / "geonames_cities15000.zip")
+    df = gpd.GeoDataFrame(list(cities.values()))
+    df["lon"] = df["lon"].astype(float)
+    df["lat"] = df["lat"].astype(float)
+    df["pop"] = df["pop"].astype(int)
+    df = df.set_geometry(gpd.points_from_xy(df["lon"], df["lat"]), crs="EPSG:4326")
+    inside = Europe(raw_dir / "ne_admin0.zip").contains(df)
+    return df[inside].reset_index(drop=True)

@@ -98,6 +98,10 @@ Count for orientation (2026-09-28): cities15000 has 7,059 towns in GeoNames' `EU
 
 Boundary defaults, set by the agent and easy to change: include Iceland, the British Isles, Mediterranean islands, and European Turkey (Thrace, incl. Istanbul: GeoNames lists TR under Asia, 432 towns in all of TR). Exclude the Canary Islands, Azores, Madeira, Svalbard, Cyprus, and the Caucasus countries (GE, AM, AZ) and Kazakhstan. The polygon file goes in the repo (e.g. `pipeline/europe.geojson`) with this list in its header.
 
+**Implemented 2026-09-28** (`pipeline/downstream/europe.py`, rules in its docstring): country allowed (Natural Earth admin-0 v5 `CONTINENT == "Europe"`, 51 countries, minus Russia, plus Turkey) **and** point inside the outline buffered 5 km. Outline = those countries minus the Canaries/Madeira, Azores, Svalbard/Jan Mayen, Ceuta/Melilla and anything outside 25 W–45 E / 34–72 N; Turkey only west of a line through the Bosporus, Sea of Marmara and Dardanelles; plus Crimea. Result: **7,033** of 34,146 cities15000 towns; 0 in Russia; 39 in European Turkey. Checked in `tests/test_europe.py` against 18 towns that must be in and 13 that must be out.
+
+Two corrections from the sweep: (1) Çanakkale (Asian shore of the Dardanelles, where the strait is ~1.3 km wide) first counted as Europe; the line now runs between Kilitbahir and Çanakkale. (2) Natural Earth draws Crimea inside Russia's polygon, so 16 Crimean towns (Sevastopol, Simferopol, Yalta, …) were dropped. **Agent's call, flagged to the author:** Crimea follows GeoNames' country code (UA), which matches UN recognition; Russian towns stay out either way because the country check comes first.
+
 Still open (D8): how to pick the rotation from ~7,000 towns so it spreads across river basins.
 
 ### D10 — Stream and river names from OpenStreetMap (decided 2026-09-28)
