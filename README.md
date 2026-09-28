@@ -17,6 +17,10 @@ River reaches and sub-basins come from RiverATLAS and BasinATLAS, part of HydroA
 
 Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com (public domain), including the Europe river supplement.
 
+### GeoNames (towns)
+
+Town names and positions from [GeoNames](https://www.geonames.org/), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). **Changes:** Downstream uses a selection of towns and their English and German names.
+
 ### Basemap
 
 © OpenStreetMap contributors.

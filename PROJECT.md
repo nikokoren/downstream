@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — D7 decided. D1 decided: Europe first. Town sources checked; D9 proposed: GeoNames cities5000 (CC BY 4.0).
 - 2026-09-28 — D8 decided: the recipe rotates through a fixed list of towns; the user's location is dropped.
 - 2026-09-28 — D5 decided (HydroATLAS), D6 decided (Europe supplement in v1), D7 proposed (German names from the curated table only).
 - 2026-09-28 — Step 1 done: all 7 sources in BRIEF §14 re-fetched, plus the HydroSHEDS license (TechDoc v1.4), HydroBASINS TechDoc v1.c and Natural Earth's terms and physical downloads page. Facts are recorded below. Two findings block v1 as the brief describes it: **D5** (license terms) and **D6** (Isar isn't in the base Natural Earth river set).
@@ -11,8 +12,8 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Author confirms D7 (German names) and picks the first region for D8 (recommended: Europe).
-2. Verify town sources (Natural Earth populated places; GeoNames cities5000/cities15000, CC BY): content, fields, license, German names. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
+1. Author confirms D9 (town source).
+2. Verify OpenStreetMap waterway names and the ODbL share-alike terms for a name-join table (the route to naming small streams). Verify USGS NHDPlus names (US option).
 3. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
 4. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
 5. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
@@ -24,14 +25,15 @@ Working memory for the project. Every fact about an outside system carries **wha
 | ID | Decision | Status | Date |
 |---|---|---|---|
 | L | No NC-licensed data without written permission (BRIEF §2) | Decided | 2026-09 (brief) |
-| D1 | Coverage for v1 → now: which town list (US, Europe or world) | Open — reframed by D8 | 2026-09-28 |
+| D1 | Coverage for v1: Europe first (towns, per D8) | Decided | 2026-09-28 |
 | D2 | Live element (e.g. Open-Meteo "raining here now") | Likely moot: the rotation provides the change (D8) | 2026-09-28 |
 | D3 | Show travel time at all | Open | — |
 | D4 | Ask Global River Runner maintainers for permission | Open, not needed for v1 | — |
 | D5 | River data from HydroATLAS (CC BY 4.0), not the HydroRIVERS/HydroBASINS downloads (see below) | Decided | 2026-09-28 |
 | D6 | Natural Earth Europe supplement is in v1 (see below) | Decided | 2026-09-28 |
-| D7 | German names: curated table only, `name_de` not used (see below) | Proposed | 2026-09-28 |
+| D7 | German names of rivers, lakes, seas: curated table only, `name_de` not used (see below) | Decided | 2026-09-28 |
 | D8 | Rotate through a fixed list of towns; drop the user's location (see below) | Decided | 2026-09-28 |
+| D9 | Town source: GeoNames cities5000, names from its language-tagged alternate names (see below) | Proposed | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -50,7 +52,7 @@ Consequences:
 
 `ne_10m_rivers_lake_centerlines` v5.0.0 has Danube and Rhine but **no Isar** (searched all 1,473 features by `name`, zero hits). Isar is only in `ne_10m_rivers_europe` v5.0.0. **Decision (author, 2026-09-28): the Europe supplement is in v1.** This overrides BRIEF §13 for this item. Why the brief had it out of scope: §4.3 said its terms "need checking before use" (it's derived from European Commission research data, and the original CCM data is non-commercial). They're now checked: Natural Earth releases the supplement as public domain (facts below). The North America and Australia supplements stay out until their terms are checked.
 
-### D7 — German names: curated table only (proposed 2026-09-28)
+### D7 — German names: curated table only (decided 2026-09-28)
 
 Natural Earth's `name_de` isn't reliable German. It appears to come from Wikidata, with another label used when Wikidata has no German one (inferred from the example below; NE's docs weren't checked on this). Example: Rungwa (Q35311383) has no German label on Wikidata, only English "Rungwa River", and NE's `name_de` is "Rungwa River". A partial comparison with live Wikidata (632 of 2,678 named features, in Wikidata ID order, so not a random sample; stopped early by the author as enough evidence):
 - 385 match today's German Wikidata label or German Wikipedia title;
@@ -75,6 +77,16 @@ Open inside D8:
 - Town source and selection rule (population threshold, spread across basins so the rotation doesn't show ten Danube towns in a row).
 - Rotation order and cadence (per refresh, per hour, per day), depending on how TRMNL refreshes a recipe (not verified).
 - **Names for small streams.** Natural Earth names only major rivers (about 1,400 base plus 549 in the Europe supplement), so small tributaries will show as "a stream". Naming nearly every stream needs OpenStreetMap waterways (ODbL; share-alike terms for the name table need checking) or, for the US, USGS NHDPlus (public domain). Not verified.
+
+### D9 — Town source: GeoNames (proposed 2026-09-28)
+
+Compared on 2026-09-28 (facts below): GeoNames `cities5000` has **22,015** towns in Europe; Natural Earth populated places has **1,386** (only 58 in Germany; no Garmisch-Partenkirchen). GeoNames is CC BY 4.0, which BRIEF §2 allows.
+
+Proposal:
+- **Source:** GeoNames `cities5000` (population > 5,000 or first-level admin seats). `cities15000` (8,167 in Europe) is the fallback if the list needs thinning. The rotation needs far fewer towns than either; the selection rule is still open (D8).
+- **Town names per language:** use GeoNames' language-tagged alternate names (`alternateNamesV2`, isolanguage `de` / `en`, preferred name first), falling back to the town's `name`. For most towns without a `de`/`en` entry, the local name is the right name in both languages (e.g. "Passau"). Names get baked into each town's result at build time, so the 195 MB alternate-names file is only a build input.
+- **Not** Natural Earth places: too few towns, and its `name_de` has the same problem as D7.
+- **Europe filter:** GeoNames' continent code `EU` includes all of Russia (2,759 of the 22,015 towns), including Siberia. The filter should use geography (e.g. HydroATLAS region `eu` or a bounding polygon), not the country code.
 
 ## Verified facts about outside systems
 
@@ -117,6 +129,21 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - Agreement: HydroSHEDS TechDoc v1.4, Appendix A. Excerpts and the verbatim Exhibit B statement are in `docs/sources/HYDROSHEDS_LICENSE.md`. Open questions are in D5.
 - Exhibit B's statement must go in "the documentation or metadata" of the product. The agreement allows no short form (searched pages 24–29 for "short", "abbreviat", "screen": zero relevant hits). So the on-screen credit (R16) is extra, and the full statement goes in the README and store listing. This answers the brief's "confirm the short form satisfies the license agreement".
 - (Superseded by D5.) Correction to R17: two citations apply. HydroRIVERS and HydroBASINS ask for Lehner & Grill (2013); Exhibit B gives Lehner, Verdin & Jarvis (2008) for HydroSHEDS. The README carries both.
+
+### GeoNames (towns)
+
+- Dump https://download.geonames.org/export/dump/, readme https://download.geonames.org/export/dump/readme.txt: "This work is licensed under a Creative Commons Attribution 4.0 License". The about page (https://www.geonames.org/about.html) also lists upstream sources, e.g. a UK gazetteer under the Open Government Licence v1.0 and Royal Mail data for postal codes; the export itself is CC BY 4.0, and we don't use postal codes.
+- Files (listing 2026-09-28, regenerated daily): `cities15000.zip` 3.2 MB ("population > 15000 or capitals"), `cities5000.zip` 5.4 MB ("population > 5000 or PPLA"), `cities1000.zip` 11 MB, `cities500.zip` 13 MB; `alternateNamesV2.zip` 195 MB (785 MB unzipped); `countryInfo.txt` 31 KB (has a continent column).
+- Columns (readme): geonameid, name, asciiname, alternatenames (no language tags), latitude, longitude, feature class, feature code, country code, cc2, admin1–4 codes, population, elevation, dem, timezone, modification date. `alternateNamesV2` columns used: geonameId, isolanguage, alternate name, isPreferredName, isShortName, isColloquial, isHistoric.
+- Counts (downloaded and read 2026-09-28): cities15000 34,146 world / 8,167 Europe; cities5000 69,750 world / **22,015 Europe** ("Europe" = the 54 countries with continent `EU` in countryInfo, which includes all of Russia: 2,759 towns). Feature codes in Europe (cities5000): PPL 9,825, PPLA3 4,230, PPLA2 3,919, PPLX 1,910, PPLA 1,015, PPLA4 977, …
+- `name` is inconsistent: "Munich" and "Vienna" are English, "Köln" is German. Don't use `name` alone for either language.
+- German alternate names: 6,523 of the 22,015 European towns have at least one `de` entry, 420 a preferred one. Spot checks: Munich → München (preferred), Köln → Köln, Vienna → Wien, Rome → Rom, Prague → Prag, Bucharest → Bukarest (not marked preferred), Paris → Paris. Germany: 929 of 3,080 towns have a `de` entry; the rest are local names that are already German.
+- Spot checks, cities5000: Munich 1,505,005 (geonameid 2867714), Passau 50,560, Garmisch-Partenkirchen 26,022, Bad Tölz 17,434.
+
+### Natural Earth populated places (v5.1.2)
+
+- Page https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/; download via `https://naciscdn.org/naturalearth/10m/cultural/ne_10m_populated_places.zip` (2.8 MB). Public domain (same terms as above).
+- 7,342 places worldwide; 1,386 in Europe (same 54-country list); 58 in Germany. All European places carry `NAME_DE` and 1,358 a `WIKIDATAID`. Munich → "München" (POP_MAX 1,275,000); Passau present; Garmisch-Partenkirchen absent. `POP_MAX` uses -99 for unknown.
 
 ### Natural Earth (v5.0.0)
 
