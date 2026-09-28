@@ -1,6 +1,9 @@
 # Geofabrik regions extracted by the osm-waterways workflow (one release per region).
-# Europe v1 scope so far: Germany by state, plus Austria (2026-09-28).
+# Europe v1 scope so far: Germany by state, Austria; Slovenia, Croatia, Hungary for the Drava (2026-09-28).
 europe/austria
+europe/croatia
+europe/hungary
+europe/slovenia
 europe/germany/baden-wuerttemberg
 europe/germany/bayern
 europe/germany/berlin
