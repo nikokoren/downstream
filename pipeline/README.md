@@ -25,4 +25,12 @@ GDAL reads remote files through the environment's HTTPS proxy. In the Claude Cod
 | towns | GeoNames cities15000 + alternate names + Europe polygon | town list with en/de names (D9) |
 | paths | everything above | one JSON per town, plus the build report (P7) |
 
-Nothing here has been written yet except the project files.
+Written so far (2026-09-28): `fetch` (reaches, basins, Natural Earth, GeoNames), `osm_waterways` (runs in the `osm-waterways` GitHub workflow), `network` (routing), `naming`, `endpoints`, `towns`, and `paths` for the example towns. Not yet: the published name table, the Europe polygon filter, town selection, the build report.
+
+Example run:
+
+```
+uv run python -m downstream.fetch
+curl -fL -o ../data/raw/osm_waterways_bayern.fgb https://github.com/nikokoren/downstream/releases/download/osm-waterways-europe-germany-bayern/waterways-europe-germany-bayern.fgb
+uv run python -m downstream.paths ../data/raw/osm_waterways_bayern.fgb
+```

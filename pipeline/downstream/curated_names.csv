@@ -1,0 +1,7 @@
+# D7/R8 curated display names. Any OSM or Natural Earth name in `variants` (pipe-separated) maps to en/de.
+# Add entries only when a real build shows the name on a path (build report, P7).
+variants,en,de
+Danube|Donau|Duna|Dunaj|Dunav|Dunărea|Дунав|Дунай,Danube,Donau
+Rhine|Rhein|Rhin|Rijn|Nederrijn|Rein,Rhine,Rhein
+Black Sea|Schwarzes Meer,Black Sea,Schwarzes Meer
+North Sea|Nordsee,North Sea,Nordsee

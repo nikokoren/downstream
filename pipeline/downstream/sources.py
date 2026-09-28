@@ -1,0 +1,34 @@
+"""Remote source locations (verified 2026-09-28, see PROJECT.md; re-check before relying on them)."""
+
+# HydroATLAS v1.0 on figshare (CC BY 4.0, D5). GDAL reads single zip members via HTTP range requests.
+RIVERATLAS_ZIP = "https://ndownloader.figshare.com/files/20087486"  # RiverATLAS_Data_v10_shp.zip
+BASINATLAS_ZIP = "https://ndownloader.figshare.com/files/20087237"  # BasinATLAS_Data_v10_shp.zip
+RIVERATLAS_EU = f"/vsizip/{{/vsicurl/{RIVERATLAS_ZIP}}}/RiverATLAS_v10_shp/RiverATLAS_v10_eu.shp"
+BASINATLAS_L12 = (
+    f"/vsizip/{{/vsicurl/{BASINATLAS_ZIP}}}/BasinATLAS_v10_shp/BasinATLAS_v10_lev12.shp"
+)
+
+REACH_COLUMNS = [
+    "HYRIV_ID",
+    "NEXT_DOWN",
+    "MAIN_RIV",
+    "LENGTH_KM",
+    "DIST_DN_KM",
+    "ENDORHEIC",
+    "ORD_CLAS",
+    "ORD_STRA",
+    "HYBAS_L12",
+]
+BASIN_COLUMNS = ["HYBAS_ID", "NEXT_DOWN", "ENDO", "COAST"]
+
+# Natural Earth via the NACIS CDN (naturalearthdata.com download links returned HTTP 500 on 2026-09-28).
+NE_BASE = "https://naciscdn.org/naturalearth/10m"
+NE_LAYERS = {
+    "rivers": f"{NE_BASE}/physical/ne_10m_rivers_lake_centerlines.zip",
+    "rivers_europe": f"{NE_BASE}/physical/ne_10m_rivers_europe.zip",
+    "lakes": f"{NE_BASE}/physical/ne_10m_lakes.zip",
+    "marine": f"{NE_BASE}/physical/ne_10m_geography_marine_polys.zip",
+}
+
+# GeoNames (CC BY 4.0, D9).
+GEONAMES_DUMP = "https://download.geonames.org/export/dump"

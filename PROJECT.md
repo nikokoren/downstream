@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — **First end-to-end pipeline run on 6 example towns (Munich, Garmisch-Partenkirchen, Starnberg, Nuremberg, Cologne, Vienna): 6/6 reach the right sea, acceptance test #1 passes (Munich → Isar → Danube → Black Sea).** OSM names for Bavaria come from the `osm-waterways` GitHub workflow (release `osm-waterways-europe-germany-bayern`). Results and open questions under "Pipeline test results" below. TRMNL design postponed by the author until the pipeline is set up.
 - 2026-09-28 — D10 decided (OSM names). D11 decided: pipeline tooling (Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium); `pipeline/` project set up and locked.
 - 2026-09-28 — OSM names checked (license and a sample); D10 proposed: name streams from OpenStreetMap (ODbL).
 - 2026-09-28 — D9 decided: GeoNames cities15000, language-tagged names, geographic Europe without Russia.
@@ -16,7 +17,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 ## Next steps (in order)
 
 1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-2. Pipeline on a small region first (R21): Danube and Rhine basins from RiverATLAS/BasinATLAS (D5), OSM names for Bavaria (D10), so Munich (R20 #1) can pass early. Needs download.geofabrik.de reachable (allow it in this environment's network settings) or another OSM source.
+2. Author answers the open questions under "Pipeline test results" (delta arms, lake starts). Then: OSM extracts for the rest of the Danube and Rhine countries via the workflow, more example towns, and the published ODbL name table.
 3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
@@ -124,6 +125,35 @@ Costs and risks:
 - Verified in this container 2026-09-28: `uv sync` with the locked versions below, imports OK; GDAL read `RiverATLAS_v10_eu.shp` remotely in 11 s. **Not verified:** pyosmium on a real PBF (Geofabrik unreachable here, D10); a full run on a GitHub runner.
 
 Locked versions (2026-09-28): Python 3.12.3, geopandas 1.2.0 (released that day), shapely 2.1.2, pyogrio 0.13.0 with GDAL 3.12.4, pyproj 3.8.0, osmium 4.3.1, pytest 9.1.1, ruff 0.16.9, uv 0.8.17.
+
+## Pipeline test results (2026-09-28)
+
+Run: `uv run python -m downstream.paths ../data/raw/osm_waterways_bayern.fgb` (inputs from `downstream.fetch` + the OSM release asset). Checked by `tests/test_examples.py` (skipped without the data).
+
+| Town (en / de) | Chain | km | End | Payload |
+|---|---|---|---|---|
+| Munich / München | Isar → Danube → Bratul Chillia | 2,587.6 | Black Sea | 2,451 B |
+| Garmisch-Partenkirchen | Partnach → Loisach → Isar → Danube → Bratul Chillia | 2,685.5 | Black Sea | 2,683 B |
+| Starnberg | (stream) → Würm → Amper → Isar → Danube → Bratul Chillia | 2,626.5 | Black Sea | 2,716 B |
+| Nuremberg / Nürnberg | Pegnitz → Regnitz → Main → Rhine → Lek | 1,003.4 | North Sea | 2,071 B |
+| Cologne / Köln | Rhine → Lek | 349.2 | North Sea | 2,151 B |
+| Vienna / Wien | (stream) → Danube → Bratul Chillia | 2,066.1 | Black Sea | 2,096 B |
+
+How naming works now (`pipeline/downstream/naming.py`): every path reach gets the name of the nearest named line along it (OSM first, 600 m; Natural Earth second, 3 km), where each sample point votes for its closest line and bigger rivers count as closer. Then, per river (a run of equal `ORD_CLAS`): names shorter than 3 reaches are absorbed, and A → B → A becomes A. Each rule came from a failure in this run:
+- Every endpoint was "South Pacific Ocean": whole-ocean polygons distort in the Europe projection. Fixed by clipping Natural Earth to a Europe window first.
+- The Danube chain fragmented into "(unnamed)" pieces and tributary names (Beli Timok, Ogosta, Lippe, Hammerbach). Natural Earth's generalized Danube lies 2.4–6.0 km from the HydroATLAS Danube in Bulgaria/Romania (Munich path, reaches 466–485), so tributary lines were closer.
+- The Regnitz vanished when a whole river got one vote (Pegnitz and Regnitz share an `ORD_CLAS` run).
+
+Other findings:
+- R7 total distance: summing `LENGTH_KM` along the path gives 0.5–0.7 % more than `DIST_DN_KM + LENGTH_KM` of the start reach (Munich 2,599.9 vs 2,587.6; Cologne 351.8 vs 349.2). We show the latter (the dataset's own figure).
+- Payload was 7.7–8.1 KB with 0.01° simplification; now capped at 120 map points: 2.1–2.7 KB (R3 budget ~6 KB).
+- Starnberg's first reach runs mostly through Lake Starnberg, where OSM has no stream line, so it stays "(stream)". Vienna's first stream is outside the Bavaria OSM extract.
+- OSM Bavaria (Geofabrik, 2026-09-28): 853,048,441-byte extract, MD5 OK, 180 s to extract on `ubuntu-latest`, 91,971 named waterway ways, 8,073 distinct names, 37.5 MB FlatGeobuf.
+- Runtime here for all 6 towns: ~10 s after the data is local. `fetch`: RiverATLAS `eu` 48 s (938,544 reaches), BasinATLAS level 12 in the Europe window 79 s (72,859 sub-basins).
+
+Open questions for the author:
+1. **Delta arms.** HydroATLAS ends the Danube via the Chilia arm and the Rhine via the Lek, and the chain says so ("Bratul Chillia", Natural Earth's spelling; Romanian is "Brațul Chilia"). Show the arm, or fold it into the main river?
+2. **Lakes on the path.** Paths through lakes (Lake Starnberg) show no lake. Add lake names from OSM or Natural Earth as their own chain step ("→ Lake Starnberg →")?
 
 ## Verified facts about outside systems
 
