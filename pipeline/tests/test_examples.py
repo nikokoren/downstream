@@ -13,11 +13,15 @@ import pytest
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 OSM_DIR = DATA / "raw" / "osm"
+RAW_NE_OCEAN = DATA / "raw" / "ne_ocean.zip"
 NEEDED = [
     DATA / "raw" / "reaches_eu.fgb",
     DATA / "raw" / "basins_l12_europe.fgb",
     OSM_DIR / "waterways-europe-germany-bayern.fgb",
     OSM_DIR / "lakes-europe-germany-bayern.fgb",
+    OSM_DIR / "waterways-europe-austria.fgb",
+    OSM_DIR / "waterways-europe-germany-berlin.fgb",
+    RAW_NE_OCEAN,
 ]
 
 # Checked by hand against a map; a leading None is "a stream" (BRIEF R6). Munich's first reach
@@ -29,6 +33,13 @@ EXPECTED = {
     "nuremberg": (["Pegnitz", "Regnitz", "Main", "Rhine"], "North Sea"),
     "cologne": (["Rhine"], "North Sea"),
     "vienna": (["Donaukanal", "Danube"], "Black Sea"),
+    # Approved by the author 2026-09-28 (Austria + Germany OSM):
+    "hamburg": ([None, "Norderelbe", "Elbe"], "North Sea"),
+    "berlin": (["Spree", "Havel", "Jungfernsee", "Tiefer See", "Havel", "Elbe"], "North Sea"),
+    "leipzig": (["Pleiße", "Weiße Elster", "Luppe", "Saale", "Elbe"], "North Sea"),
+    "kiel": (["Mühlenau"], "Baltic Sea"),
+    "innsbruck": (["Inn", "Danube"], "Black Sea"),
+    "salzburg": (["Salzach", "Inn", "Danube"], "Black Sea"),
 }
 
 
