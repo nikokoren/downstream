@@ -16,10 +16,9 @@ Working memory for the project. Every fact about an outside system carries **wha
 ## Next steps (in order)
 
 1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-2. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
-3. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
-4. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
-5. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
+2. Pipeline on a small region first (R21): Danube and Rhine basins from RiverATLAS/BasinATLAS (D5), OSM names for Bavaria (D10), so Munich (R20 #1) can pass early. Needs download.geofabrik.de reachable (allow it in this environment's network settings) or another OSM source.
+3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Decisions
 
