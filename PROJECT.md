@@ -16,10 +16,9 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-2. Author answers the open questions under "Pipeline test results" (delta arms, lake starts). Then: OSM extracts for the rest of the Danube and Rhine countries via the workflow, more example towns, and the published ODbL name table.
-3. Remaining pipeline work: Europe border filter (D9), town selection for the rotation (D8), build report (P7), OSM for the rest of Europe.
-4. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+1. Pipeline: Europe border filter (D9 polygon), town selection for the rotation (D8), build report (P7), OSM for the rest of Europe (add regions to `pipeline/downstream/osm_regions.txt`, run `osm-waterways`, then `build`).
+2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo; TRMNL design parked by the author until the pipeline is set up).
+3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Deferred (come back after everything else is built)
