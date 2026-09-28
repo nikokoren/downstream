@@ -12,9 +12,10 @@ import shapely
 from shapely import STRtree
 
 from downstream import naming, towns
-from downstream.endpoints import SEA_CLASSES, classify, load_ne
+from downstream.endpoints import classify, load_ne
 from downstream.fetch import RAW
 from downstream.network import Network
+from downstream.seas import load_seas
 
 OUT = RAW.parent / "paths"
 
@@ -76,7 +77,7 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
     ne_lakes = ne_lakes[ne_lakes["featurecla"].isin(["Lake", "Alkaline Lake"])]
     lake_sources.append(naming.LakeSource.build("lake:naturalearth", ne_lakes.to_crs("EPSG:4326")))
     curated = naming.load_curated()
-    marine = load_ne(RAW / "ne_marine.zip", SEA_CLASSES)
+    seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
     lakes = load_ne(RAW / "ne_lakes.zip")
 
     cities = towns.load_cities(RAW / "geonames_cities15000.zip")
@@ -92,7 +93,7 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
         names = naming.name_reaches(reaches, sources, lake_sources)
         groups = naming.chain(reaches, names, curated)
         first, last = reaches.iloc[0], reaches.iloc[-1]
-        end = classify(last.geometry.coords[-1], bool(last["ENDORHEIC"]), marine, lakes)
+        end = classify(last.geometry.coords[-1], bool(last["ENDORHEIC"]), seas, lakes)
         end_disp = curated.get(end["name"]) if end["name"] else None
         line = shapely.line_merge(shapely.MultiLineString(list(reaches.geometry.values)))
         simple = simplify_to(line, MAX_MAP_POINTS)

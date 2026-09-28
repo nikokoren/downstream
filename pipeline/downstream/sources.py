@@ -29,6 +29,7 @@ NE_LAYERS = {
     "lakes": f"{NE_BASE}/physical/ne_10m_lakes.zip",
     "lakes_europe": f"{NE_BASE}/physical/ne_10m_lakes_europe.zip",
     "marine": f"{NE_BASE}/physical/ne_10m_geography_marine_polys.zip",
+    "ocean": f"{NE_BASE}/physical/ne_10m_ocean.zip",
 }
 
 # GeoNames (CC BY 4.0, D9).

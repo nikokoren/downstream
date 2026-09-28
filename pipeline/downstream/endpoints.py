@@ -20,29 +20,25 @@ SEA_CLASSES = {
 
 
 def classify(
-    end_lonlat,
-    endorheic: bool,
-    marine: gpd.GeoDataFrame,
-    lakes: gpd.GeoDataFrame,
-    max_km: float = 25.0,
+    end_lonlat, endorheic: bool, seas, lakes: gpd.GeoDataFrame, max_km: float = 25.0
 ) -> dict:
+    """Sea by water distance for open rivers (seas.Seas); nearest named lake for inland sinks."""
+    if not endorheic:
+        name, km = seas.drains_into(*end_lonlat)
+        if name:
+            return {"type": "sea", "name": name, "featurecla": "sea", "distance_km": km}
+        return {"type": "sea", "name": None, "featurecla": None, "distance_km": None}
     pt = gpd.GeoSeries([shapely.Point(end_lonlat)], crs="EPSG:4326").to_crs(METRIC_CRS).iloc[0]
-    layers = [("lake", lakes)] if endorheic else [("sea", marine), ("lake", lakes)]
-    best = None
-    for kind, layer in layers:
-        d = layer.geometry.distance(pt)
-        i = d.idxmin()
-        if d[i] <= max_km * 1000 and (best is None or d[i] < best[2]):
-            best = (kind, layer.loc[i], d[i])
-    if best is None:
-        return {"type": "sink" if endorheic else "unknown", "name": None, "distance_km": None}
-    kind, row, dist = best
-    return {
-        "type": kind,
-        "name": row["name"],
-        "featurecla": row.get("featurecla"),
-        "distance_km": round(dist / 1000, 1),
-    }
+    d = lakes.geometry.distance(pt)
+    i = d.idxmin()
+    if d[i] <= max_km * 1000:
+        return {
+            "type": "lake",
+            "name": lakes.loc[i, "name"],
+            "featurecla": lakes.loc[i, "featurecla"],
+            "distance_km": round(d[i] / 1000, 1),
+        }
+    return {"type": "sink", "name": None, "featurecla": None, "distance_km": None}
 
 
 # Clip before projecting: whole-ocean polygons distort in a Europe projection and then
