@@ -1,0 +1,19 @@
+# Geofabrik regions extracted by the osm-waterways workflow (one release per region).
+# Europe v1 scope so far: Germany by state, plus Austria (2026-09-28).
+europe/austria
+europe/germany/baden-wuerttemberg
+europe/germany/bayern
+europe/germany/berlin
+europe/germany/brandenburg
+europe/germany/bremen
+europe/germany/hamburg
+europe/germany/hessen
+europe/germany/mecklenburg-vorpommern
+europe/germany/niedersachsen
+europe/germany/nordrhein-westfalen
+europe/germany/rheinland-pfalz
+europe/germany/saarland
+europe/germany/sachsen
+europe/germany/sachsen-anhalt
+europe/germany/schleswig-holstein
+europe/germany/thueringen

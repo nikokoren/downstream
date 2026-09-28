@@ -1,27 +1,39 @@
-# Extract named OSM waterways and lakes for one Geofabrik region and publish them as a release asset (D10, D11).
+# Extract named OSM waterways and lakes for Geofabrik regions (one job and one release per region), D10, D11.
 # Runs on GitHub because download.geofabrik.de isn't reachable from the development container.
 name: osm-waterways
 
 on:
   workflow_dispatch:
     inputs:
-      region:
-        description: "Geofabrik region path, e.g. europe/germany/bayern"
+      regions:
+        description: "Space-separated Geofabrik region paths, e.g. europe/austria europe/germany/hessen"
         required: true
         default: europe/germany/bayern
-  push:
-    paths:
-      - .github/workflows/osm-waterways.yml
-      - pipeline/downstream/osm_waterways.py
 
 permissions:
   contents: write
 
 jobs:
-  extract:
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      regions: ${{ steps.split.outputs.regions }}
+    steps:
+      - id: split
+        env:
+          REGIONS: ${{ inputs.regions }}
+        run: echo "regions=$(printf '%s\n' $REGIONS | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+  extract:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        region: ${{ fromJSON(needs.plan.outputs.regions) }}
     env:
-      REGION: ${{ inputs.region || 'europe/germany/bayern' }}
+      REGION: ${{ matrix.region }}
       GH_TOKEN: ${{ github.token }}
     defaults:
       run:

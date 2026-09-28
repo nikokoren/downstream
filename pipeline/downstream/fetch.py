@@ -90,11 +90,29 @@ def geonames() -> None:
         print(f"{out.name}: {out.stat().st_size} bytes")
 
 
-STEPS = {"reaches": reaches, "basins": basins, "ne": ne, "geonames": geonames}
+RELEASES = "https://github.com/nikokoren/downstream/releases/download"
+OSM_REGIONS = Path(__file__).with_name("osm_regions.txt")
+
+
+def osm_regions() -> list[str]:
+    lines = OSM_REGIONS.read_text().splitlines()
+    return [x.strip() for x in lines if x.strip() and not x.startswith("#")]
+
+
+def osm() -> None:
+    """OSM waterways and lakes per region, from this repo's releases (ODbL, D10)."""
+    for region in osm_regions():
+        slug = region.replace("/", "-")
+        for kind in ("waterways", "lakes"):
+            url = f"{RELEASES}/osm-waterways-{slug}/{kind}-{slug}.fgb"
+            _download(url, RAW / "osm" / f"{kind}-{slug}.fgb")
+
+
+STEPS = {"reaches": reaches, "basins": basins, "ne": ne, "geonames": geonames, "osm": osm}
 
 
 def main(argv: list[str]) -> None:
-    RAW.mkdir(parents=True, exist_ok=True)
+    (RAW / "osm").mkdir(parents=True, exist_ok=True)
     for step in argv or list(STEPS):
         STEPS[step]()
 

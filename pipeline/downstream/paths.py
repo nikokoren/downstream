@@ -149,7 +149,18 @@ def pd_concat(frames):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--waterways", nargs="*", default=[])
-    ap.add_argument("--lakes", nargs="*", default=[])
+    ap.add_argument("--waterways", nargs="*", default=None)
+    ap.add_argument("--lakes", nargs="*", default=None)
     args = ap.parse_args()
-    main(args.waterways, args.lakes)
+    # Default: every region fetched by `downstream.fetch osm`.
+    waterways = (
+        args.waterways
+        if args.waterways is not None
+        else sorted(map(str, (RAW / "osm").glob("waterways-*.fgb")))
+    )
+    lakes = (
+        args.lakes
+        if args.lakes is not None
+        else sorted(map(str, (RAW / "osm").glob("lakes-*.fgb")))
+    )
+    main(waterways, lakes)
