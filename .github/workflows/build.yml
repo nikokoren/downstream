@@ -1,0 +1,41 @@
+# Full pipeline build on GitHub (D11): fetch all inputs, compute the example paths, run every test
+# on the real data, and publish the ODbL name table (D10) as the `name-table` release.
+name: build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - run: uv sync --locked
+      - name: Unit tests
+        run: uv run pytest -q
+      - name: Fetch inputs
+        run: |
+          SECONDS=0
+          uv run python -m downstream.fetch
+          echo "fetch took ${SECONDS}s"; du -sh ../data/raw
+      - name: Compute paths
+        run: uv run python -m downstream.paths
+      - name: All tests on the real data (includes the 14 example towns)
+        run: uv run pytest -q
+      - name: Publish name table (ODbL)
+        run: |
+          D=../data/paths/name_table
+          wc -l "$D/name_table.csv"
+          gh release view name-table >/dev/null 2>&1 || \
+            gh release create name-table --title "Name table (ODbL)" --notes-file "$D/NOTICE.md" --prerelease
+          gh release edit name-table --notes-file "$D/NOTICE.md"
+          gh release upload name-table "$D/name_table.csv" "$D/NOTICE.md" --clobber

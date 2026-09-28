@@ -68,3 +68,24 @@ def test_example_paths():
         assert r["end"]["type"] == "sea" and r["end"]["name"] == sea, slug
         compact = json.dumps(r, ensure_ascii=False, separators=(",", ":")).encode()
         assert len(compact) < 6000, slug  # R3
+
+
+@pytest.mark.skipif(not all(p.exists() for p in NEEDED), reason="real data not downloaded")
+def test_name_table_is_written_with_notice():
+    # Runs after test_example_paths (same data/paths output).
+    import csv
+
+    table = DATA / "paths" / "name_table" / "name_table.csv"
+    with open(table, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    names = {r["name"] for r in rows}
+    assert {"Isar", "Würm", "Starnberger See"} <= names
+    assert {r["source"] for r in rows} <= {
+        "osm",
+        "osm:canal",
+        "naturalearth",
+        "lake:osm",
+        "lake:naturalearth",
+    }
+    notice = (table.parent / "NOTICE.md").read_text(encoding="utf-8")
+    assert "Open Database License" in notice and "openstreetmap.org/copyright" in notice

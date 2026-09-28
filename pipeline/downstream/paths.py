@@ -5,6 +5,8 @@ Usage: uv run python -m downstream.paths [--waterways OSM_WATERWAYS.fgb ...] [--
 
 import argparse
 import json
+import os
+import time
 
 import geopandas as gpd
 import pyogrio
@@ -14,6 +16,7 @@ from shapely import STRtree
 from downstream import naming, towns
 from downstream.endpoints import classify, load_ne
 from downstream.fetch import RAW
+from downstream.name_table import NameTable
 from downstream.network import Network
 from downstream.seas import load_seas
 
@@ -85,12 +88,14 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
     alts = towns.load_alt_names(RAW / "geonames_alt_de_en.txt", set(wanted))
 
     features = []
+    table = NameTable()
     for gid, c in sorted(wanted.items(), key=lambda kv: -int(kv[1]["pop"])):
         lon, lat = float(c["lon"]), float(c["lat"])
         start, how = start_reach(net, basins, btree, lon, lat)
         ids = net.downstream(start)
         reaches = net.reaches.loc[ids]
         names = naming.name_reaches(reaches, sources, lake_sources)
+        table.add(ids, names, curated)
         groups = naming.chain(reaches, names, curated)
         first, last = reaches.iloc[0], reaches.iloc[-1]
         end = classify(last.geometry.coords[-1], bool(last["ENDORHEIC"]), seas, lakes)
@@ -135,6 +140,13 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
             f"{end['name']} ({end['distance_km']} km); {len(result['path'])} map points, "
             f"{size} bytes compact\n   {chain_txt}"
         )
+    build = (
+        os.environ.get("GITHUB_SHA", "local")[:12]
+        + " "
+        + time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime())
+    )
+    t = table.write(OUT / "name_table", build)
+    print(f"name table: {len(table.rows)} rows -> {t}")
     (OUT / "paths.geojson").write_text(
         json.dumps({"type": "FeatureCollection", "features": features})
     )
