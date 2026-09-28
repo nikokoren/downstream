@@ -31,6 +31,8 @@ TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a
 - **Endpoint classification** must not trust `NEXT_DOWN == 0 && ENDORHEIC == 0` alone (Central Asia quirk, R9/P4).
 - Raw downloaded data never gets committed (`data/` is git-ignored except its README).
 - German names only from the curated table; never use Natural Earth's `name_de` (D7).
+- Stream and river names come from OpenStreetMap (ODbL, D10): the name table is published under ODbL, and the screen credits OpenStreetMap.
+- Pipeline: Python 3.12 + uv in `pipeline/` (D11). Run `uv run pytest` and `uv run ruff check` there before committing pipeline code.
 
 ## Layout
 

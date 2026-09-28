@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-28 — D10 decided (OSM names). D11 decided: pipeline tooling (Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium); `pipeline/` project set up and locked.
 - 2026-09-28 — OSM names checked (license and a sample); D10 proposed: name streams from OpenStreetMap (ODbL).
 - 2026-09-28 — D9 decided: GeoNames cities15000, language-tagged names, geographic Europe without Russia.
 - 2026-09-28 — D7 decided. D1 decided: Europe first. Town sources checked; D9 proposed: GeoNames cities5000 (CC BY 4.0).
@@ -14,12 +15,11 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Author decides D10 (OSM names). USGS NHDPlus names (US option) are parked until a US version.
-2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
-3. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
-4. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
-5. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
-6. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
+1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach.
+2. Choose pipeline tooling (language, geo libraries, tile format) and record the choice as a decision.
+3. Pipeline on a small region first (R21), clipped from RiverATLAS/BasinATLAS (D5) to the Danube and Rhine basins, plus the Natural Earth Europe supplement (D6), so Munich (R20 #1) can pass early. On first download, confirm the real column names (see the HYBAS_L12 note below).
+4. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
+5. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
 ## Decisions
 
@@ -35,7 +35,8 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D7 | German names of rivers, lakes, seas: curated table only, `name_de` not used (see below) | Decided | 2026-09-28 |
 | D8 | Rotate through a fixed list of towns; drop the user's location (see below) | Decided | 2026-09-28 |
 | D9 | Towns: GeoNames cities15000, language-tagged names, geographic Europe without Russia (see below) | Decided | 2026-09-28 |
-| D10 | Name streams and rivers from OpenStreetMap (ODbL), publish the name table (see below) | Proposed | 2026-09-28 |
+| D10 | Name streams and rivers from OpenStreetMap (ODbL), publish the name table (see below) | Decided | 2026-09-28 |
+| D11 | Pipeline tooling: Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium (see below) | Decided | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -93,7 +94,7 @@ Boundary defaults, set by the agent and easy to change: include Iceland, the Bri
 
 Still open (D8): how to pick the rotation from ~7,000 towns so it spreads across river basins.
 
-### D10 — Stream and river names from OpenStreetMap (proposed 2026-09-28)
+### D10 — Stream and river names from OpenStreetMap (decided 2026-09-28)
 
 Natural Earth names only major rivers, so most paths would start with "a stream". OpenStreetMap names nearly every stream. Checked 2026-09-28 (facts below): the license allows it, with conditions we can meet.
 
@@ -111,6 +112,20 @@ Costs and risks:
 - Download: Geofabrik's Europe extract is the usual source, but download.geofabrik.de was unreachable from this container on 2026-09-28 (4/4 attempts: connection reset by the proxy). Its size isn't verified. Needs the host allowed in this environment's network settings, or the pipeline running elsewhere (GitHub Actions).
 - If D10 is accepted, the Natural Earth Europe supplement (D6) matters less for names, but Natural Earth stays the source for seas and lakes (endpoints).
 
+### D11 — Pipeline tooling (decided 2026-09-28; author asked the agent to choose)
+
+- **Python 3.12**, dependencies managed with **uv** (`pipeline/pyproject.toml` + `uv.lock`). 3.12 because pyproj 3.8 requires ≥ 3.12.
+- **pyogrio (GDAL) + geopandas + shapely 2** for reading shapefiles, spatial joins (town → sub-basin → nearest reach; OSM line → reach), and simplifying path geometry. GDAL's `/vsizip/{/vsicurl/URL}` reads single members out of the remote figshare zips, so the pipeline never downloads the full 2.4 GB / 4.3 GB archives.
+- **pyosmium** for OSM: streams a PBF and keeps only `waterway=*` ways, so memory and disk stay small. No `osmium-tool` or apt packages needed.
+- Routing (`NEXT_DOWN` chains) is plain Python dicts: 938,544 reaches in the `eu` region fit in memory easily.
+- **pytest** and **ruff** as dev tools. Test fixtures are clips of real downloaded data (working method #1), never hand-written geometry.
+- Intermediate files: GeoParquet in `data/` (git-ignored). Outputs: one JSON per town, the published ODbL name table, the build report.
+- Not chosen: DuckDB spatial (another engine for no clear gain at this size; revisit if memory gets tight), PostGIS (needs a server), TypeScript/turf for the pipeline (weak for GB-scale geodata; the Worker stays TypeScript).
+- **Where it runs:** this container for development; GitHub Actions `ubuntu-latest` for real builds (repo is public: 4 CPU, 16 GB RAM, 14 GB SSD, free, 6 h per job). Disk is the tight one, so the OSM stage processes one country extract at a time and deletes it.
+- Verified in this container 2026-09-28: `uv sync` with the locked versions below, imports OK; GDAL read `RiverATLAS_v10_eu.shp` remotely in 11 s. **Not verified:** pyosmium on a real PBF (Geofabrik unreachable here, D10); a full run on a GitHub runner.
+
+Locked versions (2026-09-28): Python 3.12.3, geopandas 1.2.0 (released that day), shapely 2.1.2, pyogrio 0.13.0 with GDAL 3.12.4, pyproj 3.8.0, osmium 4.3.1, pytest 9.1.1, ruff 0.16.9, uv 0.8.17.
+
 ## Verified facts about outside systems
 
 All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of these.**
@@ -123,7 +138,7 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - `HYRIV_ID` is 8 digits; first digit = region (1 Africa, 2 Europe, 3 Siberia, 4 Asia, 5 Australia, 6 South America, 7 North America, 8 Arctic, 9 Greenland).
 - `NEXT_DOWN` = 0 means no downstream connection, "the last river reach draining into the ocean or into an inland sink". `ENDORHEIC`: 0 = not part of an endorheic basin, 1 = part of one.
 - **`DIST_DN_KM` is measured from the reach's outlet (most downstream pixel)**, "to the final downstream location … either the pour point into the ocean or an endorheic sink". Consequence for R7: the total from a point on the start reach is `DIST_DN_KM` plus the part of that reach's `LENGTH_KM` below the start point, not `DIST_DN_KM` alone.
-- `HYBAS_L12` refers to HydroBASINS level 12 **standard format (without lakes)**. The TechDoc is inconsistent: §2.3 calls the column `HYBAS_ID`, §3.2 calls it `HYBAS_L12`. Check the real file on first download.
+- `HYBAS_L12` refers to HydroBASINS level 12 **standard format (without lakes)**. The TechDoc is inconsistent (§2.3 says `HYBAS_ID`, §3.2 says `HYBAS_L12`); the real RiverATLAS file uses `HYBAS_L12` (checked 2026-09-28).
 - `ORD_CLAS` = 1 marks main stems (sink to source); may help the name join (P3).
 - Quality "significantly inferior" above 60°N (HYDRO1k inserted instead of SRTM). Brief confirmed.
 - Downloads (page lists sizes): global shapefile `https://data.hydrosheds.org/file/HydroRIVERS/HydroRIVERS_v10_shp.zip` (544 MB; Content-Length 544,388,154), Europe `HydroRIVERS_v10_eu_shp.zip` (68 MB; 67,648,957). Pattern `HydroRIVERS_v10_{af,ar,as,au,eu,gr,na,sa,si}_shp.zip`; `.gdb.zip` variants also exist. WGS84 lat/lon.
@@ -145,6 +160,10 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - figshare https://doi.org/10.6084/m9.figshare.9890531 (API `https://api.figshare.com/v2/articles/9890531`): "HydroATLAS version 1.0", license CC BY 4.0, published 2019-12-07. Files: `RiverATLAS_Data_v10_shp.zip` 2,418,581,202 bytes; `RiverATLAS_Data_v10.gdb.zip` 2,506,480,742; `BasinATLAS_Data_v10_shp.zip` 4,276,492,333; `BasinATLAS_Data_v10.gdb.zip` 2,695,658,577. Download via `https://ndownloader.figshare.com/files/{id}` (ids 20087486, 20087321, 20087237, 20082137).
 - TechDoc §3b: RiverATLAS shapefiles come in regional tiles (split north/south where needed); BasinATLAS as global per-level layers `BasinATLAS_v10_levXX`.
 - Citation requested (§4.4): Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P., Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-environmental sub-basin and river reach characteristics at high spatial resolution. Scientific Data 6: 283. https://doi.org/10.1038/s41597-019-0300-6. Plus the source data (Lehner & Grill 2013) and a link to https://www.hydrosheds.org/hydroatlas "if possible".
+- **figshare zips, read 2026-09-28 by HTTP range requests (server answers 206):**
+  - `RiverATLAS_Data_v10_shp.zip` (2,418,581,202 bytes) holds regional shapefiles `RiverATLAS_v10_{af,ar,as,au,eu,gr,na,sa_north,sa_south,si}`. Europe: `.dbf` 1,282,060,578 bytes (233 MB compressed), `.shp` 151,566,516 (40 MB), `.shx` 7,508,452. So the Europe part is ~276 MB to download.
+  - `BasinATLAS_Data_v10_shp.zip` (4,276,492,333 bytes) holds global layers `BasinATLAS_v10_lev01`…`lev12`. Level 12: `.dbf` 1,437,384,812 bytes (247 MB compressed), `.shp` 1,317,872,444 (674 MB). So level 12 is ~926 MB to download, global only.
+  - `RiverATLAS_v10_eu.shp`: **938,544** features, 295 fields. The first 14 are the HydroRIVERS columns, and the sub-basin column really is named **`HYBAS_L12`** (settles the TechDoc inconsistency noted under HydroRIVERS).
 - HydroSHEDS v2 (https://www.hydrosheds.org/products/hydrosheds-v2) is also CC BY 4.0, but covers only the Americas so far and has no HydroRIVERS/HydroBASINS equivalent yet ("future releases will include … HydroRIVERS products"). Not usable for v1.
 
 ### HydroSHEDS v1 agreement (applies to the HydroRIVERS and HydroBASINS downloads, which we don't use; D5)
@@ -216,6 +235,7 @@ _None yet. Any travel-time or "reaches the sea in N days" figure must document i
 ## Corrections log
 
 - 2026-09-28 — R7: total distance is `DIST_DN_KM` plus the start reach's remaining length, not `DIST_DN_KM` alone (the column is measured from the reach outlet).
+- 2026-09-28 — The RiverATLAS column is `HYBAS_L12`; the TechDoc's `HYBAS_ID` in §2.3 is wrong.
 - 2026-09-28 — R17 (after D5): cite Linke et al. 2019 (HydroATLAS) and Lehner & Grill 2013 under CC BY 4.0; the Exhibit B statement and the 2008 citation no longer apply.
 - 2026-09-28 — BRIEF §4.2 says HydroBASINS is used for "R5"; the point lookup is R4.
 - 2026-09-28 — BRIEF §4.3: the Europe supplement's terms are checked (public domain); an Australia supplement also exists.
