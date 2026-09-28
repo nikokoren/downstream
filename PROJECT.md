@@ -144,6 +144,25 @@ Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path 
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
+## Pipeline test results, round 2: Austria + all of Germany (2026-09-28)
+
+OSM for Austria and the 16 German states (`pipeline/downstream/osm_regions.txt`), one GitHub job and release per region: 16/16 jobs succeeded in ~11 min; 731,383 named waterway ways and 5,495 named lakes, 277 MB. 8 new example towns (Hamburg, Berlin, Leipzig, Kiel, Stuttgart, Innsbruck, Salzburg, Graz). First run: 9/14 plausible; the failures and their fixes, each checked on the real data:
+
+| Town | First result | Cause (measured) | Fix |
+|---|---|---|---|
+| Kiel | end "unknown" | mouth in Kiel Fjord; nearest named seas in a straight line: Mecklenburger Bucht 51.5 km, North Sea 74.5 km (across Jutland), Baltic 137.1 km | `seas.py`: distance through water on a 1 km grid of the Natural Earth ocean → Baltic Sea (166 km by water) |
+| Berlin | Havel → Jungfernsee → … (no Spree) | Spree block = 2 reaches but 17.2 km, absorbed by the 3-reach rule; Natural Earth's "Spree" line runs down the Havel | long = 3 reaches **or** 5 km; lakes marked before clean-up; OSM is authoritative where it has lines within 600 m (Natural Earth only outside OSM coverage) |
+| Berlin | Havel → Havel | OSM maps a Havel widening as `water=lake` named "Havel" | a lake named like the adjacent river is that river |
+| Nuremberg | … Regnitz → Main-Donau-Kanal → Main | canal line closer than the Regnitz near Bamberg | natural rivers vote first; canal names never form a step inside a river |
+| Hamburg | Elbe → Norderelbe → Elbe | side arm | A → B → A also across rivers (never across a lake), shortest B first |
+| Leipzig | Weisse Elster → Weiße Elster | two OSM spellings | spelling-insensitive name comparison |
+| Stuttgart | Nesenbach-Hauptsammler (a sewer main) | OSM: `waterway=stream` + `tunnel=culvert/yes` | `tunnel` tag now extracted; tunnelled ways skipped (re-extraction of all 17 regions running) |
+| Graz | Mur → Danube (no Drava) | Natural Earth labels 215 km of the lower Drava "Mur" (only 13.5 km "Drau"); Croatia/Hungary have no OSM yet | none yet: needs OSM for Slovenia, Croatia, Hungary |
+
+Side effects, accepted: Munich now starts with "a stream" (its first reach runs 4.8 km through the city; no name covers half: Schwabinger Bach 7/24 points, Isar 3, Eisbach 2; the earlier "Isar" was Natural Earth's guess). Hamburg starts with "a stream" and keeps "Norderelbe → Elbe" (HydroATLAS gives the Norderelbe its own `ORD_CLAS`).
+
+Known data limitation: HydroATLAS ends the Elbe at Hamburg-Finkenwerder (the estuary counts as sea), so totals for Hamburg (11.9 km), Berlin and Leipzig stop there.
+
 ## Pipeline test results (2026-09-28)
 
 Table updated after D12/D13. Run: `uv run python -m downstream.paths --waterways ../data/raw/osm_waterways_bayern.fgb --lakes ../data/raw/osm_lakes_bayern.fgb` (inputs from `downstream.fetch` + the OSM release asset). Checked by `tests/test_examples.py` (skipped without the data).
