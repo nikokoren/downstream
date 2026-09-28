@@ -19,3 +19,18 @@ def test_extracts_named_waterways_from_captured_osm():
     # All ways lie in or around the query bbox 47.98-48.02 N, 11.30-11.36 E.
     minx, miny, maxx, maxy = gdf.total_bounds
     assert 11.2 < minx and maxx < 11.5 and 47.9 < miny and maxy < 48.1
+
+
+def test_extracts_named_lakes_only():
+    # Captured fixture: Starnberger See (relation 168892, water=lake) plus two unnamed
+    # water=reservoir ways, which must be left out.
+    from downstream.osm_waterways import extract_lakes
+
+    lakes = extract_lakes(Path(__file__).parent / "fixtures" / "osm_starnberg_lakes.osm")
+    assert list(lakes["name"]) == ["Starnberger See"]
+    assert list(lakes["name_en"]) == ["Lake Starnberg"]
+    assert lakes.iloc[0]["osm_type"] == "relation" and lakes.iloc[0]["osm_id"] == 168892
+    assert lakes.geometry.iloc[0].geom_type in ("Polygon", "MultiPolygon")
+    # Assembled polygon measures 56.06 km² in EPSG:3035 (2026-09-28); a broken assembly would not.
+    area_km2 = lakes.to_crs("EPSG:3035").area.iloc[0] / 1e6
+    assert 50 < area_km2 < 62

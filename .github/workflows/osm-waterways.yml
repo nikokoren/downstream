@@ -1,4 +1,4 @@
-# Extract named OSM waterways for one Geofabrik region and publish them as a release asset (D10, D11).
+# Extract named OSM waterways and lakes for one Geofabrik region and publish them as a release asset (D10, D11).
 # Runs on GitHub because download.geofabrik.de isn't reachable from the development container.
 name: osm-waterways
 
@@ -45,18 +45,18 @@ jobs:
           SLUG="${REGION//\//-}"
           echo "SLUG=$SLUG" >> "$GITHUB_ENV"
           SECONDS=0
-          uv run python -m downstream.osm_waterways ../data/region.osm.pbf "../data/waterways-$SLUG.fgb"
+          uv run python -m downstream.osm_waterways ../data/region.osm.pbf "../data/waterways-$SLUG.fgb" "../data/lakes-$SLUG.fgb"
           echo "extract took ${SECONDS}s"
-          ls -l "../data/waterways-$SLUG.fgb"
+          ls -l "../data/waterways-$SLUG.fgb" "../data/lakes-$SLUG.fgb"
       - name: Publish release asset (ODbL)
         run: |
           TAG="osm-waterways-$SLUG"
           cat > ../data/NOTICE.md <<NOTICE
-          Named waterway lines extracted from OpenStreetMap (Geofabrik extract ${REGION}, downloaded $(date -u +%Y-%m-%dT%H:%MZ)).
+          Named waterway lines and named lakes (natural=water + water=lake) extracted from OpenStreetMap (Geofabrik extract ${REGION}, downloaded $(date -u +%Y-%m-%dT%H:%MZ)).
           © OpenStreetMap contributors. Available under the Open Database License (ODbL) 1.0:
           https://opendatacommons.org/licenses/odbl/1-0/ . See https://www.openstreetmap.org/copyright
           Produced by pipeline/downstream/osm_waterways.py in this repository (commit ${GITHUB_SHA}).
           NOTICE
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --title "OSM waterways: $REGION" --notes-file ../data/NOTICE.md --prerelease
-          gh release upload "$TAG" "../data/waterways-$SLUG.fgb" ../data/NOTICE.md --clobber
+          gh release upload "$TAG" "../data/waterways-$SLUG.fgb" "../data/lakes-$SLUG.fgb" ../data/NOTICE.md --clobber
