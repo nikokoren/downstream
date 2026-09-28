@@ -27,6 +27,15 @@ EXAMPLES = [
     ("Nuremberg", "DE"),
     ("Köln", "DE"),
     ("Vienna", "AT"),
+    # Added 2026-09-28 with the Austria + Germany OSM extracts: Elbe, Baltic, Inn, Mur, Neckar.
+    ("Hamburg", "DE"),
+    ("Berlin", "DE"),
+    ("Leipzig", "DE"),
+    ("Kiel", "DE"),
+    ("Stuttgart", "DE"),
+    ("Innsbruck", "AT"),
+    ("Salzburg", "AT"),
+    ("Graz", "AT"),
 ]
 
 
