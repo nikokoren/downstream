@@ -22,5 +22,5 @@ For each slot, record: name, which views/orientations show it, which slots share
 
 ## Attribution strings (R16)
 
-- HydroSHEDS short form: _tbd — confirm the license agreement permits a short form_
+- HydroSHEDS on-screen credit: _tbd_. The license requires the full Exhibit B statement in documentation or metadata (README, store listing), not on screen, and defines no short form; the on-screen credit is a courtesy. §8.1 bars using WWF's name or logos without consent, so settle the wording under D5 (PROJECT.md).
 - Natural Earth: "Made with Natural Earth" (courtesy, not required)

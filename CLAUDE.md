@@ -30,6 +30,7 @@ TRMNL recipe: from the user's location, show where a raindrop ends up (river cha
 - **Maps** (R12): MapLibre via TRMNLMaps; never mutate the preset's style object; use `idle` for measuring; literal stretch axes; loading fallbacks. The full map rules live in Aurora Watch's CLAUDE.md — copy them into `docs/MAP_RULES.md` before building views (not yet done; Aurora Watch is not in this repo).
 - **Endpoint classification** must not trust `NEXT_DOWN == 0 && ENDORHEIC == 0` alone (Central Asia quirk, R9/P4).
 - Raw downloaded data never gets committed (`data/` is git-ignored except its README).
+- HydroSHEDS data (raw or derived tiles) is never publicly downloadable: the R2 bucket is private, reachable only through the Worker (license §2.1.2, no stand-alone distribution; see `docs/sources/HYDROSHEDS_LICENSE.md`).
 
 ## Layout
 
@@ -37,6 +38,7 @@ TRMNL recipe: from the user's location, show where a raindrop ends up (river cha
 |---|---|
 | `docs/BRIEF.md` | Requirements, verbatim |
 | `docs/TEXT_REQUIREMENTS.md` | Copy slots and budgets (R14), stub |
+| `docs/sources/` | Verbatim excerpts of outside terms we depend on, dated |
 | `docs/permissions/` | Written data-use permissions, if any are ever granted |
 | `PROJECT.md` | Decisions log, verified facts, status, estimate assumptions |
 | `pipeline/` | Build-time data prep, P1–P7 |
