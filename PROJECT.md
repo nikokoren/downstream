@@ -134,20 +134,24 @@ Author's decision. Implementation (`naming.fold_delta`): in the last river of th
 
 ### D13 — Lakes are steps of their own (decided 2026-09-28)
 
-Author's decision. A reach that lies at least 50 % and at least 500 m inside a named lake becomes that lake (`naming.mark_lakes`). Lake sources: OSM `natural=water` + `water=lake` (from the `osm-waterways` workflow), then Natural Earth lakes + Europe lakes supplement (`featurecla` Lake or Alkaline Lake). Reservoirs are left out on purpose (agent's default, easy to change): otherwise dams would chop big rivers into "Danube → Iron Gate reservoir → Danube". Starnberg now reads "(stream) → Lake Starnberg → Würm → …"; the lake step is only 0.56 km because HydroATLAS brings the town's stream in at the lake's northern tip, next to the outflow.
+Author's decision. A reach that lies at least 50 % and at least 500 m inside a named lake becomes that lake (`naming.mark_lakes`). Lake sources: OSM `natural=water` + `water=lake` (from the `osm-waterways` workflow), then Natural Earth lakes + Europe lakes supplement (`featurecla` Lake or Alkaline Lake). Reservoirs are left out on purpose (agent's default, easy to change): otherwise dams would chop big rivers into "Danube → Iron Gate reservoir → Danube". Starnberg now reads "(stream) → Lake Starnberg → Würm → …"; the lake step is only 0.56 km because HydroATLAS brings the town's stream in at the lake's northern tip, next to the outflow (that reach is 94 % inside the OSM lake, 100 % inside Natural Earth's; both outlines 56.1 km²).
+
+Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path runs through them. The OSM Loisach runs 3.9 km inside Kochelsee (5.87 km²), but the HydroATLAS path from Garmisch-Partenkirchen passes 2.92 km from the lake, so Garmisch shows no Kochelsee. Possible fix later: check whether the OSM line of the river matched to a stretch crosses a named lake.
+
+OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
 ## Pipeline test results (2026-09-28)
 
-Run: `uv run python -m downstream.paths ../data/raw/osm_waterways_bayern.fgb` (inputs from `downstream.fetch` + the OSM release asset). Checked by `tests/test_examples.py` (skipped without the data).
+Table updated after D12/D13. Run: `uv run python -m downstream.paths --waterways ../data/raw/osm_waterways_bayern.fgb --lakes ../data/raw/osm_lakes_bayern.fgb` (inputs from `downstream.fetch` + the OSM release asset). Checked by `tests/test_examples.py` (skipped without the data).
 
 | Town (en / de) | Chain | km | End | Payload |
 |---|---|---|---|---|
-| Munich / München | Isar → Danube → Bratul Chillia | 2,587.6 | Black Sea | 2,451 B |
-| Garmisch-Partenkirchen | Partnach → Loisach → Isar → Danube → Bratul Chillia | 2,685.5 | Black Sea | 2,683 B |
-| Starnberg | (stream) → Würm → Amper → Isar → Danube → Bratul Chillia | 2,626.5 | Black Sea | 2,716 B |
-| Nuremberg / Nürnberg | Pegnitz → Regnitz → Main → Rhine → Lek | 1,003.4 | North Sea | 2,071 B |
-| Cologne / Köln | Rhine → Lek | 349.2 | North Sea | 2,151 B |
-| Vienna / Wien | (stream) → Danube → Bratul Chillia | 2,066.1 | Black Sea | 2,096 B |
+| Munich / München | Isar → Danube | 2,587.6 | Black Sea | 2,397 B |
+| Garmisch-Partenkirchen | Partnach → Loisach → Isar → Danube | 2,685.5 | Black Sea | 2,659 B |
+| Starnberg | (stream) → Lake Starnberg → Würm → Amper → Isar → Danube | 2,626.5 | Black Sea | 2,835 B |
+| Nuremberg / Nürnberg | Pegnitz → Regnitz → Main → Rhine | 1,003.4 | North Sea | 2,058 B |
+| Cologne / Köln | Rhine | 349.2 | North Sea | 2,093 B |
+| Vienna / Wien | (stream) → Danube | 2,066.1 | Black Sea | 2,042 B |
 
 How naming works now (`pipeline/downstream/naming.py`): every path reach gets the name of the nearest named line along it (OSM first, 600 m; Natural Earth second, 3 km), where each sample point votes for its closest line and bigger rivers count as closer. Then, per river (a run of equal `ORD_CLAS`): names shorter than 3 reaches are absorbed, and A → B → A becomes A. Each rule came from a failure in this run:
 - Every endpoint was "South Pacific Ocean": whole-ocean polygons distort in the Europe projection. Fixed by clipping Natural Earth to a Europe window first.

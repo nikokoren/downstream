@@ -31,6 +31,8 @@ Example run:
 
 ```
 uv run python -m downstream.fetch
-curl -fL -o ../data/raw/osm_waterways_bayern.fgb https://github.com/nikokoren/downstream/releases/download/osm-waterways-europe-germany-bayern/waterways-europe-germany-bayern.fgb
-uv run python -m downstream.paths ../data/raw/osm_waterways_bayern.fgb
+B=https://github.com/nikokoren/downstream/releases/download/osm-waterways-europe-germany-bayern
+curl -fL -o ../data/raw/osm_waterways_bayern.fgb $B/waterways-europe-germany-bayern.fgb
+curl -fL -o ../data/raw/osm_lakes_bayern.fgb $B/lakes-europe-germany-bayern.fgb
+uv run python -m downstream.paths --waterways ../data/raw/osm_waterways_bayern.fgb --lakes ../data/raw/osm_lakes_bayern.fgb
 ```
