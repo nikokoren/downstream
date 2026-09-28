@@ -22,5 +22,5 @@ For each slot, record: name, which views/orientations show it, which slots share
 
 ## Attribution strings (R16)
 
-- HydroSHEDS on-screen credit: _tbd_. The license requires the full Exhibit B statement in documentation or metadata (README, store listing), not on screen, and defines no short form; the on-screen credit is a courtesy. §8.1 bars using WWF's name or logos without consent, so settle the wording under D5 (PROJECT.md).
+- River data on-screen credit: _tbd_, e.g. "River data: HydroATLAS, CC BY 4.0". CC BY 4.0 allows attribution "in any reasonable manner based on the medium"; the full credit (creators, citation, license link, modification note) is in the README and store listing (D5).
 - Natural Earth: "Made with Natural Earth" (courtesy, not required)

@@ -1,5 +1,7 @@
 # HydroSHEDS license: excerpts that affect Downstream
 
+> **Not used (D5, 2026-09-28).** Kept as the record of why Downstream uses HydroATLAS (CC BY 4.0) instead of the HydroRIVERS/HydroBASINS downloads.
+
 Source: HydroSHEDS Technical Documentation v1.4, Appendix A "HydroSHEDS Version 1 – License Agreement", pages 24–29.
 URL: https://data.hydrosheds.org/file/technical-documentation/HydroSHEDS_TechDoc_v1_4.pdf (linked from https://www.hydrosheds.org/products/hydrorivers).
 Fetched 2026-09-28. HydroRIVERS TechDoc v1.0 §4.1 and HydroBASINS TechDoc v1.c §4.1 both say they are covered by this same agreement.

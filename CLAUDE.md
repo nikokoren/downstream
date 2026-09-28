@@ -22,15 +22,15 @@ TRMNL recipe: from the user's location, show where a raindrop ends up (river cha
 
 ## Hard rules
 
-- **Licensing:** no NC-licensed data (CC BY-NC, BY-NC-SA, …) unless written permission is stored in `docs/permissions/`. Allowed: public domain, CC0, CC BY, and terms that explicitly allow commercial use. Global River Runner is **excluded** (D4). The HydroSHEDS v1 License Agreement (HydroRIVERS/HydroBASINS downloads) is not acceptable (needs a EULA and end-user records); proposed replacement is HydroATLAS, CC BY 4.0 (D5 in PROJECT.md).
+- **Licensing:** no NC-licensed data (CC BY-NC, BY-NC-SA, …) unless written permission is stored in `docs/permissions/`. Allowed: public domain, CC0, CC BY, and terms that explicitly allow commercial use. Global River Runner is **excluded** (D4). River data comes from **HydroATLAS (RiverATLAS + BasinATLAS), CC BY 4.0**. Never download or use the HydroRIVERS/HydroBASINS zips: their HydroSHEDS v1 agreement needs a EULA and end-user identity records (D5).
 - **Language:** all on-screen words come from the backend LOCALES (en + de); templates contain no literal words (R13). Plain language, no hydrology jargon (R15).
 - **Estimates** are labeled as estimates on screen, and the assumption is documented in `PROJECT.md` (R10).
-- **Attribution** on every view (R16); full HydroSHEDS Exhibit B statement + Lehner & Grill 2013 and Lehner, Verdin & Jarvis 2008 citations in README and store listing (R17).
+- **Attribution** on every view (R16); CC BY 4.0 credit for HydroATLAS (Linke et al. 2019, plus Lehner & Grill 2013) with license link and a modification note in README and store listing (R17).
 - **Payload** under ~6 KB (R3).
 - **Maps** (R12): MapLibre via TRMNLMaps; never mutate the preset's style object; use `idle` for measuring; literal stretch axes; loading fallbacks. The full map rules live in Aurora Watch's CLAUDE.md — copy them into `docs/MAP_RULES.md` before building views (not yet done; Aurora Watch is not in this repo).
 - **Endpoint classification** must not trust `NEXT_DOWN == 0 && ENDORHEIC == 0` alone (Central Asia quirk, R9/P4).
 - Raw downloaded data never gets committed (`data/` is git-ignored except its README).
-- HydroSHEDS data (raw or derived tiles) is never publicly downloadable: the R2 bucket is private, reachable only through the Worker (license §2.1.2, no stand-alone distribution; see `docs/sources/HYDROSHEDS_LICENSE.md`).
+- German names only from the curated table; never use Natural Earth's `name_de` (D7).
 
 ## Layout
 
