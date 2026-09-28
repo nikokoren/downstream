@@ -86,6 +86,57 @@ def runs(reaches: gpd.GeoDataFrame) -> list[list[int]]:
     return out
 
 
+@dataclass
+class LakeSource:
+    label: str
+    lakes: gpd.GeoDataFrame  # columns: name, geometry (METRIC_CRS)
+    tree: STRtree
+
+    @classmethod
+    def build(cls, label: str, gdf: gpd.GeoDataFrame) -> "LakeSource":
+        g = gdf[gdf["name"].notna() & (gdf["name"].str.strip() != "")][["name", "geometry"]]
+        g = g.to_crs(METRIC_CRS).reset_index(drop=True)
+        g["geometry"] = g.geometry.make_valid()
+        return cls(label, g, STRtree(g.geometry.values))
+
+    def lake_of(self, reach_m, min_share: float, min_len_m: float) -> str | None:
+        """Name of the lake holding at least min_share (and min_len_m) of the reach, if any."""
+        for i in self.tree.query(reach_m, predicate="intersects"):
+            inside = reach_m.intersection(self.lakes.geometry.iloc[i]).length
+            if inside >= min_len_m and inside / reach_m.length >= min_share:
+                return str(self.lakes["name"].iloc[i])
+        return None
+
+
+def mark_lakes(reaches, labels: list[tuple], lakes: list[LakeSource], min_share=0.5, min_len_m=500):
+    """Reaches that lie mostly inside a named lake become that lake (a step of its own)."""
+    geoms = reaches.to_crs(METRIC_CRS).geometry.values
+    out = list(labels)
+    for i, geom in enumerate(geoms):
+        for src in lakes:
+            name = src.lake_of(geom, min_share, min_len_m)
+            if name:
+                out[i] = (name, src.label)
+                break
+    return out
+
+
+def fold_delta(reaches: gpd.GeoDataFrame, labels: list[tuple]) -> list[tuple]:
+    """Delta arms join the main river (author, 2026-09-28): in the last river of the path (the run
+    that reaches the outlet), later names become the first name, e.g. Rhine -> Lek is Rhine."""
+    last = runs(reaches)[-1]
+    first = next((labels[i] for i in last if labels[i][0]), None)
+    if first is None:
+        return labels
+    out = list(labels)
+    seen = False
+    for i in last:
+        seen = seen or labels[i][0] == first[0]
+        if seen:
+            out[i] = first
+    return out
+
+
 def name_reaches(
     reaches: gpd.GeoDataFrame, sources: list[NameSource], min_share=0.5, min_block=3
 ) -> list[tuple]:
@@ -110,7 +161,7 @@ def name_reaches(
             labels = [_first_name(line, sources, min_share)] * len(run)
         for i, label in zip(run, labels, strict=True):
             out[i] = label
-    return out
+    return fold_delta(reaches, out)
 
 
 def _first_name(geom, sources: list[NameSource], min_share: float) -> tuple:
@@ -194,6 +245,7 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
                 if disp
                 else ({"local": name} if name else None),
                 "source": src,
+                "kind": "lake" if src and src.startswith("lake:") else "river",
                 "km": float(length),
                 "reaches": 1,
             }

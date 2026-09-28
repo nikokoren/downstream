@@ -27,6 +27,7 @@ NE_LAYERS = {
     "rivers": f"{NE_BASE}/physical/ne_10m_rivers_lake_centerlines.zip",
     "rivers_europe": f"{NE_BASE}/physical/ne_10m_rivers_europe.zip",
     "lakes": f"{NE_BASE}/physical/ne_10m_lakes.zip",
+    "lakes_europe": f"{NE_BASE}/physical/ne_10m_lakes_europe.zip",
     "marine": f"{NE_BASE}/physical/ne_10m_geography_marine_polys.zip",
 }
 

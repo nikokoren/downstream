@@ -1,10 +1,10 @@
 """Compute the path for example towns and write one JSON per town plus a GeoJSON for checking.
 
-Usage: uv run python -m downstream.paths [OSM_WATERWAYS.fgb ...]
+Usage: uv run python -m downstream.paths [--waterways OSM_WATERWAYS.fgb ...] [--lakes OSM_LAKES.fgb ...]
 """
 
+import argparse
 import json
-import sys
 from pathlib import Path
 
 import geopandas as gpd
@@ -47,7 +47,7 @@ def start_reach(
     return net.nearest(lon, lat), "nearest overall"
 
 
-def main(osm_files: list[str]) -> None:
+def main(osm_files: list[str], osm_lakes: list[str]) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     net = Network.load(RAW / "reaches_eu.fgb")
     basins = pyogrio.read_dataframe(RAW / "basins_l12_europe.fgb")
@@ -58,6 +58,12 @@ def main(osm_files: list[str]) -> None:
         sources.append(naming.NameSource.build(f"osm:{Path(f).stem}", gpd.read_file(f), 600))
     ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), load_ne(RAW / "ne_rivers_europe.zip")])
     sources.append(naming.NameSource.build("naturalearth", ne.to_crs("EPSG:4326"), 3000))
+    lake_sources = [
+        naming.LakeSource.build(f"lake:osm:{Path(f).stem}", gpd.read_file(f)) for f in osm_lakes
+    ]
+    ne_lakes = pd_concat([load_ne(RAW / "ne_lakes.zip"), load_ne(RAW / "ne_lakes_europe.zip")])
+    ne_lakes = ne_lakes[ne_lakes["featurecla"].isin(["Lake", "Alkaline Lake"])]
+    lake_sources.append(naming.LakeSource.build("lake:naturalearth", ne_lakes.to_crs("EPSG:4326")))
     curated = naming.load_curated()
     marine = load_ne(RAW / "ne_marine.zip", SEA_CLASSES)
     lakes = load_ne(RAW / "ne_lakes.zip")
@@ -73,6 +79,7 @@ def main(osm_files: list[str]) -> None:
         ids = net.downstream(start)
         reaches = net.reaches.loc[ids]
         names = naming.name_reaches(reaches, sources)
+        names = naming.mark_lakes(reaches, names, lake_sources)
         groups = naming.chain(reaches, names, curated)
         first, last = reaches.iloc[0], reaches.iloc[-1]
         end = classify(last.geometry.coords[-1], bool(last["ENDORHEIC"]), marine, lakes)
@@ -91,7 +98,9 @@ def main(osm_files: list[str]) -> None:
             "start": {"reach": start, "how": how},
             "reaches": len(ids),
             "total_km": round(float(first["DIST_DN_KM"] + first["LENGTH_KM"]), 1),
-            "chain": [{k: g[k] for k in ("name", "source", "km", "reaches")} for g in groups],
+            "chain": [
+                {k: g[k] for k in ("kind", "name", "source", "km", "reaches")} for g in groups
+            ],
             "end": {**end, "display": end_disp},
             "path": [[round(x, 3), round(y, 3)] for x, y in shapely.get_coordinates(simple)],
         }
@@ -139,4 +148,8 @@ def pd_concat(frames):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--waterways", nargs="*", default=[])
+    ap.add_argument("--lakes", nargs="*", default=[])
+    args = ap.parse_args()
+    main(args.waterways, args.lakes)

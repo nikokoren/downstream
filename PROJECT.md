@@ -37,6 +37,8 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D9 | Towns: GeoNames cities15000, language-tagged names, geographic Europe without Russia (see below) | Decided | 2026-09-28 |
 | D10 | Name streams and rivers from OpenStreetMap (ODbL), publish the name table (see below) | Decided | 2026-09-28 |
 | D11 | Pipeline tooling: Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium (see below) | Decided | 2026-09-28 |
+| D12 | Delta arms fold into the main river (Lek → Rhine, Chilia arm → Danube) | Decided | 2026-09-28 |
+| D13 | Lakes on the path are steps of their own (natural lakes only, not reservoirs) | Decided | 2026-09-28 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -126,6 +128,14 @@ Costs and risks:
 
 Locked versions (2026-09-28): Python 3.12.3, geopandas 1.2.0 (released that day), shapely 2.1.2, pyogrio 0.13.0 with GDAL 3.12.4, pyproj 3.8.0, osmium 4.3.1, pytest 9.1.1, ruff 0.16.9, uv 0.8.17.
 
+### D12 — Delta arms fold into the main river (decided 2026-09-28)
+
+Author's decision. Implementation (`naming.fold_delta`): in the last river of the path (the `ORD_CLAS` run that reaches the outlet), every name after the first becomes the first. Cologne before: Rhine ×41 reaches, Nederrijn ×11, Lek ×23; after: Rhine ×75. Side effect to watch: a river that genuinely changes name on its last stretch to the sea would also be folded. None seen in the 6 test towns.
+
+### D13 — Lakes are steps of their own (decided 2026-09-28)
+
+Author's decision. A reach that lies at least 50 % and at least 500 m inside a named lake becomes that lake (`naming.mark_lakes`). Lake sources: OSM `natural=water` + `water=lake` (from the `osm-waterways` workflow), then Natural Earth lakes + Europe lakes supplement (`featurecla` Lake or Alkaline Lake). Reservoirs are left out on purpose (agent's default, easy to change): otherwise dams would chop big rivers into "Danube → Iron Gate reservoir → Danube". Starnberg now reads "(stream) → Lake Starnberg → Würm → …"; the lake step is only 0.56 km because HydroATLAS brings the town's stream in at the lake's northern tip, next to the outflow.
+
 ## Pipeline test results (2026-09-28)
 
 Run: `uv run python -m downstream.paths ../data/raw/osm_waterways_bayern.fgb` (inputs from `downstream.fetch` + the OSM release asset). Checked by `tests/test_examples.py` (skipped without the data).
@@ -151,7 +161,7 @@ Other findings:
 - OSM Bavaria (Geofabrik, 2026-09-28): 853,048,441-byte extract, MD5 OK, 180 s to extract on `ubuntu-latest`, 91,971 named waterway ways, 8,073 distinct names, 37.5 MB FlatGeobuf.
 - Runtime here for all 6 towns: ~10 s after the data is local. `fetch`: RiverATLAS `eu` 48 s (938,544 reaches), BasinATLAS level 12 in the Europe window 79 s (72,859 sub-basins).
 
-Open questions for the author:
+Open questions for the author (both answered 2026-09-28, see D12 and D13):
 1. **Delta arms.** HydroATLAS ends the Danube via the Chilia arm and the Rhine via the Lek, and the chain says so ("Bratul Chillia", Natural Earth's spelling; Romanian is "Brațul Chilia"). Show the arm, or fold it into the main river?
 2. **Lakes on the path.** Paths through lakes (Lake Starnberg) show no lake. Add lake names from OSM or Natural Earth as their own chain step ("→ Lake Starnberg →")?
 

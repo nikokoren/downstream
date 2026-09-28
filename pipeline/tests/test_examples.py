@@ -13,18 +13,16 @@ import pytest
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 OSM = DATA / "raw" / "osm_waterways_bayern.fgb"
-NEEDED = [DATA / "raw" / "reaches_eu.fgb", DATA / "raw" / "basins_l12_europe.fgb", OSM]
+OSM_LAKES = DATA / "raw" / "osm_lakes_bayern.fgb"
+NEEDED = [DATA / "raw" / "reaches_eu.fgb", DATA / "raw" / "basins_l12_europe.fgb", OSM, OSM_LAKES]
 
 EXPECTED = {
-    "munich": (["Isar", "Danube", "Bratul Chillia"], "Black Sea"),
-    "garmisch-partenkirchen": (
-        ["Partnach", "Loisach", "Isar", "Danube", "Bratul Chillia"],
-        "Black Sea",
-    ),
-    "starnberg": ([None, "Würm", "Amper", "Isar", "Danube", "Bratul Chillia"], "Black Sea"),
-    "nuremberg": (["Pegnitz", "Regnitz", "Main", "Rhine", "Lek"], "North Sea"),
-    "cologne": (["Rhine", "Lek"], "North Sea"),
-    "vienna": ([None, "Danube", "Bratul Chillia"], "Black Sea"),
+    "munich": (["Isar", "Danube"], "Black Sea"),
+    "garmisch-partenkirchen": (["Partnach", "Loisach", "Isar", "Danube"], "Black Sea"),
+    "starnberg": ([None, "Lake Starnberg", "Würm", "Amper", "Isar", "Danube"], "Black Sea"),
+    "nuremberg": (["Pegnitz", "Regnitz", "Main", "Rhine"], "North Sea"),
+    "cologne": (["Rhine"], "North Sea"),
+    "vienna": ([None, "Danube"], "Black Sea"),
 }
 
 
@@ -36,7 +34,15 @@ def label(group):
 @pytest.mark.skipif(not all(p.exists() for p in NEEDED), reason="real data not downloaded")
 def test_example_paths():
     subprocess.run(
-        [sys.executable, "-m", "downstream.paths", str(OSM)],
+        [
+            sys.executable,
+            "-m",
+            "downstream.paths",
+            "--waterways",
+            str(OSM),
+            "--lakes",
+            str(OSM_LAKES),
+        ],
         check=True,
         cwd=Path(__file__).resolve().parents[1],
         capture_output=True,
