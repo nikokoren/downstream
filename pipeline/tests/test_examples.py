@@ -21,6 +21,9 @@ NEEDED = [
     OSM_DIR / "lakes-europe-germany-bayern.fgb",
     OSM_DIR / "waterways-europe-austria.fgb",
     OSM_DIR / "waterways-europe-germany-berlin.fgb",
+    OSM_DIR / "waterways-europe-croatia.fgb",
+    OSM_DIR / "waterways-europe-hungary.fgb",
+    OSM_DIR / "waterways-europe-slovenia.fgb",
     RAW_NE_OCEAN,
 ]
 
@@ -40,6 +43,9 @@ EXPECTED = {
     "kiel": (["Mühlenau"], "Baltic Sea"),
     "innsbruck": (["Inn", "Danube"], "Black Sea"),
     "salzburg": (["Salzach", "Inn", "Danube"], "Black Sea"),
+    # Approved by the author 2026-09-28 (after the tunnel re-extraction and OSM SI/HR/HU):
+    "graz": ([None, "Mur", "Drava", "Danube"], "Black Sea"),
+    "stuttgart": ([None, "Neckar", "Rhine"], "North Sea"),
 }
 
 

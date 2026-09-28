@@ -149,7 +149,7 @@ OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28
 - All 17 Austria/Germany regions re-extracted with the `tunnel` tag (18/18 jobs OK); Slovenia, Croatia, Hungary added (3/3 OK). 20 regions in `osm_regions.txt`, 40 files locally.
 - Stuttgart: sewer main gone → "(stream) → Neckar → Rhine".
 - Graz: "(stream) → Mur → Drava → Danube". OSM uses border and local names on this path ("Mur / Mura", "Mura", "Drava / Dráva", "Dunav / Дунав"): names split on " / " into variants, and the curated table got Mur|Mura → Mur/Mur and Drava|Drau|Dráva → Drava/Drau.
-- The other 12 towns unchanged; 6 more chains approved by the author (Hamburg, Berlin, Leipzig, Kiel, Innsbruck, Salzburg) and locked into `tests/test_examples.py` (12 towns). Graz and Stuttgart await approval.
+- The other 12 towns unchanged; 6 more chains approved by the author (Hamburg, Berlin, Leipzig, Kiel, Innsbruck, Salzburg) and locked into `tests/test_examples.py` (12 towns). Graz and Stuttgart approved by the author the same day and locked in: the end-to-end test now checks all 14 example towns.
 - `fetch osm` skips a region whose release isn't published yet (was: the whole step failed).
 
 ## Pipeline test results, round 2: Austria + all of Germany (2026-09-28)
