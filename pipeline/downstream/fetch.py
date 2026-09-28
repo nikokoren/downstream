@@ -6,6 +6,7 @@ Usage: uv run python -m downstream.fetch [reaches|basins|ne|geonames ...]
 import os
 import sys
 import time
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -105,7 +106,12 @@ def osm() -> None:
         slug = region.replace("/", "-")
         for kind in ("waterways", "lakes"):
             url = f"{RELEASES}/osm-waterways-{slug}/{kind}-{slug}.fgb"
-            _download(url, RAW / "osm" / f"{kind}-{slug}.fgb")
+            try:
+                _download(url, RAW / "osm" / f"{kind}-{slug}.fgb")
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    raise
+                print(f"missing {kind}-{slug}.fgb (release not published yet?)")
 
 
 STEPS = {"reaches": reaches, "basins": basins, "ne": ne, "geonames": geonames, "osm": osm}

@@ -290,6 +290,19 @@ def _absorb_short_blocks(
     return result
 
 
+def name_variants(name: str) -> list[str]:
+    """OSM border and bilingual names: 'Mur / Mura', 'Dunav / Дунав' -> each part, whole first."""
+    parts = [p.strip() for p in name.replace(";", " / ").split(" / ") if p.strip()]
+    return [name, *parts] if len(parts) > 1 else [name]
+
+
+def lookup_curated(name: str, curated: dict) -> dict | None:
+    for v in name_variants(name):
+        if v in curated:
+            return curated[v]
+    return None
+
+
 def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[dict]:
     """Group consecutive reaches by display name; lengths in km.
 
@@ -298,8 +311,8 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
     """
     groups: list[dict] = []
     for (name, src), length in zip(names, reaches["LENGTH_KM"], strict=True):
-        disp = curated.get(name) if name else None
-        key = name_key(disp["en"] if disp else name)
+        disp = lookup_curated(name, curated) if name else None
+        key = name_key(disp["en"] if disp else (name_variants(name)[-1] if name else None))
         kind = "lake" if src and src.startswith("lake:") else "river"
         if groups and groups[-1]["key"] == key and groups[-1]["kind"] == kind:
             g = groups[-1]

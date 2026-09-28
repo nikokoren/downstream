@@ -47,3 +47,19 @@ def test_fold_only_touches_the_last_river():
     reaches = pd.DataFrame({"ORD_CLAS": [3] * 3 + [2] * 4 + [1] * 6})
     labels = [regnitz] * 3 + [main] * 4 + [rhine] * 4 + [lek] * 2
     assert fold_delta(reaches, labels) == [regnitz] * 3 + [main] * 4 + [rhine] * 6
+
+
+def test_bilingual_osm_names_map_to_one_curated_river():
+    # Names on the Graz path with OSM Slovenia/Croatia/Hungary, 2026-09-28.
+    from downstream.naming import load_curated, lookup_curated
+
+    curated = load_curated()
+    for name, en in [
+        ("Mur", "Mur"),
+        ("Mur / Mura", "Mur"),
+        ("Mura", "Mur"),
+        ("Drava / Dráva", "Drava"),
+        ("Drava", "Drava"),
+        ("Dunav / Дунав", "Danube"),
+    ]:
+        assert lookup_curated(name, curated)["en"] == en, name

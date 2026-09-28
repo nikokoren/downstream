@@ -144,6 +144,14 @@ Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path 
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
+## Pipeline test results, round 3: + Slovenia, Croatia, Hungary; tunnel re-extraction (2026-09-28)
+
+- All 17 Austria/Germany regions re-extracted with the `tunnel` tag (18/18 jobs OK); Slovenia, Croatia, Hungary added (3/3 OK). 20 regions in `osm_regions.txt`, 40 files locally.
+- Stuttgart: sewer main gone → "(stream) → Neckar → Rhine".
+- Graz: "(stream) → Mur → Drava → Danube". OSM uses border and local names on this path ("Mur / Mura", "Mura", "Drava / Dráva", "Dunav / Дунав"): names split on " / " into variants, and the curated table got Mur|Mura → Mur/Mur and Drava|Drau|Dráva → Drava/Drau.
+- The other 12 towns unchanged; 6 more chains approved by the author (Hamburg, Berlin, Leipzig, Kiel, Innsbruck, Salzburg) and locked into `tests/test_examples.py` (12 towns). Graz and Stuttgart await approval.
+- `fetch osm` skips a region whose release isn't published yet (was: the whole step failed).
+
 ## Pipeline test results, round 2: Austria + all of Germany (2026-09-28)
 
 OSM for Austria and the 16 German states (`pipeline/downstream/osm_regions.txt`), one GitHub job and release per region: 16/16 jobs succeeded in ~11 min; 731,383 named waterway ways and 5,495 named lakes, 277 MB. 8 new example towns (Hamburg, Berlin, Leipzig, Kiel, Stuttgart, Innsbruck, Salzburg, Graz). First run: 9/14 plausible; the failures and their fixes, each checked on the real data:
@@ -156,8 +164,8 @@ OSM for Austria and the 16 German states (`pipeline/downstream/osm_regions.txt`)
 | Nuremberg | … Regnitz → Main-Donau-Kanal → Main | canal line closer than the Regnitz near Bamberg | natural rivers vote first; canal names never form a step inside a river |
 | Hamburg | Elbe → Norderelbe → Elbe | side arm | A → B → A also across rivers (never across a lake), shortest B first |
 | Leipzig | Weisse Elster → Weiße Elster | two OSM spellings | spelling-insensitive name comparison |
-| Stuttgart | Nesenbach-Hauptsammler (a sewer main) | OSM: `waterway=stream` + `tunnel=culvert/yes` | `tunnel` tag now extracted; tunnelled ways skipped (re-extraction of all 17 regions running) |
-| Graz | Mur → Danube (no Drava) | Natural Earth labels 215 km of the lower Drava "Mur" (only 13.5 km "Drau"); Croatia/Hungary have no OSM yet | none yet: needs OSM for Slovenia, Croatia, Hungary |
+| Stuttgart | Nesenbach-Hauptsammler (a sewer main) | OSM: `waterway=stream` + `tunnel=culvert/yes` | `tunnel` tag now extracted; tunnelled ways skipped (done in round 3) |
+| Graz | Mur → Danube (no Drava) | Natural Earth labels 215 km of the lower Drava "Mur" (only 13.5 km "Drau"); Croatia/Hungary had no OSM | OSM for Slovenia, Croatia, Hungary (round 3) |
 
 Side effects, accepted: Munich now starts with "a stream" (its first reach runs 4.8 km through the city; no name covers half: Schwabinger Bach 7/24 points, Isar 3, Eisbach 2; the earlier "Isar" was Natural Earth's guess). Hamburg starts with "a stream" and keeps "Norderelbe → Elbe" (HydroATLAS gives the Norderelbe its own `ORD_CLAS`).
 
