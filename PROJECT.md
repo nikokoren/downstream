@@ -21,6 +21,10 @@ Working memory for the project. Every fact about an outside system carries **wha
 3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
 
+## Deferred (come back after everything else is built)
+
+- 2026-09-28 — **Rivers through lakes the HydroATLAS path misses** (author: later). Example: Garmisch-Partenkirchen should show Kochelsee (OSM Loisach runs 3.9 km inside it; HydroATLAS passes 2.92 km away). Idea: for each named river on the path, check whether its OSM line crosses a named lake along the matched stretch and insert the lake step there. Fits into `naming.mark_lakes` without touching other stages. Details under D13.
+
 ## Decisions
 
 | ID | Decision | Status | Date |
