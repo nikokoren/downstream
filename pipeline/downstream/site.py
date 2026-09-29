@@ -9,7 +9,7 @@ The towns are in a fixed shuffled order, so consecutive slots jump around Europe
 shows the same town at the same time.
 
 Usage: uv run python -m downstream.site   (after `downstream.paths --all`)
-Writes ../data/site/ (the Pages site) and ../recipe/polling_url.liquid (the recipe's Polling URL).
+Writes ../data/site/ (the Pages site; Europe under eu/) and ../recipe/polling_url.liquid (the recipe's Polling URL).
 """
 
 import json
@@ -22,12 +22,15 @@ from downstream.fetch import RAW
 SITE = RAW.parent / "site"
 RECIPE = Path(__file__).resolve().parents[2] / "recipe"
 BASE_URL = "https://nikokoren.github.io/downstream"
+# Files live under a region folder (eu/t/<n>.json) so more regions, or an "everything" list, can
+# sit beside Europe later without moving the URL existing installs use (author, 2026-09-29).
+REGION = "eu"
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
 SEED = 20260929  # fixed, so the order only changes when the set of towns changes
 
 NOTICE = """# Downstream: town files
 
-One file per rotation slot (`t/<n>.json`): where a raindrop falling in that town ends up.
+One file per rotation slot (`<region>/t/<n>.json`; `eu` is Europe): where a raindrop falling in that town ends up.
 
 - River network: HydroATLAS (RiverATLAS v1.0), CC BY 4.0, Linke et al. 2019 and Lehner & Grill 2013.
   Changed: routing columns only, one path per town, simplified geometry.
@@ -45,7 +48,11 @@ def polling_url(n: int) -> str:
     """The recipe's Polling URL. One line: TRMNL splits the rendered URL field on line breaks."""
     return (
         '{%- assign slot = "now" | date: "%s" | divided_by: ' + str(SLOT_SECONDS) + " -%}"
-        "{%- assign n = slot | modulo: " + str(n) + " -%}" + BASE_URL + "/t/{{ n }}.json\n"
+        "{%- assign n = slot | modulo: "
+        + str(n)
+        + " -%}"
+        + BASE_URL
+        + f"/{REGION}/t/{{{{ n }}}}.json\n"
     )
 
 
@@ -55,16 +62,17 @@ def build() -> int:
     random.Random(SEED).shuffle(order)
     if SITE.exists():
         shutil.rmtree(SITE)
-    (SITE / "t").mkdir(parents=True)
+    out = SITE / REGION
+    (out / "t").mkdir(parents=True)
     rows = ["n,geonameid,town"]
     for n, f in enumerate(order):
         result = json.loads(f.read_text())
         result["slot"] = n
-        (SITE / "t" / f"{n}.json").write_text(
+        (out / "t" / f"{n}.json").write_text(
             json.dumps(result, ensure_ascii=False, separators=(",", ":"))
         )
         rows.append(f'{n},{f.stem},"{result["town"]["en"]}"')
-    (SITE / "rotation.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
+    (out / "rotation.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
     (SITE / "NOTICE.md").write_text(NOTICE, encoding="utf-8")
     (SITE / "index.html").write_text(
         "<!doctype html><meta charset=utf-8><title>Downstream</title>"

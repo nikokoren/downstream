@@ -8,7 +8,7 @@ import pytest
 from liquid import Environment
 
 from downstream.paths import encode_polyline
-from downstream.site import BASE_URL, SITE, SLOT_SECONDS, polling_url
+from downstream.site import BASE_URL, REGION, SITE, SLOT_SECONDS, polling_url
 
 RECIPE_URL = Path(__file__).resolve().parents[2] / "recipe" / "polling_url.liquid"
 
@@ -28,12 +28,14 @@ def test_polling_url_renders_to_the_current_slot():
     url = Environment().from_string(polling_url(n)).render()
     after = int(time.time()) // SLOT_SECONDS
     assert url.count("\n") <= 1 and url.strip() == url.rstrip("\n").strip()
-    m = re.fullmatch(re.escape(BASE_URL) + r"/t/(\d+)\.json", url.strip())
+    m = re.fullmatch(re.escape(f"{BASE_URL}/{REGION}") + r"/t/(\d+)\.json", url.strip())
     assert m, url
     assert int(m.group(1)) in {before % n, after % n}
 
 
-@pytest.mark.skipif(not (SITE / "t").exists(), reason="run `python -m downstream.site` first")
+@pytest.mark.skipif(
+    not (SITE / REGION / "t").exists(), reason="run `python -m downstream.site` first"
+)
 def test_committed_polling_url_matches_the_site():
-    files = len(list((SITE / "t").glob("*.json")))
+    files = len(list((SITE / REGION / "t").glob("*.json")))
     assert RECIPE_URL.read_text(encoding="utf-8") == polling_url(files)
