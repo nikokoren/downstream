@@ -98,4 +98,6 @@ def build() -> int:
 
 if __name__ == "__main__":
     n = build()
-    print(f"{n} towns in {SLOTS} slot files -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}")
+    print(
+        f"{n} towns in {SLOTS} slot files -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}"
+    )
