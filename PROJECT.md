@@ -148,6 +148,17 @@ Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path 
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
+## Per-river redesign (2026-09-29, author's go 2026-09-28)
+
+Why: per-town naming repeated the same work for every town (every Danube town re-named the Danube) and gave a segment different names on different paths. Now the network is named once, and a town is a lookup.
+
+- **Stage 1** `reach_names.py`: raw name of every reach, same rules as before, vectorised per 1° tile (OSM read per tile). Checked: identical raw names on the 14 towns' 1,349 reaches (1,349/1,349), 7 s instead of 44 s. Whole `eu` region: 938,544 reaches in 2,749 tiles, **96 s** on 4 workers. Raw names: 117,882 reaches (Natural Earth 80,045; OSM 27,928; lakes 9,306; canals 603).
+- **Stage 2** `rivers.py`: a river = chain of same-`ORD_CLAS` reaches (checked on all 938,544 `eu` reaches: no reach has two same-order upstream reaches; order never increases downstream; 24,185 outlets). Clean-up per river; names compare as displayed (curated table); on outlet rivers, names after the last stretch of the dominant name fold into it (D12, was "first name on the path"). **5 s** for the region; 150,610 reaches named.
+- **Stage 3** `paths.py` reads `data/names/reach_names.csv`; only display rules (side arms, lakes named like their river) stay per path.
+- Correction found on the way: with whole rivers, the old fallback "no long block → most frequent name" guessed a lot (32,000 extra reaches named; Graz's start became Ragnitzbach after a 1:1 tie with Leonhardbach). Now: no long block → leave as is.
+- Result on the 14 locked towns: **13/14 identical**. Hamburg: "(stream) → Norderelbe → Elbe" became "**Alster** → Norderelbe → Elbe": the start reach is the last 3.7 km of a river OSM names Alster for 20.6 km upstream. Test updated, pending the author's confirmation.
+- The published ODbL name table is now network-wide (`data/names/name_table/`, written by `build_names`), 150,610 rows, one name per segment.
+
 ## Name table and build workflow (2026-09-28)
 
 - `pipeline/downstream/name_table.py` writes `name_table.csv` (hyriv_id, kind, name, source, display_en, display_de) and `NOTICE.md` (ODbL notice, OSM attribution, build commit and time). For the 14 example towns: 1,689 rows over 1,344 segments; 345 segments carry more than one name because clean-up depends on the path (e.g. a lower-Danube segment is "Donau" on Munich's path, "Dunav / Дунав" on Graz's). The NOTICE says the table holds names as used on screen, after clean-up.

@@ -35,7 +35,7 @@ jobs:
         run: uv run pytest -q
       - name: Publish name table (ODbL)
         run: |
-          D=../data/paths/name_table
+          D=../data/names/name_table
           wc -l "$D/name_table.csv"
           gh release view name-table >/dev/null 2>&1 || \
             gh release create name-table --title "Name table (ODbL)" --notes-file "$D/NOTICE.md" --prerelease

@@ -6,6 +6,7 @@ Writes ../data/names/raw_labels.csv (stage 1) and ../data/names/reach_names.csv 
 
 import argparse
 import multiprocessing as mp
+import os
 import time
 
 import numpy as np
@@ -15,6 +16,8 @@ import pyogrio
 from downstream import reach_names, rivers
 from downstream.endpoints import load_ne
 from downstream.fetch import RAW
+from downstream.name_table import NameTable
+from downstream.naming import load_curated
 from downstream.paths import pd_concat
 
 OUT = RAW.parent / "names"
@@ -34,6 +37,28 @@ def _init() -> None:
 def _tile(rows: np.ndarray) -> pd.DataFrame:
     sub = _G["reaches"].iloc[rows]
     return reach_names.name_tile(sub, _G["ways"], _G["lakes"], _G["ne"], _G["ne_lakes"])
+
+
+def stage2() -> None:
+    t1 = time.time()
+    r = pyogrio.read_dataframe(RAW / "reaches_eu.fgb", read_geometry=False)
+    raw = pd.read_csv(OUT / "raw_labels.csv")
+    cleaned = rivers.clean(r, raw)
+    cleaned.to_csv(OUT / "reach_names.csv", index=False)
+    named = cleaned["name"].notna().sum()
+    table = NameTable()
+    ok = cleaned[cleaned["name"].notna()]
+    table.add(ok["HYRIV_ID"], list(zip(ok["name"], ok["source"], strict=True)), load_curated())
+    build = (
+        os.environ.get("GITHUB_SHA", "local")[:12]
+        + " "
+        + time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime())
+    )
+    t = table.write(OUT / "name_table", build)
+    print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
+    print(
+        f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named", flush=True
+    )
 
 
 def main(workers: int) -> None:
@@ -58,6 +83,16 @@ def main(workers: int) -> None:
     cleaned = rivers.clean(r.drop(columns="geometry"), raw)
     cleaned.to_csv(OUT / "reach_names.csv", index=False)
     named = cleaned["name"].notna().sum()
+    table = NameTable()
+    ok = cleaned[cleaned["name"].notna()]
+    table.add(ok["HYRIV_ID"], list(zip(ok["name"], ok["source"], strict=True)), load_curated())
+    build = (
+        os.environ.get("GITHUB_SHA", "local")[:12]
+        + " "
+        + time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime())
+    )
+    t = table.write(OUT / "name_table", build)
+    print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
     print(
         f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named; "
         f"total {time.time() - t0:.0f}s",
@@ -68,4 +103,6 @@ def main(workers: int) -> None:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
-    main(ap.parse_args().workers)
+    ap.add_argument("--stage2-only", action="store_true", help="re-clean saved raw_labels.csv")
+    args = ap.parse_args()
+    stage2() if args.stage2_only else main(args.workers)

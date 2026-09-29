@@ -287,12 +287,10 @@ def _absorb_short_blocks(
 
     named = [b for b in blocks if long(b)]
     if not named:
-        # Nothing long enough: keep the most frequent name for the whole river, if any.
-        counts: dict = {}
-        for label in labels:
-            if label[0]:
-                counts[label] = counts.get(label, 0) + 1
-        return [max(counts, key=counts.get)] * len(labels) if counts else labels
+        # Nothing long enough to trust: leave the labels as they are. (Guessing the most frequent
+        # name here named Graz's start after a 1:1 tie between Ragnitzbach and Leonhardbach once
+        # whole rivers were cleaned, 2026-09-29.)
+        return labels
     result: list[tuple] = []
     last_good = None
     for k, b in enumerate(blocks):

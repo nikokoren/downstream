@@ -64,14 +64,13 @@ def clean(reaches: pd.DataFrame, raw: pd.DataFrame, min_block=3, min_block_km=5.
     df = reaches[["HYRIV_ID", "NEXT_DOWN", "ORD_CLAS", "LENGTH_KM", "DIST_DN_KM"]].copy()
     df["mouth"] = river_mouths(df)
     df = df.merge(raw, on="HYRIV_ID", how="left")
-    df["name"] = df["name"].where(df["name"].notna(), None)
-    df["source"] = df["source"].where(df["source"].notna(), None)
     outlet_mouths = set(df.loc[df["NEXT_DOWN"] == 0, "HYRIV_ID"])
     df = df.sort_values(["mouth", "DIST_DN_KM"], ascending=[True, False]).reset_index(drop=True)
     named = df.groupby("mouth")["name"].count()
     todo = set(named[named > 0].index)
-    names = df["name"].to_numpy(dtype=object)
-    sources = df["source"].to_numpy(dtype=object)
+    # pandas 3: plain to_numpy is read-only, and missing values come back as NaN
+    names = np.array([x if isinstance(x, str) else None for x in df["name"]], dtype=object)
+    sources = np.array([x if isinstance(x, str) else None for x in df["source"]], dtype=object)
     km_all = df["LENGTH_KM"].to_numpy(dtype=float)
     starts = np.flatnonzero(np.r_[True, df["mouth"].to_numpy()[1:] != df["mouth"].to_numpy()[:-1]])
     ends = np.r_[starts[1:], len(df)]

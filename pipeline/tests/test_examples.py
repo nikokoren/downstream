@@ -38,7 +38,9 @@ EXPECTED = {
     "cologne": (["Rhine"], "North Sea"),
     "vienna": (["Donaukanal", "Danube"], "Black Sea"),
     # Approved by the author 2026-09-28 (Austria + Germany OSM):
-    "hamburg": ([None, "Norderelbe", "Elbe"], "North Sea"),
+    # Per-river redesign (2026-09-29): the start reach is the last 3.7 km of a river OSM names
+    # Alster for 20.6 km just upstream, so it's now "Alster". Pending the author's confirmation.
+    "hamburg": (["Alster", "Norderelbe", "Elbe"], "North Sea"),
     "berlin": (["Spree", "Havel", "Jungfernsee", "Tiefer See", "Havel", "Elbe"], "North Sea"),
     "leipzig": (["Pleiße", "Weiße Elster", "Luppe", "Saale", "Elbe"], "North Sea"),
     "kiel": (["Mühlenau"], "Baltic Sea"),
@@ -73,10 +75,10 @@ def test_example_paths():
 
 @pytest.mark.skipif(not all(p.exists() for p in NEEDED), reason="real data not downloaded")
 def test_name_table_is_written_with_notice():
-    # Runs after test_example_paths (same data/paths output).
+    # Written by `python -m downstream.build_names` (network-wide since 2026-09-29).
     import csv
 
-    table = DATA / "paths" / "name_table" / "name_table.csv"
+    table = DATA / "names" / "name_table" / "name_table.csv"
     with open(table, encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     names = {r["name"] for r in rows}
