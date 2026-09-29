@@ -1,0 +1,33 @@
+# Print Geofabrik's region index for Europe (ids, parents, PBF sizes) so region names in
+# pipeline/downstream/osm_regions.txt come from the source, not from memory.
+name: geofabrik-index
+
+on:
+  workflow_dispatch:
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Europe regions
+        run: |
+          curl -fsSL https://download.geofabrik.de/index-v1-nogeom.json -o index.json
+          python3 - <<'PY'
+          import json, subprocess
+          feats = json.load(open("index.json"))["features"]
+          props = {f["properties"]["id"]: f["properties"] for f in feats}
+          def europe(p):
+              while p.get("parent"):
+                  if p["parent"] == "europe":
+                      return True
+                  p = props.get(p["parent"], {})
+              return False
+          rows = [p for p in props.values() if europe(p)]
+          for p in sorted(rows, key=lambda p: (p.get("parent"), p["id"])):
+              url = p.get("urls", {}).get("pbf", "")
+              size = ""
+              if url:
+                  h = subprocess.run(["curl", "-sfI", url], capture_output=True, text=True).stdout
+                  size = next((l.split(":")[1].strip() for l in h.splitlines() if l.lower().startswith("content-length")), "")
+              print(f"{p.get('parent')}\t{p['id']}\t{size}\t{url}")
+          PY
