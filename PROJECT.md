@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — **OSM names for all of Europe** (122 Geofabrik regions, release `osm-waterways-<slug>` each): 323,717 of 938,544 reaches named; first step "a stream" 61 % → 23 % of towns; OSM names cover a median 100 % of path km. 21/21 tests pass. Details under "OSM for all of Europe" below.
 - 2026-09-28 — **First end-to-end pipeline run on 6 example towns (Munich, Garmisch-Partenkirchen, Starnberg, Nuremberg, Cologne, Vienna): 6/6 reach the right sea, acceptance test #1 passes (Munich → Isar → Danube → Black Sea).** OSM names for Bavaria come from the `osm-waterways` GitHub workflow (release `osm-waterways-europe-germany-bayern`). Results and open questions under "Pipeline test results" below. TRMNL design postponed by the author until the pipeline is set up.
 - 2026-09-28 — D10 decided (OSM names). D11 decided: pipeline tooling (Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium); `pipeline/` project set up and locked.
 - 2026-09-28 — OSM names checked (license and a sample); D10 proposed: name streams from OpenStreetMap (ODbL).
@@ -16,7 +17,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Pipeline: Europe border filter (D9 polygon), town selection for the rotation (D8), build report (P7), OSM for the rest of Europe (add regions to `pipeline/downstream/osm_regions.txt`, run `osm-waterways`, then `build`).
+1. Pipeline: decide how to show non-Latin names and local prefixes (see "OSM for all of Europe"); run `build` to republish the name table and report.
 2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo; TRMNL design parked by the author until the pipeline is set up).
 3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
@@ -148,6 +149,20 @@ Author's decision. A reach that lies at least 50 % and at least 500 m inside a n
 Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path runs through them. The OSM Loisach runs 3.9 km inside Kochelsee (5.87 km²), but the HydroATLAS path from Garmisch-Partenkirchen passes 2.92 km from the lake, so Garmisch shows no Kochelsee. Possible fix later: check whether the OSM line of the river matched to a stretch crosses a named lake.
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
+
+## OSM for all of Europe (2026-09-29)
+
+All 122 regions in `pipeline/downstream/osm_regions.txt` extracted by `osm-waterways` (244 files, 1.8 GB locally). `build_names --workers 4` 206 s; `paths --all` 254 s. 6,903 towns in the rotation, 0 errors; payload median 1.9 KB, max 4.9 KB.
+
+Fixes after the first run with all regions, checked by diffing all chains (3,501 changed, 0 endpoints changed):
+1. **Bilingual OSM names weren't split**: Munich's Danube ended "Danube → Dunărea - Дунав → … → Dunărea - Дунай" (locked test failed). `name_variants` now splits on `/` (with or without spaces), ` - `, ` – `, `;` and parentheses ("Brațul Borcea (Dunărea)"); hyphens without spaces ("Main-Donau-Kanal") stay.
+2. **Rhine delta**: the Rhine splits at Pannerden 172 km from its HydroATLAS mouth, outside the 150 km delta zone, so 664 towns ended "Rhine → Bijlandsch Kanaal → Pannerdensch Kanaal". Delta zone 150 → 200 km; the < 5 % area-growth rule still keeps real confluences.
+3. **Curated names** (D7) for the main rivers the report shows under several local names: Elbe/Labe, Vltava (de Moldau), Oder/Odra, Vistula (Weichsel), Tagus (Tajo/Tejo), Seine, Dnieper (Dnepr), Thames (Themse), Scheldt, Meuse (Maas), Rhône, Tisza (Theiß), Loire, Garonne, Moselle, Sava, Dniester (Dnister), Neman (Memel), Douro (Duero), Ebro, Maritsa, Vardar, Pripyat (Prypjat), Tiber. E.g. Toledo "Río Tajo → Río Tajo / Rio Tejo" → "Tagus"; Prague "Vltava → Labe → Elbe" → "Vltava → Elbe"; Bucharest → "Dâmbovița → Argeș → Danube".
+
+Open (needs the author):
+- **Non-Latin names**: 613 of 6,903 chains contain a Greek or Cyrillic name that isn't curated (UA 336, GR 80, BY 50, BG 45, RS 37, MK 27), plus 3 endpoint lakes ("Λίμνη Βεγορίτιδα"). OSM's `name:en` is extracted and could be used on screen where `name` isn't Latin script; German would then show the English/transliterated form too (D7 allows only curated German).
+- **Prefixes in local names**: 1,907 chains contain "La …", "Le …", "River …", "Río …", "Fiume …" and similar (Paris' Bièvre is "La Bièvre", Manchester's "River Irwell").
+- Lisbon shows only "(stream) → North Atlantic Ocean": its stream enters the Tagus estuary, which the sea grid counts as ocean.
 
 ## Full Europe run and build report (2026-09-29)
 
@@ -349,6 +364,7 @@ _None yet. Any travel-time or "reaches the sea in N days" figure must document i
 
 ## Corrections log
 
+- 2026-09-29 — Delta zone is 200 km, not 150 km: the Rhine delta starts 172 km from the mouth.
 - 2026-09-28 — R7: total distance is `DIST_DN_KM` plus the start reach's remaining length, not `DIST_DN_KM` alone (the column is measured from the reach outlet).
 - 2026-09-28 — The RiverATLAS column is `HYBAS_L12`; the TechDoc's `HYBAS_ID` in §2.3 is wrong.
 - 2026-09-28 — R17 (after D5): cite Linke et al. 2019 (HydroATLAS) and Lehner & Grill 2013 under CC BY 4.0; the Exhibit B statement and the 2008 citation no longer apply.

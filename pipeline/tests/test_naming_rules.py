@@ -63,3 +63,21 @@ def test_bilingual_osm_names_map_to_one_curated_river():
         ("Dunav / Дунав", "Danube"),
     ]:
         assert lookup_curated(name, curated)["en"] == en, name
+
+
+def test_hyphenated_border_names_are_variants():
+    # Romanian-Bulgarian and Romanian-Ukrainian Danube names in OSM (2026-09-29 Europe run).
+    from downstream.naming import load_curated, lookup_curated
+
+    curated = load_curated()
+    for name in ("Dunărea - Дунав", "Dunărea - Дунай"):
+        assert lookup_curated(name, curated)["en"] == "Danube", name
+
+
+def test_slash_and_arm_names_are_variants():
+    from downstream.naming import load_curated, lookup_curated, name_variants
+
+    curated = load_curated()
+    for name in ("Дунав/Dunărea", "Dunav/Dunărea", "Brațul Borcea (Dunărea)"):
+        assert lookup_curated(name, curated)["en"] == "Danube", name
+    assert name_variants("Main-Donau-Kanal") == ["Main-Donau-Kanal"]

@@ -304,8 +304,16 @@ def _absorb_short_blocks(
 
 
 def name_variants(name: str) -> list[str]:
-    """OSM border and bilingual names: 'Mur / Mura', 'Dunav / Дунав' -> each part, whole first."""
-    parts = [p.strip() for p in name.replace(";", " / ").split(" / ") if p.strip()]
+    """OSM border, bilingual and arm names -> the whole name first, then each part.
+
+    Forms seen in OSM (Europe run, 2026-09-29): "Mur / Mura", "Dunav/Dunărea", "Dunărea - Дунав",
+    "a;b", and delta arms "Brațul Borcea (Dunărea)", "Dunărea (Brațul Sulina)". Hyphens without
+    spaces ("Main-Donau-Kanal") are part of a name and are not split.
+    """
+    s = name
+    for sep in (";", " - ", " – ", "(", ")"):
+        s = s.replace(sep, "/")
+    parts = [p.strip() for p in s.split("/") if p.strip()]
     return [name, *parts] if len(parts) > 1 else [name]
 
 

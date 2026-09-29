@@ -129,7 +129,9 @@ _EXTENTS: dict[Path, tuple] = {}
 
 def _extent(f: Path) -> tuple:
     if f not in _EXTENTS:
-        _EXTENTS[f] = tuple(pyogrio.read_info(f, force_total_bounds=True)["total_bounds"])
+        bounds = pyogrio.read_info(f, force_total_bounds=True)["total_bounds"]
+        # Empty files (e.g. no named lakes in Monaco) have no bounds and never overlap a tile.
+        _EXTENTS[f] = tuple(bounds) if bounds is not None else (1e9, 1e9, -1e9, -1e9)
     return _EXTENTS[f]
 
 

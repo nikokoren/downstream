@@ -40,7 +40,9 @@ def river_mouths(reaches: pd.DataFrame) -> np.ndarray:
     return ids[ptr]
 
 
-DELTA_ZONE_KM = 150.0
+# 200 km, not 150: the Rhine splits at Pannerden 172 km from its HydroATLAS mouth (checked
+# 2026-09-29); at 150 km its first Dutch arms ("Bijlandsch Kanaal") were shown to the sea.
+DELTA_ZONE_KM = 200.0
 ARM_MAX_GROWTH = 0.05
 
 
