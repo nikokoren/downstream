@@ -25,6 +25,8 @@ NEEDED = [
     OSM_DIR / "waterways-europe-hungary.fgb",
     OSM_DIR / "waterways-europe-slovenia.fgb",
     OSM_DIR / "waterways-europe-italy-nord-est.fgb",
+    OSM_DIR / "waterways-europe-portugal.fgb",
+    DATA / "names" / "estuaries.csv",
     RAW_NE_OCEAN,
     DATA / "names" / "reach_names.csv",  # from `python -m downstream.build_names`
 ]
@@ -54,6 +56,9 @@ EXPECTED = {
     # Etsch - Adige" (ditches beside the Adige) and "Tolminka → Soča → Isonzo / Soča / Lusinç".
     "bolzano": (["Eisack - Isarco", "Etsch - Adige"], "Adriatic Sea"),
     "tolmin": (["Tolminka", "Soča"], "Adriatic Sea"),
+    # 2026-09-29: was "(stream)" only; the stream enters the Tagus estuary, which HydroATLAS
+    # counts as sea.
+    "lisbon": ([None, "Tagus"], "North Atlantic Ocean"),
 }
 
 

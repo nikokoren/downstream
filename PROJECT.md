@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — **Estuaries**: towns on a big river's estuary shore now end with that river (Lisbon: "(stream) → Tagus"). 84 chains changed, 0 endpoints; 24/24 tests pass (Lisbon locked).
 - 2026-09-29 — D15–D17 decided: Greek and Cyrillic names in English, prefixes kept, town names from GeoNames. 24/24 tests pass.
 - 2026-09-29 — **Same river under two names, and ditches beside big rivers** (details under "OSM for all of Europe"). 144 chains changed, 0 endpoints; 23/23 tests pass (Bolzano and Tolmin locked).
 - 2026-09-29 — **15 extra towns added by the author** (`pipeline/downstream/extra_towns.csv`, by GeoNames id from the per-country dumps, CC BY 4.0): Köflach, Unterjesingen, Ballmertshofen, Bad Endorf, Stoob, Wolkenstein in Gröden, Le Bourg-d'Oisans, Bormio, Sölden, Zambratija, Tolmin, Kobarid, Sutrio, Gröbming, Königssee (the village at the lake, 2885778, not Königsee in Thuringia). Braunschweig, Tübingen, Ludwigsburg, Linz, Lübeck, Lindau and Konstanz were already in cities15000. 7,048 towns, 6,918 in the rotation; all 22 requested towns are in it (start ≤ 2.5 km).
@@ -174,8 +175,7 @@ Author's decisions 2026-09-29 (D15–D17):
 - **D16**: prefixes stay for now.
 - **D17**: town names as GeoNames gives them.
 
-Open:
-- Lisbon shows only "(stream) → North Atlantic Ocean": its stream enters the Tagus estuary, which the sea grid counts as ocean.
+**Estuaries** (2026-09-29, `pipeline/downstream/estuaries.py`, run by `build_names`, output `data/names/estuaries.csv`). HydroATLAS ends big rivers where the estuary begins and counts the estuary as sea: Lisbon's stream (34 km²) ended in the "North Atlantic Ocean"; the Tagus outlet (70,755 km²) is 30 km upstream. OSM draws "Rio Tejo" on through the estuary, 0.8 km from Lisbon's outlet. Rule: an outlet gets the estuary of river R when an OSM `waterway=river` line within 3 km has R's name, R's HydroATLAS outlet is within 100 km and drains ≥ 10× as much, and the line goes on ≥ 3 km beyond the outlet towards the sea (which way is the sea: the far side of R's outlet from R's last reach). 375 outlets in Europe; 84 town chains changed, 0 endpoints: Tagus (Lisbon and 33 districts/towns), Elbe (21: Pinnau, Krückau, Stör, Este, Schwinge, Wedel, Cuxhaven), Thames (10: Southend, Gravesend, Grays), Scheldt (13 around Antwerp), Mersey (5), Weser (2), Oder (Police), Odiel (Aljaraque), Test (Southampton). The step's km is the distance along the OSM line to the sea.
 
 ## Full Europe run and build report (2026-09-29)
 

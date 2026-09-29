@@ -43,6 +43,7 @@ EXAMPLES = [
     # extra town).
     ("Bolzano", "IT"),
     ("Tolmin", "SI"),
+    ("Lisbon", "PT"),  # ends on the Tagus estuary shore (downstream.estuaries)
 ]
 
 
@@ -81,6 +82,8 @@ class Context:
             for r in pd.read_csv(names_csv, usecols=["HYRIV_ID", "name", "source"]).itertuples()
         }
         self.curated = naming.load_curated()
+        est = pd.read_csv(RAW.parent / "names" / "estuaries.csv")
+        self.estuary = {int(r.HYRIV_ID): (r.estuary, float(r.km)) for r in est.itertuples()}
         en_csv = RAW.parent / "names" / "name_table" / "name_en.csv"
         self.name_en = dict(pd.read_csv(en_csv, keep_default_na=False).itertuples(index=False))
         self.seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
@@ -105,9 +108,12 @@ def compute_town(
     ids = ctx.net.downstream(start)
     reaches = ctx.net.reaches.loc[ids]
     names = [ctx.reach_label.get(int(i), (None, None)) for i in ids]
-    groups = to_latin(naming.chain(reaches, names, ctx.curated), ctx.name_en, c["cc"])
+    groups = naming.chain(reaches, names, ctx.curated)
     first, last = reaches.iloc[0], reaches.iloc[-1]
     end = ctx.end_of(last)
+    if end["type"] == "sea" and int(last["HYRIV_ID"]) in ctx.estuary:
+        groups = add_estuary(groups, *ctx.estuary[int(last["HYRIV_ID"])], ctx.curated)
+    groups = to_latin(groups, ctx.name_en, c["cc"])
     if end["type"] != "sea" and groups[-1]["kind"] == "lake":
         # The path ends in a named lake (Limni Vegoritis, Limni Ioanninon): that's the endpoint.
         lake = groups[-1]["name"] or {}
@@ -154,6 +160,23 @@ def compute_town(
         ),
     }
     return result, line, stats
+
+
+def add_estuary(groups: list[dict], name: str, km: float, curated: dict) -> list[dict]:
+    """The path ends on the shore of a big river's estuary (downstream.estuaries): that river is
+    the last step, unless the path already ends on it."""
+    last = groups[-1]
+    if last["kind"] == "river" and last.get("key") and last["key"] == naming.display_key(name):
+        return groups
+    disp = naming.lookup_curated(name, curated)
+    step = {
+        "kind": "river",
+        "name": {"en": disp["en"], "de": disp["de"]} if disp else {"local": name},
+        "source": "osm:estuary",
+        "km": km,
+        "reaches": 0,
+    }
+    return [*groups, step]
 
 
 def to_latin(groups: list[dict], name_en: dict, cc: str) -> list[dict]:

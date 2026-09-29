@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import pyogrio
 
-from downstream import reach_names, rivers
+from downstream import estuaries, reach_names, rivers
 from downstream.endpoints import load_ne
 from downstream.fetch import RAW
 from downstream.name_table import NameTable
@@ -58,6 +58,11 @@ def stage2() -> None:
     )
     t = table.write(OUT / "name_table", build)
     english_names(OUT / "name_table" / "name_en.csv")
+    t2 = time.time()
+    ways = sorted((RAW / "osm").glob("waterways-*.fgb"))
+    est = estuaries.find(pyogrio.read_dataframe(RAW / "reaches_eu.fgb"), cleaned, ways)
+    est.to_csv(OUT / "estuaries.csv", index=False)
+    print(f"estuaries: {len(est)} outlets in {time.time() - t2:.0f}s", flush=True)
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
     print(
         f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named", flush=True
@@ -120,6 +125,11 @@ def main(workers: int) -> None:
     )
     t = table.write(OUT / "name_table", build)
     english_names(OUT / "name_table" / "name_en.csv")
+    t2 = time.time()
+    ways = sorted((RAW / "osm").glob("waterways-*.fgb"))
+    est = estuaries.find(pyogrio.read_dataframe(RAW / "reaches_eu.fgb"), cleaned, ways)
+    est.to_csv(OUT / "estuaries.csv", index=False)
+    print(f"estuaries: {len(est)} outlets in {time.time() - t2:.0f}s", flush=True)
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
     print(
         f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named; "
