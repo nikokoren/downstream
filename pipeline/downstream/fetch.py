@@ -51,9 +51,20 @@ def _download(url: str, dst: Path) -> None:
         return
     tmp = dst.with_suffix(dst.suffix + ".part")
     req = urllib.request.Request(url, headers={"User-Agent": "downstream-pipeline/0.1"})
-    with urllib.request.urlopen(req, timeout=300) as r, open(tmp, "wb") as f:
-        while chunk := r.read(1 << 20):
-            f.write(chunk)
+    # Server errors and dropped connections are retried: GitHub's release downloads answered 500
+    # once in 244 files (build run 11, 2026-09-29). 4xx (e.g. a missing release) fails at once.
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r, open(tmp, "wb") as f:
+                while chunk := r.read(1 << 20):
+                    f.write(chunk)
+            break
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            client_error = isinstance(e, urllib.error.HTTPError) and e.code < 500
+            if client_error or attempt == 3:
+                raise
+            print(f"retry {dst.name} after {e}", flush=True)
+            time.sleep(2 ** (attempt + 1))
     tmp.rename(dst)
     print(f"{dst.name}: {dst.stat().st_size} bytes")
 
