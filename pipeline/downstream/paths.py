@@ -110,7 +110,7 @@ def compute_town(
             "featurecla": "Lake",
             "distance_km": 0.0,
         }
-    end_disp = ctx.curated.get(end["name"]) if end["name"] else None
+    end_disp = naming.lookup_curated(end["name"], ctx.curated) if end["name"] else None
     line = shapely.line_merge(shapely.MultiLineString(list(reaches.geometry.values)))
     simple = simplify_to(line, MAX_MAP_POINTS)
     result = {
@@ -186,12 +186,20 @@ def main_examples() -> None:
     )
 
 
+# Towns whose first river segment is further than this from the town point are left out of the
+# rotation (author, 2026-09-29; BRIEF R9 "no reach found nearby", D8). 130 of 7,033 towns on the
+# first full run, up to 30 km (Den Helder, Gibraltar, Kos, Badalona, ...).
+MAX_START_KM = 5.0
+
+
 def main_all() -> None:
     """Every Europe town (D9): one JSON per town in ../data/towns/, and the build report (P7)."""
     from downstream import report
 
     out = RAW.parent / "towns"
     out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("*.json"):  # no stale files for towns that are now excluded
+        old.unlink()
     t0 = time.time()
     ctx = Context()
     eu = towns.europe_towns(RAW)
@@ -203,9 +211,11 @@ def main_all() -> None:
         row = {"geonameid": gid, "name": c["name"], "cc": c["cc"], "population": int(c["pop"])}
         try:
             result, _, stats = compute_town(ctx, gid, c, alts)
-            (out / f"{gid}.json").write_text(
-                json.dumps(result, ensure_ascii=False, separators=(",", ":"))
-            )
+            excluded = stats["start_dist_km"] > MAX_START_KM
+            if not excluded:
+                (out / f"{gid}.json").write_text(
+                    json.dumps(result, ensure_ascii=False, separators=(",", ":"))
+                )
             row |= {
                 "en": result["town"]["en"],
                 "de": result["town"]["de"],
@@ -214,6 +224,7 @@ def main_all() -> None:
                 "end_name": result["end"]["name"],
                 "chain": chain_text(result),
                 **stats,
+                "excluded": "start far from town" if excluded else "",
                 "error": "",
             }
         except Exception as e:  # noqa: BLE001 - recorded in the report, not fatal

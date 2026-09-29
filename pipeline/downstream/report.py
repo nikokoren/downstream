@@ -12,24 +12,27 @@ def _pct(x: float) -> str:
 def write(df: pd.DataFrame, out: Path, seconds: float) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     df.to_csv(out / "towns.csv", index=False)
-    ok = df[df["error"] == ""]
+    if "excluded" not in df:
+        df["excluded"] = ""
+    df["excluded"] = df["excluded"].fillna("")
     bad = df[df["error"] != ""]
+    computed = df[df["error"] == ""]
+    ok = computed[computed["excluded"] == ""]  # towns in the rotation
+    excl = computed[computed["excluded"] != ""]
     lines = [
         "# Downstream build report",
         "",
         (
-            f"- Towns: {len(df)} (Europe border, D9); computed: {len(ok)}; "
-            f"errors: {len(bad)}; time: {seconds:.0f} s."
+            f"- Towns: {len(df)} (Europe border, D9); in the rotation: {len(ok)}; "
+            f"excluded (start > 5 km from the town): {len(excl)}; errors: {len(bad)}; "
+            f"time: {seconds:.0f} s. Figures below cover the towns in the rotation."
         ),
         (
             f"- Payload (compact JSON): median {ok['payload_bytes'].median():.0f} B, "
             f"max {ok['payload_bytes'].max():.0f} B; "
             f"over 6 KB (R3): {(ok['payload_bytes'] > 6000).sum()}."
         ),
-        (
-            f"- Start more than 5 km from the town point: {(ok['start_dist_km'] > 5).sum()} "
-            f"(max {ok['start_dist_km'].max():.1f} km)."
-        ),
+        f"- Start distance from the town point: max {ok['start_dist_km'].max():.1f} km.",
         f'- First step unnamed ("a stream"): {ok["first_unnamed"].sum()} ({_pct(ok["first_unnamed"].mean())}).',
         (
             f"- Path km named: median {_pct(ok['named_share'].median())}; "
@@ -62,19 +65,16 @@ def write(df: pd.DataFrame, out: Path, seconds: float) -> Path:
     if len(bad):
         lines += ["", "## Errors", "", "| Town | Country | Error |", "|---|---|---|"]
         lines += [f"| {r['name']} | {r['cc']} | {r['error']} |" for _, r in bad.iterrows()]
-    far = ok[ok["start_dist_km"] > 5].sort_values("start_dist_km", ascending=False)
+    far = excl.sort_values("start_dist_km", ascending=False)
     if len(far):
         lines += [
             "",
-            "## Start far from the town (> 5 km)",
+            f"## Excluded: start more than 5 km from the town ({len(far)})",
             "",
             "| Town | Country | km |",
             "|---|---|---|",
         ]
-        lines += [
-            f"| {r['name']} | {r['cc']} | {r['start_dist_km']} |"
-            for _, r in far.head(50).iterrows()
-        ]
+        lines += [f"| {r['name']} | {r['cc']} | {r['start_dist_km']} |" for _, r in far.iterrows()]
     path = out / "report.md"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path

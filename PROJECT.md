@@ -43,6 +43,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D11 | Pipeline tooling: Python 3.12 + uv, geopandas/pyogrio/shapely, pyosmium (see below) | Decided | 2026-09-28 |
 | D12 | Delta arms fold into the main river (Lek → Rhine, Chilia arm → Danube) | Decided | 2026-09-28 |
 | D13 | Lakes on the path are steps of their own (natural lakes only, not reservoirs) | Decided | 2026-09-28 |
+| D14 | Leave out towns whose start is > 5 km from the town; don't show "Inner Seas" | Decided | 2026-09-29 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -149,6 +150,10 @@ Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
 ## Full Europe run and build report (2026-09-29)
+
+**Author's decisions 2026-09-29 (D14):**
+- **Towns whose first river segment is more than 5 km from the town point are left out of the rotation** (BRIEF R9 "no reach found nearby"). 130 of 7,033 (Den Helder 30 km, Gibraltar, Kos, Badalona, …); listed in the report; no town file. **6,903 towns in the rotation.**
+- **"Inner Seas" is not shown.** First idea was to display it as "Sea of the Hebrides" (Wikidata Q1971856, de "Hebridensee"), but the 53 towns ending there were mostly Glasgow/Clyde (~35) and Northern Ireland/Donegal (14): Natural Earth's area covers the whole North Channel coast. Now it's skipped as an endpoint and the search continues by water: Glasgow, Ayr, Belfast, Larne → Irish Sea; Coleraine, Derry, Letterkenny, Isle of Lewis, Fort William → North Atlantic Ocean.
 
 `uv run python -m downstream.paths --all`: all 7,033 Europe towns (D9), one JSON per town in `data/towns/`, report in `data/report/` (`report.md`, `towns.csv`). Also run and published (release `build-report`) by the `build` workflow.
 

@@ -23,6 +23,10 @@ CELL_M = 1000.0
 WINDOW = (-30.0, 28.0, 55.0, 74.0)  # lon/lat; covers every Europe town's mouth plus open sea
 NAMED_CLASSES = {"sea", "ocean", "gulf", "bay", "channel", "strait", "fjord"}
 MIN_AREA_KM2 = 15_000
+# Natural Earth's "Inner Seas" (IHO: Inner Seas off the West Coast of Scotland) also covers the
+# Firth of Clyde and the Northern Irish coast: Glasgow, Belfast and Derry ended there (2026-09-29).
+# Not shown as an endpoint; the search continues to the next named sea by water.
+SKIP_NAMES = {"Inner Seas"}
 GROW_CELLS = 2  # narrow estuaries (Seine, Scheldt, Szczecin Lagoon) break into pockets at 1 km
 SEARCH_HALF_M = (50_000.0, 200_000.0, 800_000.0)
 
@@ -116,7 +120,7 @@ def load_seas(ocean_zip, marine_zip) -> Seas:
     m.columns = [c.lower() if c != "geometry" else c for c in m.columns]
     m = m[m["featurecla"].str.lower().isin(NAMED_CLASSES) & m["name"].notna()].to_crs(METRIC_CRS)
     m["geometry"] = m.geometry.make_valid()
-    m = m[m.area / 1e6 >= MIN_AREA_KM2].copy()
+    m = m[(m.area / 1e6 >= MIN_AREA_KM2) & ~m["name"].isin(SKIP_NAMES)].copy()
     m["km2"] = m.area / 1e6
     m = m.sort_values("km2").reset_index(drop=True)
     return Seas(ocean, m[["name", "geometry"]])
