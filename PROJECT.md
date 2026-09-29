@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — **TRMNL docs re-checked** (help centre, docs.trmnl.com, Framework releases and Map docs): webhooks now 5 KB; no documented polling limit; Framework 3.4 with built-in maps (TRMNLMaps: route, fit, dot, decodePolyline, free TRMNL tiles); on-demand refresh; saved state and Serverless scripts. Excerpts in `docs/sources/TRMNL_2026-09-29.md`.
 - 2026-09-29 — **German endpoint names** (D7) for all 24 seas towns end in, plus Lake Vegoritida (Vegoritida-See): taken from the German Wikipedia article linked from the English one, each title checked on de.wikipedia. Lake Paralimni (Boeotia, 2 towns) has no German article and stays uncurated ("Paralimni-See" on de.wikipedia is a lake on Cyprus). English "Golfe du Lion" (Natural Earth) shows as "Gulf of Lion". A test now fails if any sea endpoint lacks a German name.
 - 2026-09-29 — **Estuaries**: towns on a big river's estuary shore now end with that river (Lisbon: "(stream) → Tagus"). 84 chains changed, 0 endpoints; 24/24 tests pass (Lisbon locked).
 - 2026-09-29 — D15–D17 decided: Greek and Cyrillic names in English, prefixes kept, town names from GeoNames. 24/24 tests pass.
@@ -22,10 +23,10 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Pipeline: run `build` to republish the name table and report. Deferred: rivers through lakes (below).
-2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo; TRMNL design parked by the author until the pipeline is set up).
-3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
-4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
+1. **Author to decide** how the rotation works (D8) and where town files are served from — options under "TRMNL platform" findings (2026-09-29): (a) Polling URL picks the town from the time with Liquid, files served statically (no server); (b) our Worker picks the next town; (c) Serverless saved state keeps a per-install counter. Also: Framework 3.4 instead of 3.3; path sent as an encoded polyline for `decodePolyline()`.
+2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md` and reconcile them with TRMNLMaps (3.3+); copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo).
+3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14), including a line for inland sinks and for Lake Paralimni's missing German name.
+4. Build the Worker/hosting and the four views.
 
 ## Deferred (come back after everything else is built)
 
@@ -368,10 +369,20 @@ All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of
 - https://trmnl.com/blog/creator-fund: 80% of TRMNL+ revenue; 10–15% of other streams (Developer Edition, Clarity Kit). Payout factors: age on live playlists, presence, impressions; threshold 50 connections (installs + forks). Brief confirmed.
 - Not in the brief: payouts are split 70% plugin authors, 30% strategic contributors (first payout, November 2025). Since April 1, plugins in the "comics" category aren't monetizable. Weights and thresholds "may change".
 
-### TRMNL webhook limits
+### TRMNL platform (checked 2026-09-29; re-fetch before relying on this)
 
-- https://docs.trmnl.com/go/private-plugins/webhooks: 2 KB, 5 KB for TRMNL+. Brief confirmed.
-- Conflict: the Creator Fund blog lists TRMNL+ as "10kb webhook payloads (current: 5kb)". Irrelevant while we use polling (R1).
+Verbatim excerpts with URLs: `docs/sources/TRMNL_2026-09-29.md`.
+
+- **Webhooks**: 5 KB, 10 KB with TRMNL+ (was 2 KB / 5 KB when the brief was written); 12 posts/hour, 30 with TRMNL+.
+- **Polling**: no payload size limit is documented. Searched: help articles "Private Plugins" (9510536), "How refresh rates work", "Dynamic polling URLs", "Plugin not receiving data from polling URL", "Missing data in multiple polling URLs", "TRMNL FAQ", docs.trmnl.com webhooks page and the docs index (`llms.txt`); the help-centre search is client-rendered and returned nothing to curl. R3's ~6 KB stays our own budget (max town payload now 4.9 KB).
+- **Polling URL is a Liquid template**: form fields, `{{ trmnl.* }}` globals and filters such as `"now" | date: ...` can build the URL, so a URL can pick the town without server state.
+- **Refresh**: on-demand since 2026-05-22 (plugins refresh just before they are shown); the plugin's refresh setting is now a minimum. Account minimum 15 min (5 min with TRMNL+). A recipe author can set the fastest refresh allowed for installs. Unchanged merge variables → no new screen.
+- **Saved state** (new): a Serverless transform can write `trmnl_state` (≤ 8,192 bytes, an object), readable in markup and in the next run's Polling URL; per install. Not available with Async Polling.
+- **Serverless** (replaced "Transformer" in Aug 2026): run() in Ruby/Node/PHP/Python with network access, 128 MB, 5 s.
+- **Recipes**: published private plugins; installs get the author's updates, forks don't. Portrait-mode support is required for recipes published since 2026-01-17. `TRMNL_SKIP_DISPLAY` should not be used in published recipes.
+- **Framework**: current is **3.4.0** (2026-09-28); 3.3 docs redirect to 3.4. Plugins are pinned to a Framework version until the author upgrades. Four views: full, half_horizontal, half_vertical, quadrant.
+- **Maps (TRMNLMaps, Framework 3.3.0, 2026-08-27)**: bundled in the runtime; MapLibre GL JS 5.24.0 loaded by the plugin from `trmnl.com/js/maplibre-gl/5.24.0/`. Presets streets, minimal, outline, blank. `route()`, `dot()`, `fit()` (integer zoom, no animation), `decodePolyline()` (Google encoded polyline → [lng, lat]). Default tiles: TRMNL's own `maps.trmnl.com` (Shortbread schema), free for the renderer (3.4 docs; the 3.3.0 notes had said OSM's community endpoint). The map adds its own "© OpenStreetMap contributors" label, bottom right; keep it visible. The runtime waits for maps to go idle before capture (`TRMNLMaps.settle()`).
+- **Devices** (`/api/models`, 56 models): TRMNL X 1872×1404 at scale 1.8 (1040×780 CSS px; gray-16/gray-4/bw), OG 800×480 (1-bit, 2-bit, and B/W/R/Y).
 
 ### CC NonCommercial
 
@@ -383,6 +394,8 @@ _None yet. Any travel-time or "reaches the sea in N days" figure must document i
 
 ## Corrections log
 
+- 2026-09-29 — TRMNL webhooks take 5 KB (10 KB with TRMNL+), not 2 KB (5 KB); the brief's R3 note is out of date.
+- 2026-09-29 — Framework is at 3.4 (3.3 docs redirect there); the brief's "Framework 3.3" means 3.3 or later. TRMNLMaps has its own `route()`/`fit()`/`dot()`, so R12's "our own GeoJSON source and line layer" is no longer needed.
 - 2026-09-29 — Delta zone is 200 km, not 150 km: the Rhine delta starts 172 km from the mouth.
 - 2026-09-28 — R7: total distance is `DIST_DN_KM` plus the start reach's remaining length, not `DIST_DN_KM` alone (the column is measured from the reach outlet).
 - 2026-09-28 — The RiverATLAS column is `HYBAS_L12`; the TechDoc's `HYBAS_ID` in §2.3 is wrong.
