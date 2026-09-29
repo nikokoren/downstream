@@ -1,4 +1,4 @@
-"""Towns from GeoNames cities15000 with English and German names (D9)."""
+"""Towns from GeoNames cities15000 plus the author's extra towns, with English and German names (D9)."""
 
 import csv
 import io
@@ -37,6 +37,33 @@ def load_cities(zip_path: Path) -> dict[str, dict]:
         return {r[0]: dict(zip(CITY_COLS, r, strict=True)) for r in rows}
 
 
+EXTRA_TOWNS = Path(__file__).with_name("extra_towns.csv")
+
+
+def extra_town_ids() -> dict[str, str]:
+    """geonameid -> country code for the author's extra towns."""
+    lines = [
+        x for x in EXTRA_TOWNS.read_text(encoding="utf-8").splitlines() if not x.startswith("#")
+    ]
+    return {r["geonameid"]: r["cc"] for r in csv.DictReader(lines)}
+
+
+def load_extra_towns(raw_dir: Path) -> dict[str, dict]:
+    """The extra towns' rows from the GeoNames country dumps (same columns as cities15000)."""
+    wanted = extra_town_ids()
+    out = {}
+    for cc in sorted(set(wanted.values())):
+        with zipfile.ZipFile(raw_dir / f"geonames_{cc}.zip") as z, z.open(f"{cc}.txt") as f:
+            rows = csv.reader(
+                io.TextIOWrapper(f, encoding="utf-8"), delimiter="\t", quoting=csv.QUOTE_NONE
+            )
+            out |= {r[0]: dict(zip(CITY_COLS, r, strict=True)) for r in rows if r[0] in wanted}
+    missing = set(wanted) - set(out)
+    if missing:
+        raise ValueError(f"extra towns not found in the GeoNames dumps: {sorted(missing)}")
+    return out
+
+
 def load_alt_names(path: Path, ids: set[str]) -> dict[str, dict[str, list]]:
     """geonameid -> lang -> [(name, preferred, short, colloquial, historic)]."""
     out: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
@@ -62,12 +89,13 @@ def pick_name(town: dict, alts: dict[str, list], lang: str) -> str:
 
 
 def europe_towns(raw_dir: Path):
-    """cities15000 towns inside the Europe border (D9), as a GeoDataFrame (EPSG:4326)."""
+    """cities15000 towns plus the extra towns, inside the Europe border (D9), as a GeoDataFrame
+    (EPSG:4326)."""
     import geopandas as gpd
 
     from downstream.europe import Europe
 
-    cities = load_cities(raw_dir / "geonames_cities15000.zip")
+    cities = load_cities(raw_dir / "geonames_cities15000.zip") | load_extra_towns(raw_dir)
     df = gpd.GeoDataFrame(list(cities.values()))
     df["lon"] = df["lon"].astype(float)
     df["lat"] = df["lat"].astype(float)

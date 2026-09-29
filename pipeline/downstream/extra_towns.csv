@@ -1,0 +1,20 @@
+# Towns added by the author (2026-09-29) on top of cities15000 (D9), mostly under 15,000 people.
+# Looked up by GeoNames id in the per-country dumps (download.geonames.org/export/dump/<CC>.zip, CC BY 4.0).
+# Already in cities15000 when requested, so not listed here: Braunschweig, Tübingen, Ludwigsburg,
+# Linz (AT), Lübeck, Lindau (Bodensee), Konstanz.
+geonameid,cc,requested_as
+2773848,AT,Köflach
+2819284,DE,Unterjesingen
+2953042,DE,Ballmertshofen
+2930367,DE,Bad Endorf
+2764238,AT,Stoob
+3166784,IT,Wolkenstein in Gröden
+3005091,FR,Le Bourg-d'Oisans
+3181730,IT,Bormio
+2764957,AT,Sölden
+3186814,HR,Zambratija
+3189038,SI,Tolmin
+3197983,SI,Kobarid
+3219195,IT,Sutrio
+2777927,AT,Gröbming
+2885778,DE,Königssee

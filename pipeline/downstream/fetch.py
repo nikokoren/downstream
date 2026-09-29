@@ -76,6 +76,10 @@ def ne() -> None:
 def geonames() -> None:
     for name in ["cities15000.zip", "alternateNamesV2.zip", "countryInfo.txt"]:
         _download(f"{sources.GEONAMES_DUMP}/{name}", RAW / f"geonames_{name}")
+    from downstream.towns import extra_town_ids
+
+    for cc in sorted(set(extra_town_ids().values())):  # country dumps for the extra towns
+        _download(f"{sources.GEONAMES_DUMP}/{cc}.zip", RAW / f"geonames_{cc}.zip")
     alt = RAW / "geonames_alternateNamesV2.zip"
     out = RAW / "geonames_alt_de_en.txt"
     if not out.exists():

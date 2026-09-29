@@ -57,4 +57,4 @@ def test_europe_border(europe):
     assert [t for t in inside if t not in names] == []
     assert [t for t in outside if t in names] == []
     assert (europe["cc"] == "RU").sum() == 0
-    assert 7000 <= len(europe) <= 7100  # 7,033 on 2026-09-28
+    assert 7000 <= len(europe) <= 7100  # 7,033 on 2026-09-28; 7,048 with the 15 extra towns
