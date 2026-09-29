@@ -141,7 +141,8 @@ def compute_town(
         "total_km": round(float(first["DIST_DN_KM"] + first["LENGTH_KM"]), 1),
         "chain": [{k: g[k] for k in ("kind", "name", "source", "km", "reaches")} for g in groups],
         "end": {**end, "display": end_disp},
-        "path": [[round(x, 3), round(y, 3)] for x, y in shapely.get_coordinates(simple)],
+        # Google encoded polyline, decoded on screen by TRMNLMaps.decodePolyline() (Framework 3.3+).
+        "polyline": encode_polyline(shapely.get_coordinates(simple)),
     }
     km = reaches["LENGTH_KM"].to_numpy(dtype=float)
     src = [s or "" for _, s in names]
@@ -226,7 +227,7 @@ def main_examples() -> None:
             f"{result['town']['en']} / {result['town']['de']}: start {result['start']['reach']} "
             f"({result['start']['how']}); {result['reaches']} reaches, {result['total_km']} km; "
             f"end {end['type']} {end['name']} ({end['distance_km']} km); "
-            f"{len(result['path'])} map points, {stats['payload_bytes']} bytes compact\n"
+            f"{len(result['polyline'])} polyline chars, {stats['payload_bytes']} bytes compact\n"
             f"   {chain_text(result)}"
         )
     (OUT / "paths.geojson").write_text(
@@ -284,6 +285,23 @@ def main_all() -> None:
 
 
 MAX_MAP_POINTS = 120  # keeps the payload under R3's ~6 KB; revisit with the TRMNL design
+
+
+def encode_polyline(coords) -> str:
+    """Google's encoded polyline format (precision 5) for [lng, lat] points: what
+    TRMNLMaps.decodePolyline() reads back as [lng, lat] pairs. Lat comes first in each pair."""
+    out = []
+    prev_lat = prev_lng = 0
+    for lng, lat in coords:
+        ilat, ilng = round(lat * 1e5), round(lng * 1e5)
+        for delta in (ilat - prev_lat, ilng - prev_lng):
+            v = ~(delta << 1) if delta < 0 else delta << 1
+            while v >= 0x20:
+                out.append(chr((0x20 | (v & 0x1F)) + 63))
+                v >>= 5
+            out.append(chr(v + 63))
+        prev_lat, prev_lng = ilat, ilng
+    return "".join(out)
 
 
 def simplify_to(line, max_points: int):

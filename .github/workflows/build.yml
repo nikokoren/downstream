@@ -1,16 +1,20 @@
 # Full pipeline build on GitHub (D11): fetch all inputs, compute the example paths, run every test
-# on the real data, and publish the ODbL name table (D10) as the `name-table` release.
+# on the real data, publish the ODbL name table (D10) as the `name-table` release, and deploy the
+# town files for the rotation (D8 option (a)) to GitHub Pages.
+# One-time setup: Settings > Pages > Build and deployment > Source: GitHub Actions.
 name: build
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       GH_TOKEN: ${{ github.token }}
     defaults:
@@ -37,6 +41,14 @@ jobs:
         run: |
           uv run python -m downstream.paths --all
           head -12 ../data/report/report.md
+      - name: Town files for the rotation + check the committed Polling URL
+        run: |
+          uv run python -m downstream.site
+          git diff --exit-code ../recipe/polling_url.liquid
+          uv run pytest -q tests/test_site.py
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: data/site
       - name: Publish name table (ODbL)
         run: |
           D=../data/names/name_table
@@ -48,3 +60,16 @@ jobs:
           gh release view build-report >/dev/null 2>&1 || \
             gh release create build-report --title "Build report" --notes "Latest build report (report.md, towns.csv). Town chains contain OpenStreetMap names: see the name-table release for the ODbL notice." --prerelease
           gh release upload build-report ../data/report/report.md ../data/report/towns.csv --clobber
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

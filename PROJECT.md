@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — **D18 wired up (option (a))**: `pipeline/downstream/site.py` writes one file per rotation slot (`data/site/t/<n>.json`, 6,918 towns in a fixed shuffled order, seed 20260929) and `recipe/polling_url.liquid`: `slot = unix time // 900`, `n = slot mod 6918`, URL `https://nikokoren.github.io/downstream/t/<n>.json`. The build workflow deploys `data/site` to GitHub Pages (needs the one-time Pages source setting "GitHub Actions"). The path is now a Google encoded polyline: payload median 1.9 → 1.1 KB, max 4.9 → 4.1 KB. Checked: the polyline encoder reproduces Google's worked example; the URL template renders to the current slot with python-liquid 2.3.3 (Shopify Liquid; TRMNL's engine is Ruby Liquid, so **not confirmed on TRMNL**). Every install shows the same town at the same time; a per-install offset is possible only if TRMNL exposes a per-install value to the Polling URL (not checked). GitHub Pages terms (checked 2026-09-29): not for running an online business or commercial SaaS; 1 GB site, 100 GB/month soft bandwidth. The recipe is free; if Creator Fund payouts ever make that doubtful, move the files to Cloudflare (R2 or Workers static assets).
 - 2026-09-29 — **TRMNL docs re-checked** (help centre, docs.trmnl.com, Framework releases and Map docs): webhooks now 5 KB; no documented polling limit; Framework 3.4 with built-in maps (TRMNLMaps: route, fit, dot, decodePolyline, free TRMNL tiles); on-demand refresh; saved state and Serverless scripts. Excerpts in `docs/sources/TRMNL_2026-09-29.md`.
 - 2026-09-29 — **German endpoint names** (D7) for all 24 seas towns end in, plus Lake Vegoritida (Vegoritida-See): taken from the German Wikipedia article linked from the English one, each title checked on de.wikipedia. Lake Paralimni (Boeotia, 2 towns) has no German article and stays uncurated ("Paralimni-See" on de.wikipedia is a lake on Cyprus). English "Golfe du Lion" (Natural Earth) shows as "Gulf of Lion". A test now fails if any sea endpoint lacks a German name.
 - 2026-09-29 — **Estuaries**: towns on a big river's estuary shore now end with that river (Lisbon: "(stream) → Tagus"). 84 chains changed, 0 endpoints; 24/24 tests pass (Lisbon locked).
@@ -23,10 +24,10 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. **Author to decide** how the rotation works (D8) and where town files are served from — options under "TRMNL platform" findings (2026-09-29): (a) Polling URL picks the town from the time with Liquid, files served statically (no server); (b) our Worker picks the next town; (c) Serverless saved state keeps a per-install counter. Also: Framework 3.4 instead of 3.3; path sent as an encoded polyline for `decodePolyline()`.
+1. Enable GitHub Pages (Settings → Pages → Source: GitHub Actions), run `build`, then try `recipe/polling_url.liquid` in a private plugin on TRMNL: does the URL render to the current slot, and does the file load (D18, not confirmed on TRMNL).
 2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md` and reconcile them with TRMNLMaps (3.3+); copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo).
 3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14), including a line for inland sinks and for Lake Paralimni's missing German name.
-4. Build the Worker/hosting and the four views.
+4. Build the four views.
 
 ## Deferred (come back after everything else is built)
 
@@ -54,6 +55,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D15 | Greek and Cyrillic names shown in English: Latin part, else OSM `name:en`, else standard romanization | Decided | 2026-09-29 |
 | D16 | Keep prefixes in local names ("La Seine" style, "River Irwell") for now | Decided | 2026-09-29 |
 | D17 | Town names straight from GeoNames (as D9 picks them; e.g. "Sëlva", "Solden" in English) | Decided | 2026-09-29 |
+| D18 | Rotation without a server: the Polling URL picks the town from the clock; static town files on GitHub Pages; Framework 3.4; path as encoded polyline | Decided | 2026-09-29 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 

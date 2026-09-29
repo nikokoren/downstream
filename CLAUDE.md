@@ -44,7 +44,7 @@ TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a
 | `docs/permissions/` | Written data-use permissions, if any are ever granted |
 | `PROJECT.md` | Decisions log, verified facts, status, estimate assumptions |
 | `pipeline/` | Build-time data prep, P1–P7 |
-| `worker/` | Cloudflare Worker: serves the next town's precomputed result (D8) |
-| `recipe/` | TRMNL markup, four views (Framework 3.3) |
+| `worker/` | Cloudflare Worker: not used for now; the rotation is static files on GitHub Pages picked by the Polling URL (D18) |
+| `recipe/` | TRMNL markup, four views (Framework 3.4), and the Polling URL |
 | `fixtures/` | Captured payloads + generator script (R23) |
 | `data/` | Local downloads and build output (git-ignored) |
