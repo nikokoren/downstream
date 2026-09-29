@@ -25,6 +25,10 @@ NOTICE = """# Downstream name table
   `lake:naturalearth`.
 - `display_en`, `display_de`: Downstream's curated display names, where it has one.
 
+`name_en.csv` lists, for every Greek or Cyrillic `name` in OpenStreetMap's waterways and lakes, its
+OSM `name:en` (the most common one where ways disagree). Downstream shows that English name
+instead of the local script.
+
 Contains information from OpenStreetMap (https://www.openstreetmap.org/copyright), which is made
 available here under the Open Database License (ODbL) 1.0:
 https://opendatacommons.org/licenses/odbl/1-0/ . © OpenStreetMap contributors.

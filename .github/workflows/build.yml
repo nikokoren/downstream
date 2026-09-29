@@ -44,7 +44,7 @@ jobs:
           gh release view name-table >/dev/null 2>&1 || \
             gh release create name-table --title "Name table (ODbL)" --notes-file "$D/NOTICE.md" --prerelease
           gh release edit name-table --notes-file "$D/NOTICE.md"
-          gh release upload name-table "$D/name_table.csv" "$D/NOTICE.md" --clobber
+          gh release upload name-table "$D/name_table.csv" "$D/name_en.csv" "$D/NOTICE.md" --clobber
           gh release view build-report >/dev/null 2>&1 || \
             gh release create build-report --title "Build report" --notes "Latest build report (report.md, towns.csv). Town chains contain OpenStreetMap names: see the name-table release for the ODbL notice." --prerelease
           gh release upload build-report ../data/report/report.md ../data/report/towns.csv --clobber

@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — D15–D17 decided: Greek and Cyrillic names in English, prefixes kept, town names from GeoNames. 24/24 tests pass.
 - 2026-09-29 — **Same river under two names, and ditches beside big rivers** (details under "OSM for all of Europe"). 144 chains changed, 0 endpoints; 23/23 tests pass (Bolzano and Tolmin locked).
 - 2026-09-29 — **15 extra towns added by the author** (`pipeline/downstream/extra_towns.csv`, by GeoNames id from the per-country dumps, CC BY 4.0): Köflach, Unterjesingen, Ballmertshofen, Bad Endorf, Stoob, Wolkenstein in Gröden, Le Bourg-d'Oisans, Bormio, Sölden, Zambratija, Tolmin, Kobarid, Sutrio, Gröbming, Königssee (the village at the lake, 2885778, not Königsee in Thuringia). Braunschweig, Tübingen, Ludwigsburg, Linz, Lübeck, Lindau and Konstanz were already in cities15000. 7,048 towns, 6,918 in the rotation; all 22 requested towns are in it (start ≤ 2.5 km).
 - 2026-09-29 — **OSM names for all of Europe** (122 Geofabrik regions, release `osm-waterways-<slug>` each): 323,717 of 938,544 reaches named; first step "a stream" 61 % → 23 % of towns; OSM names cover a median 100 % of path km. 21/21 tests pass. Details under "OSM for all of Europe" below.
@@ -19,7 +20,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Pipeline: decide how to show non-Latin names and local prefixes (see "OSM for all of Europe"); run `build` to republish the name table and report.
+1. Pipeline: run `build` to republish the name table and report. Deferred: rivers through lakes (below).
 2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md`; copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo; TRMNL design parked by the author until the pipeline is set up).
 3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14).
 4. Not yet verified, needed later: TRMNL polling size limit (R3), how a recipe rotates content between refreshes, TRMNL Framework 3.3 and TRMNLMaps docs, Cloudflare R2 limits (only if results are served from R2).
@@ -47,6 +48,9 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D12 | Delta arms fold into the main river (Lek → Rhine, Chilia arm → Danube) | Decided | 2026-09-28 |
 | D13 | Lakes on the path are steps of their own (natural lakes only, not reservoirs) | Decided | 2026-09-28 |
 | D14 | Leave out towns whose start is > 5 km from the town; don't show "Inner Seas" | Decided | 2026-09-29 |
+| D15 | Greek and Cyrillic names shown in English: Latin part, else OSM `name:en`, else standard romanization | Decided | 2026-09-29 |
+| D16 | Keep prefixes in local names ("La Seine" style, "River Irwell") for now | Decided | 2026-09-29 |
+| D17 | Town names straight from GeoNames (as D9 picks them; e.g. "Sëlva", "Solden" in English) | Decided | 2026-09-29 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)
 
@@ -165,9 +169,12 @@ Follow-up fixes (2026-09-29, after the author's extra towns), each diffed over a
 4. **One river, two ways of writing it**: neighbouring steps that share a name part are one step (54 pairs: "Bug / Заходні Буг → Bug", "Río Guadiana → Río Guadiana / Rio Guadiana", "Soča → Isonzo / Soča / Lusinç"); uncurated multi-part names compare on their alphabetically first part, so "Eisack - Isarco" = "Isarco - Eisack". Curated Soča (de Isonzo). 136 chains changed, all merges of one river.
 5. **Ditches beside big rivers**: below the Isarco–Adige confluence the sample points split between the two rivers (~400 m away), no river got a majority, and in the next round a `waterway=ditch` 95 m away won. Bolzano, Merano, Bressanone, Eppan and Wolkenstein showed "Fossa di Laives → Fossa Grande". Now ditches and drains don't vote on reaches of ≥ 500 km² upstream area that have an OSM river within 600 m. Tried first and rejected: (a) plurality among rivers — side arms won ("Linker Regnitzarm", "Стара Самара", 271 chains changed); (b) ditches only where nothing else is near — 1,357 reaches lost real names (Berlin's Zingergraben); (c) without the river-near condition — Matera lost "Torrente Gravina di Matera" (tagged `waterway=drain` in OSM). Final: 8 chains changed, all fixes; 14 reaches lost a name, 5 gained one.
 
-Open (needs the author):
-- **Non-Latin names**: 613 of 6,903 chains contain a Greek or Cyrillic name that isn't curated (UA 336, GR 80, BY 50, BG 45, RS 37, MK 27), plus 3 endpoint lakes ("Λίμνη Βεγορίτιδα"). OSM's `name:en` is extracted and could be used on screen where `name` isn't Latin script; German would then show the English/transliterated form too (D7 allows only curated German).
-- **Prefixes in local names**: 1,907 chains contain "La …", "Le …", "River …", "Río …", "Fiume …" and similar (Paris' Bièvre is "La Bièvre", Manchester's "River Irwell").
+Author's decisions 2026-09-29 (D15–D17):
+- **D15, Greek and Cyrillic in English** (`pipeline/downstream/latin.py`). A mixed name keeps its Latin parts ("Neris - Вілія" → "Neris"); else OSM `name:en`, most common per name, written by `build_names` to `name_table/name_en.csv` and published with the ODbL name table; else a standard romanization: Ukrainian national 2010, Russian/Belarusian/Macedonian BGN/PCGN without diacritics, Bulgarian official 2009, Serbian Latin alphabet, Greek ELOT 743 without accents. Language from the letters (ў → Belarusian, ї/є/ґ → Ukrainian, ђ/ћ → Serbian, ѓ/ќ/ѕ → Macedonian, ы/э/ё → Russian), else from the town's country. German shows the same form (D7: only curated names get German). Result: 0 of 6,918 chains and endpoints left in Greek or Cyrillic (were 613 chains, 3 endpoints); of 1,256 names converted, 909 from `name:en`, 298 romanized, 49 Latin part. Steps that then read the same merge (Горинь/Гарынь → Horyn). Curated Seversky Donets (de Siwerskyj Donez): Kharkiv showed "Severskiy Donets River → Donets". Some OSM English names end in "River" ("Mukhavets River", "Poltva River"); kept as OSM has them (D16).
+- **D16**: prefixes stay for now.
+- **D17**: town names as GeoNames gives them.
+
+Open:
 - Lisbon shows only "(stream) → North Atlantic Ocean": its stream enters the Tagus estuary, which the sea grid counts as ocean.
 
 ## Full Europe run and build report (2026-09-29)

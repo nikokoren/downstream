@@ -57,10 +57,35 @@ def stage2() -> None:
         + time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime())
     )
     t = table.write(OUT / "name_table", build)
+    english_names(OUT / "name_table" / "name_en.csv")
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
     print(
         f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named", flush=True
     )
+
+
+def english_names(path) -> None:
+    """OSM `name:en` for every Greek or Cyrillic name (the most common one where ways disagree):
+    shown on screen instead of the local script (author, 2026-09-29). ODbL, published with the
+    name table."""
+    import collections
+    import csv
+
+    from downstream.latin import NON_LATIN
+
+    counts: dict[str, collections.Counter] = {}
+    for f in sorted((RAW / "osm").glob("*.fgb")):
+        d = pyogrio.read_dataframe(f, columns=["name", "name_en"], read_geometry=False)
+        d = d[d["name"].notna() & d["name_en"].notna()]
+        d = d[d["name"].str.contains(NON_LATIN) & ~d["name_en"].str.contains(NON_LATIN)]
+        for n, e in zip(d["name"], d["name_en"], strict=True):
+            counts.setdefault(n, collections.Counter())[e.strip()] += 1
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["name", "name_en"])
+        for n in sorted(counts):
+            w.writerow([n, counts[n].most_common(1)[0][0]])
+    print(f"english names: {len(counts)} -> {path}", flush=True)
 
 
 def main(workers: int) -> None:
@@ -94,6 +119,7 @@ def main(workers: int) -> None:
         + time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime())
     )
     t = table.write(OUT / "name_table", build)
+    english_names(OUT / "name_table" / "name_en.csv")
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
     print(
         f"stage 2 in {time.time() - t1:.0f}s; {named} of {len(cleaned)} reaches named; "

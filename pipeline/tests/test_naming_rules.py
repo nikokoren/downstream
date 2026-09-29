@@ -110,3 +110,22 @@ def test_different_rivers_sharing_nothing_stay_apart():
     reaches = gpd.GeoDataFrame({"LENGTH_KM": [5.0, 3.0]})
     groups = chain(reaches, [("Ammer", "osm"), ("Neckar", "osm")], load_curated())
     assert len(groups) == 2
+
+
+def test_greek_and_cyrillic_in_english():
+    # Names from the 2026-09-29 Europe run; expected forms from name:en in OSM or the standard
+    # romanization (downstream.latin).
+    from downstream.latin import english, romanize
+
+    name_en = {"Κηφισός": "Cephissus"}
+    assert english("Κηφισός", name_en) == "Cephissus"
+    assert english("Neris - Вілія", {}) == "Neris"
+    assert english("Bug / Західний Буг", {}) == "Bug"
+    assert english("Rhine", {}) == "Rhine"
+    assert romanize("Λίμνη Βεγορίτιδα") == "Limni Vegoritida"
+    assert romanize("Ξηροπόταμος") == "Xiropotamos"
+    assert romanize("Ірпінь", "UA") == "Irpin"
+    assert romanize("Дарниця", "UA") == "Darnytsia"
+    assert romanize("Борщагівка (Нивка)", "UA") == "Borshchahivka (Nyvka)"
+    assert romanize("Западна Морава", "RS") == "Zapadna Morava"
+    assert romanize("Северский Донец") == "Severskiy Donets"  # Russian by default

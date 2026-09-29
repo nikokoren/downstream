@@ -13,7 +13,7 @@ import pyogrio
 import shapely
 from shapely import STRtree
 
-from downstream import naming, towns
+from downstream import latin, naming, towns
 from downstream.endpoints import classify, load_ne
 from downstream.fetch import RAW
 from downstream.network import Network
@@ -81,6 +81,8 @@ class Context:
             for r in pd.read_csv(names_csv, usecols=["HYRIV_ID", "name", "source"]).itertuples()
         }
         self.curated = naming.load_curated()
+        en_csv = RAW.parent / "names" / "name_table" / "name_en.csv"
+        self.name_en = dict(pd.read_csv(en_csv, keep_default_na=False).itertuples(index=False))
         self.seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
         self.lakes = load_ne(RAW / "ne_lakes.zip")
         self._ends: dict[int, dict] = {}  # outlet reach -> endpoint (many towns share one)
@@ -103,7 +105,7 @@ def compute_town(
     ids = ctx.net.downstream(start)
     reaches = ctx.net.reaches.loc[ids]
     names = [ctx.reach_label.get(int(i), (None, None)) for i in ids]
-    groups = naming.chain(reaches, names, ctx.curated)
+    groups = to_latin(naming.chain(reaches, names, ctx.curated), ctx.name_en, c["cc"])
     first, last = reaches.iloc[0], reaches.iloc[-1]
     end = ctx.end_of(last)
     if end["type"] != "sea" and groups[-1]["kind"] == "lake":
@@ -115,6 +117,7 @@ def compute_town(
             "featurecla": "Lake",
             "distance_km": 0.0,
         }
+    end = {**end, "name": latin.english(end["name"], ctx.name_en, c["cc"])}
     end_disp = naming.lookup_curated(end["name"], ctx.curated) if end["name"] else None
     line = shapely.line_merge(shapely.MultiLineString(list(reaches.geometry.values)))
     simple = simplify_to(line, MAX_MAP_POINTS)
@@ -151,6 +154,23 @@ def compute_town(
         ),
     }
     return result, line, stats
+
+
+def to_latin(groups: list[dict], name_en: dict, cc: str) -> list[dict]:
+    """Greek and Cyrillic local names in English (downstream.latin); neighbouring steps that then
+    read the same (Горинь and Гарынь are both Horyn) become one step."""
+    out: list[dict] = []
+    for g in groups:
+        local = (g["name"] or {}).get("local")
+        if local:
+            g["name"] = {"local": latin.english(local, name_en, cc)}
+        prev = out[-1] if out else None
+        if prev and prev["kind"] == g["kind"] and g["name"] and prev["name"] == g["name"]:
+            prev["km"] = round(prev["km"] + g["km"], 1)
+            prev["reaches"] += g["reaches"]
+            continue
+        out.append(g)
+    return out
 
 
 def chain_text(result: dict) -> str:

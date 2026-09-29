@@ -23,7 +23,7 @@ Town names and positions from [GeoNames](https://www.geonames.org/), licensed un
 
 ### OpenStreetMap (stream and river names)
 
-Stream and river names contain information from [OpenStreetMap](https://www.openstreetmap.org/copyright), which is made available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/). The table matching those names to river segments is published under the ODbL, with its notice, at https://github.com/nikokoren/downstream/releases/tag/name-table (`name_table.csv`, `NOTICE.md`; rebuilt by the `build` workflow).
+Stream and river names contain information from [OpenStreetMap](https://www.openstreetmap.org/copyright), which is made available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/). The table matching those names to river segments is published under the ODbL, with its notice, at https://github.com/nikokoren/downstream/releases/tag/name-table (`name_table.csv`, `name_en.csv` with the OSM English names shown for Greek and Cyrillic names, `NOTICE.md`; rebuilt by the `build` workflow). Where OSM has no English name, Greek and Cyrillic names are romanized.
 
 ### Basemap
 
