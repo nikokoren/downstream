@@ -158,6 +158,7 @@ Why: per-town naming repeated the same work for every town (every Danube town re
 - Correction found on the way: with whole rivers, the old fallback "no long block → most frequent name" guessed a lot (32,000 extra reaches named; Graz's start became Ragnitzbach after a 1:1 tie with Leonhardbach). Now: no long block → leave as is.
 - Result on the 14 locked towns: **13/14 identical**. Hamburg: "(stream) → Norderelbe → Elbe" became "**Alster** → Norderelbe → Elbe": the start reach is the last 3.7 km of a river OSM names Alster for 20.6 km upstream. Confirmed by the author 2026-09-29; locked in the test.
 - The published ODbL name table is now network-wide (`data/names/name_table/`, written by `build_names`), 150,610 rows, one name per segment.
+- Build on GitHub 2026-09-29 (run 36501562990, commit e0c52dc): ~4 min total; fetch 135 s, network naming 72 s, paths 10 s; 19/19 tests passed (none skipped); published name table identical to the local one (150,610 rows).
 
 ## Name table and build workflow (2026-09-28)
 
