@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-29 — **German endpoint names** (D7) for all 24 seas towns end in, plus Lake Vegoritida (Vegoritida-See): taken from the German Wikipedia article linked from the English one, each title checked on de.wikipedia. Lake Paralimni (Boeotia, 2 towns) has no German article and stays uncurated ("Paralimni-See" on de.wikipedia is a lake on Cyprus). English "Golfe du Lion" (Natural Earth) shows as "Gulf of Lion". A test now fails if any sea endpoint lacks a German name.
 - 2026-09-29 — **Estuaries**: towns on a big river's estuary shore now end with that river (Lisbon: "(stream) → Tagus"). 84 chains changed, 0 endpoints; 24/24 tests pass (Lisbon locked).
 - 2026-09-29 — D15–D17 decided: Greek and Cyrillic names in English, prefixes kept, town names from GeoNames. 24/24 tests pass.
 - 2026-09-29 — **Same river under two names, and ditches beside big rivers** (details under "OSM for all of Europe"). 144 chains changed, 0 endpoints; 23/23 tests pass (Bolzano and Tolmin locked).
@@ -270,6 +271,11 @@ Open questions for the author (both answered 2026-09-28, see D12 and D13):
 2. **Lakes on the path.** Paths through lakes (Lake Starnberg) show no lake. Add lake names from OSM or Natural Earth as their own chain step ("→ Lake Starnberg →")?
 
 ## Verified facts about outside systems
+
+### German names of endpoint seas (checked 2026-09-29; re-fetch before relying on this)
+
+en.wikipedia API `prop=langlinks&lllang=de` for the English articles, then de.wikipedia API for each German title (all exist, no redirects): North Sea → Nordsee, Black Sea → Schwarzes Meer, Baltic Sea → Ostsee, North Atlantic → Nordatlantik, Adriatic Sea → Adriatisches Meer, English Channel → Ärmelkanal, Tyrrhenian Sea → Tyrrhenisches Meer, Balearic Sea → Balearen-Meer, Irish Sea → Irische See, Bay of Biscay → Biskaya, Gulf of Lion → Golfe du Lion, Mediterranean Sea → Mittelmeer, Sea of Azov → Asowsches Meer, Aegean Sea → Ägäisches Meer, Bristol Channel → Bristolkanal, Gulf of Finland → Finnischer Meerbusen, Kattegat → Kattegat, Ionian Sea → Ionisches Meer, Gulf of Bothnia → Bottnischer Meerbusen, Sea of Crete → Kretisches Meer, Alboran Sea → Alborán-Meer, Gulf of Riga → Rigaischer Meerbusen, Skagerrak → Skagerrak, Norwegian Sea → Europäisches Nordmeer, Greenland Sea → Grönlandsee, Lake Vegoritida → Vegoritida-See. Lake Paralimni (Greece): no German link. Wikidata and the Wikipedia API answered HTTP 429 from the session container; fetched through WebFetch instead.
+
 
 All verified 2026-09-28 by fetching the URL. **Re-fetch before relying on any of these.**
 

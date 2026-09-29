@@ -34,3 +34,30 @@ Ebro|Río Ebro|Riu Ebre,Ebro,Ebro
 Tevere|Tiber,Tiber,Tiber
 Soča|Isonzo|Lusinç,Soča,Isonzo
 Северский Донец|Сіверський Донець|Severskiy Donets River|Seversky Donets|Siverskyi Donets|Donets,Seversky Donets,Siwerskyj Donez
+# Endpoint seas and lakes (2026-09-29): German = the German Wikipedia article linked from the English
+# one (en.wikipedia langlinks), each title checked on de.wikipedia. Lake Paralimni (Boeotia) has no
+# German article ("Paralimni-See" is a lake on Cyprus), so it isn't curated.
+Baltic Sea|Ostsee,Baltic Sea,Ostsee
+North Atlantic Ocean|Nordatlantik,North Atlantic Ocean,Nordatlantik
+Adriatic Sea|Adriatisches Meer,Adriatic Sea,Adriatisches Meer
+English Channel|Ärmelkanal,English Channel,Ärmelkanal
+Tyrrhenian Sea|Tyrrhenisches Meer,Tyrrhenian Sea,Tyrrhenisches Meer
+Balearic Sea|Balearen-Meer,Balearic Sea,Balearen-Meer
+Irish Sea|Irische See,Irish Sea,Irische See
+Bay of Biscay|Biskaya,Bay of Biscay,Biskaya
+Golfe du Lion|Gulf of Lion,Gulf of Lion,Golfe du Lion
+Mediterranean Sea|Mittelmeer,Mediterranean Sea,Mittelmeer
+Sea of Azov|Asowsches Meer,Sea of Azov,Asowsches Meer
+Aegean Sea|Ägäisches Meer,Aegean Sea,Ägäisches Meer
+Bristol Channel|Bristolkanal,Bristol Channel,Bristolkanal
+Gulf of Finland|Finnischer Meerbusen,Gulf of Finland,Finnischer Meerbusen
+Kattegat,Kattegat,Kattegat
+Ionian Sea|Ionisches Meer,Ionian Sea,Ionisches Meer
+Gulf of Bothnia|Bottnischer Meerbusen,Gulf of Bothnia,Bottnischer Meerbusen
+Sea of Crete|Kretisches Meer,Sea of Crete,Kretisches Meer
+Alboran Sea|Alborán-Meer,Alboran Sea,Alborán-Meer
+Gulf of Riga|Rigaischer Meerbusen,Gulf of Riga,Rigaischer Meerbusen
+Skagerrak,Skagerrak,Skagerrak
+Norwegian Sea|Europäisches Nordmeer,Norwegian Sea,Europäisches Nordmeer
+Greenland Sea|Grönlandsee,Greenland Sea,Grönlandsee
+Lake Vegoritida|Λίμνη Βεγορίτιδα|Vegoritida-See,Lake Vegoritida,Vegoritida-See

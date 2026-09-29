@@ -102,3 +102,17 @@ def test_name_table_is_written_with_notice():
     }
     notice = (table.parent / "NOTICE.md").read_text(encoding="utf-8")
     assert "Open Database License" in notice and "openstreetmap.org/copyright" in notice
+
+
+TOWNS = DATA / "towns"
+
+
+@pytest.mark.skipif(not TOWNS.exists(), reason="run `python -m downstream.paths --all` first")
+def test_every_sea_endpoint_has_a_german_name():
+    # D7: German names only from the curated table, so every sea a town can end in needs a row.
+    missing = {}
+    for f in TOWNS.glob("*.json"):
+        end = json.loads(f.read_text())["end"]
+        if end["type"] == "sea" and not (end.get("display") or {}).get("de"):
+            missing[end["name"]] = missing.get(end["name"], 0) + 1
+    assert not missing, missing
