@@ -124,7 +124,23 @@ def lake_of(geoms, lakes: gpd.GeoDataFrame) -> dict[int, str]:
     return dict(zip(df["r"], df["name"], strict=True))
 
 
+_EXTENTS: dict[Path, tuple] = {}
+
+
+def _extent(f: Path) -> tuple:
+    if f not in _EXTENTS:
+        _EXTENTS[f] = tuple(pyogrio.read_info(f, force_total_bounds=True)["total_bounds"])
+    return _EXTENTS[f]
+
+
+def _overlaps(a, b) -> bool:
+    return not (a[2] < b[0] or b[2] < a[0] or a[3] < b[1] or b[3] < a[1])
+
+
 def _read_bbox(files: Iterable[Path], bbox, columns=None) -> gpd.GeoDataFrame:
+    # Only files whose extent overlaps the tile: with 120 OSM regions, opening every file for
+    # every tile would dominate the run.
+    files = [f for f in files if _overlaps(_extent(f), bbox)]
     frames = [pyogrio.read_dataframe(f, bbox=bbox, columns=columns) for f in files]
     frames = [f for f in frames if len(f)]
     if not frames:

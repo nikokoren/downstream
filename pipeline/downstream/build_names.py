@@ -28,6 +28,8 @@ def _init() -> None:
     _G["reaches"] = pyogrio.read_dataframe(RAW / "reaches_eu.fgb")
     _G["ways"] = sorted((RAW / "osm").glob("waterways-*.fgb"))
     _G["lakes"] = sorted((RAW / "osm").glob("lakes-*.fgb"))
+    for f in _G["ways"] + _G["lakes"]:  # file extents once, before forking the workers
+        reach_names._extent(f)
     ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), load_ne(RAW / "ne_rivers_europe.zip")])
     _G["ne"] = ne.to_crs("EPSG:4326")
     nel = pd_concat([load_ne(RAW / "ne_lakes.zip"), load_ne(RAW / "ne_lakes_europe.zip")])
