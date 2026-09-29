@@ -347,6 +347,7 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
         )
     groups = _lakes_named_like_river(groups)
     groups = _merge_side_arms(groups)
+    groups = _merge_repeated_lakes(groups)
     for g in groups:
         g["km"] = round(g["km"], 1)
         if g["disp"]:
@@ -356,6 +357,35 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
         else:
             g["name"] = None
     return groups
+
+
+def _merge_repeated_lakes(groups: list[dict], max_gap_km: float = 5.0) -> list[dict]:
+    """A path that zigzags through one lake (Hamar: Glomma -> Øyeren -> Glomma -> Øyeren) shows
+    the lake once: lake L, river bits shorter than max_gap_km in total, lake L -> one L step."""
+    out: list[dict] = []
+    for g in groups:
+        if g["kind"] == "lake":
+            j = len(out) - 1
+            gap = 0.0
+            while j >= 0 and out[j]["kind"] == "river" and gap + out[j]["km"] <= max_gap_km:
+                gap += out[j]["km"]
+                j -= 1
+            if (
+                j >= 0
+                and j < len(out) - 1
+                and out[j]["kind"] == "lake"
+                and out[j]["key"] == g["key"]
+            ):
+                lake = out[j]
+                for mid in out[j + 1 :]:
+                    lake["km"] += mid["km"]
+                    lake["reaches"] += mid["reaches"]
+                lake["km"] += g["km"]
+                lake["reaches"] += g["reaches"]
+                del out[j + 1 :]
+                continue
+        out.append(g)
+    return out
 
 
 def _lakes_named_like_river(groups: list[dict]) -> list[dict]:

@@ -18,6 +18,7 @@ REACH_COLUMNS = [
     "ORD_CLAS",
     "ORD_STRA",
     "HYBAS_L12",
+    "UPLAND_SKM",  # upstream area: tells a real confluence from a delta arm (D12)
 ]
 BASIN_COLUMNS = ["HYBAS_ID", "NEXT_DOWN", "ENDO", "COAST"]
 

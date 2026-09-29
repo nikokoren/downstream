@@ -148,6 +148,20 @@ Known limitation, found 2026-09-28: lakes only appear where the HydroATLAS path 
 
 OSM lakes for Bavaria (release `osm-waterways-europe-germany-bayern`, 2026-09-28): 745 named `water=lake` areas, 1.56 MB; includes Starnberger See (name:en Lake Starnberg), Ammersee, Chiemsee (Lake Chiemsee), Kochelsee.
 
+## Full Europe run and build report (2026-09-29)
+
+`uv run python -m downstream.paths --all`: all 7,033 Europe towns (D9), one JSON per town in `data/towns/`, report in `data/report/` (`report.md`, `towns.csv`). Also run and published (release `build-report`) by the `build` workflow.
+
+- **7,033/7,033 computed, 0 errors; 243–260 s** for all towns after two speed-ups (was 1,417 s): the sea grid is drawn once for all of Europe (21 s) instead of once per mouth (0.9 s each, 79 % of the time).
+- Payload: median 1.9 KB, max 3.8 KB; 0 over 6 KB (R3).
+- Fixes found by the full run, each checked by diffing all 7,033 chains before/after:
+  1. **683 towns ended in an unnamed sea** (25 mouths; Seine 288, Scheldt 184, Oder 168): narrow estuaries broke into isolated pockets on the 1 km grid. Water now widened by 2 km → 0 unnamed.
+  2. **Endpoints too coarse**: only sea/ocean classes counted, so Le Havre ended in the "North Sea" (312 km) and Boden in the "Baltic Sea" (690 km). Now sea, ocean, gulf, bay, channel, strait, fjord of ≥ 15,000 km² count → English Channel, Gulf of Bothnia, Gulf of Finland, Bay of Biscay, Skagerrak, Golfe du Lion, …
+  3. **Lake zigzags**: "Rhine → Bodensee → Rhine → Bodensee → Rhine" and similar (Lake Geneva, Zürichsee, Øyeren): repeated visits to one lake with < 5 km of river between are one step. 85 chains.
+  4. **Delta fold (D12) was wrong for 1,022 towns**: "fold into the dominant name" renamed the lower Seine "Marne" (288 towns), Vistula "Bug" (196), Oder "Warta" (167), Rhône "Doubs" (100), Garonne "Tarn" (34). The 14 locked towns didn't cover these basins. New rule: in the last 150 km, a name change where the upstream area grows < 5 % (no tributary) is an arm; checked Rhine → Lek +0.0 %, Danube → Bratul Chillia +0.0 %, Warnow → Unterwarnow +1.8 % (fold) vs Streitgraben → Warnow +103 % (kept). Needs `UPLAND_SKM` (added to the fetched columns).
+  5. **Inland endings**: the path's last lake is the endpoint (Ptolemaida → Limni Vegoritis); named-lake radius 25 km → 2 km (Cetinje's karst sink was "Lake Skadar", which drains to the Adriatic).
+- Remaining, as data: 18 inland sinks, all karst or closed basins (Salento, Greek plateaus, Nikšić, Trebinje, Resen/Prespa, Fucino); 61 % of towns start with "a stream" and OSM names cover a median 0 % of path km, because OSM is only loaded for DE, AT, SI, HR, HU; Natural Earth errors where OSM is missing (Norway's lower Glomma "Vorma", Galicia's Miño "Mio"); 130 towns start more than 5 km from the town point (max 30 km: Den Helder, Gibraltar, Kos, Badalona, …); "Inner Seas" (NE's name for the sea off western Scotland) for 54 towns; national names on one river (Tajo → Tejo).
+
 ## Per-river redesign (2026-09-29, author's go 2026-09-28)
 
 Why: per-town naming repeated the same work for every town (every Danube town re-named the Danube) and gave a segment different names on different paths. Now the network is named once, and a town is a lookup.

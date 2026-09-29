@@ -20,9 +20,12 @@ SEA_CLASSES = {
 
 
 def classify(
-    end_lonlat, endorheic: bool, seas, lakes: gpd.GeoDataFrame, max_km: float = 25.0
+    end_lonlat, endorheic: bool, seas, lakes: gpd.GeoDataFrame, max_km: float = 2.0
 ) -> dict:
-    """Sea by water distance for open rivers (seas.Seas); nearest named lake for inland sinks."""
+    """Sea by water distance for open rivers (seas.Seas); for inland endings, a named lake within
+    max_km, else an unnamed inland sink. (Was 25 km: Cetinje's karst sink became "Lake Skadar",
+    which drains to the Adriatic; 2026-09-29.) paths.py first prefers a lake the path itself
+    ends in."""
     if not endorheic:
         name, km = seas.drains_into(*end_lonlat)
         if name:
