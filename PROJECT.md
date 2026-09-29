@@ -26,9 +26,9 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-2. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md` and reconcile them with TRMNLMaps (3.3+); copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo).
-3. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14), including a line for inland sinks and for Lake Paralimni's missing German name.
-4. Build the four views.
+1. Copy the map rules from Aurora Watch's CLAUDE.md into `docs/MAP_RULES.md` and reconcile them with TRMNLMaps (3.3+); copy the LOCALES pattern and `fixtures/` generator approach (needs the Aurora Watch repo).
+2. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14), including a line for inland sinks and for Lake Paralimni's missing German name.
+3. Build the four views.
 
 ## Deferred (come back after everything else is built)
 
