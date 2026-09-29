@@ -39,7 +39,7 @@ EXPECTED = {
     "vienna": (["Donaukanal", "Danube"], "Black Sea"),
     # Approved by the author 2026-09-28 (Austria + Germany OSM):
     # Per-river redesign (2026-09-29): the start reach is the last 3.7 km of a river OSM names
-    # Alster for 20.6 km just upstream, so it's now "Alster". Pending the author's confirmation.
+    # Alster for 20.6 km just upstream, so it's now "Alster". Confirmed by the author 2026-09-29.
     "hamburg": (["Alster", "Norderelbe", "Elbe"], "North Sea"),
     "berlin": (["Spree", "Havel", "Jungfernsee", "Tiefer See", "Havel", "Elbe"], "North Sea"),
     "leipzig": (["Pleiße", "Weiße Elster", "Luppe", "Saale", "Elbe"], "North Sea"),
