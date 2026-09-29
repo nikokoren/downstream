@@ -3,7 +3,11 @@
 No server: TRMNL's Polling URL is a Liquid template, so it works out which town is on from the
 clock and fetches that town's file from GitHub Pages:
 
-    slot = unix time // SLOT_SECONDS, file = slot mod N
+    slot = unix time // SLOT_SECONDS, file = slot mod SLOTS
+
+SLOTS is fixed, not the town count: GeoNames changes daily, so the count moves between builds
+(6,918 locally vs 6,920 on GitHub, 2026-09-29), and a count in the URL would need a recipe update
+after every build. File n holds town n mod count, so a few towns come round twice per cycle.
 
 The towns are in a fixed shuffled order, so consecutive slots jump around Europe. Every install
 shows the same town at the same time.
@@ -25,6 +29,7 @@ BASE_URL = "https://nikokoren.github.io/downstream"
 # Files live under a region folder (eu/t/<n>.json) so more regions, or an "everything" list, can
 # sit beside Europe later without moving the URL existing installs use (author, 2026-09-29).
 REGION = "eu"
+SLOTS = 7200  # ≥ town count; the build fails if the towns ever outgrow it
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
 SEED = 20260929  # fixed, so the order only changes when the set of towns changes
 
@@ -44,7 +49,7 @@ Source and method: https://github.com/nikokoren/downstream
 """
 
 
-def polling_url(n: int) -> str:
+def polling_url(n: int = SLOTS) -> str:
     """The recipe's Polling URL. One line: TRMNL splits the rendered URL field on line breaks."""
     return (
         '{%- assign slot = "now" | date: "%s" | divided_by: ' + str(SLOT_SECONDS) + " -%}"
@@ -64,9 +69,13 @@ def build() -> int:
         shutil.rmtree(SITE)
     out = SITE / REGION
     (out / "t").mkdir(parents=True)
+    if len(order) > SLOTS:
+        raise ValueError(f"{len(order)} towns but {SLOTS} slots: raise SLOTS (and the recipe URL)")
     rows = ["n,geonameid,town"]
-    for n, f in enumerate(order):
-        result = json.loads(f.read_text())
+    cache: dict[Path, dict] = {}
+    for n in range(SLOTS):
+        f = order[n % len(order)]
+        result = dict(cache.setdefault(f, json.loads(f.read_text())))
         result["slot"] = n
         (out / "t" / f"{n}.json").write_text(
             json.dumps(result, ensure_ascii=False, separators=(",", ":"))
@@ -83,10 +92,10 @@ def build() -> int:
     )
     (SITE / ".nojekyll").write_text("")
     RECIPE.mkdir(exist_ok=True)
-    (RECIPE / "polling_url.liquid").write_text(polling_url(len(order)), encoding="utf-8")
+    (RECIPE / "polling_url.liquid").write_text(polling_url(), encoding="utf-8")
     return len(order)
 
 
 if __name__ == "__main__":
     n = build()
-    print(f"{n} town files -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}")
+    print(f"{n} towns in {SLOTS} slot files -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}")

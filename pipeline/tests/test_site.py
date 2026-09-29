@@ -8,7 +8,7 @@ import pytest
 from liquid import Environment
 
 from downstream.paths import encode_polyline
-from downstream.site import BASE_URL, REGION, SITE, SLOT_SECONDS, polling_url
+from downstream.site import BASE_URL, REGION, SITE, SLOT_SECONDS, SLOTS, polling_url
 
 RECIPE_URL = Path(__file__).resolve().parents[2] / "recipe" / "polling_url.liquid"
 
@@ -23,9 +23,9 @@ def test_polyline_matches_googles_worked_example():
 def test_polling_url_renders_to_the_current_slot():
     # python-liquid follows Shopify Liquid, which TRMNL uses; not the same engine (Ruby), so the
     # final check is on TRMNL itself.
-    n = 6918
+    n = SLOTS
     before = int(time.time()) // SLOT_SECONDS
-    url = Environment().from_string(polling_url(n)).render()
+    url = Environment().from_string(polling_url()).render()
     after = int(time.time()) // SLOT_SECONDS
     assert url.count("\n") <= 1 and url.strip() == url.rstrip("\n").strip()
     m = re.fullmatch(re.escape(f"{BASE_URL}/{REGION}") + r"/t/(\d+)\.json", url.strip())
@@ -37,5 +37,6 @@ def test_polling_url_renders_to_the_current_slot():
     not (SITE / REGION / "t").exists(), reason="run `python -m downstream.site` first"
 )
 def test_committed_polling_url_matches_the_site():
-    files = len(list((SITE / REGION / "t").glob("*.json")))
-    assert RECIPE_URL.read_text(encoding="utf-8") == polling_url(files)
+    # One file per slot, and the committed URL uses the same fixed slot count.
+    assert len(list((SITE / REGION / "t").glob("*.json"))) == SLOTS
+    assert RECIPE_URL.read_text(encoding="utf-8") == polling_url()
