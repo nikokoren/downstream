@@ -25,6 +25,7 @@ from downstream.naming import METRIC_CRS
 SAMPLE_M = 200
 OSM_DIST, NE_DIST = 600.0, 3000.0
 MIN_SHARE = 0.5
+DITCH_MAX_UPLAND = 500.0  # km2; reaches this big aren't named after ditches or drains
 LAKE_SHARE, LAKE_MIN_M = 0.5, 500.0
 OSM_WEIGHTS = {"river": 1.0, "canal": 1.5}  # everything else 2.0
 
@@ -69,7 +70,9 @@ def _majority(owner, names, n, min_share) -> dict[int, str]:
     return dict(zip(top["r"], top["name"], strict=True))
 
 
-def vote_osm(geoms, lines: gpd.GeoDataFrame) -> tuple[dict[int, str], dict[int, bool], np.ndarray]:
+def vote_osm(
+    geoms, lines: gpd.GeoDataFrame, upland: np.ndarray | None = None
+) -> tuple[dict[int, str], dict[int, bool], np.ndarray]:
     """Per reach index: name, canal flag; plus covered mask (any line within OSM_DIST)."""
     pts, owner, n = sample_points(geoms)
     g = lines.geometry.values
@@ -77,15 +80,32 @@ def vote_osm(geoms, lines: gpd.GeoDataFrame) -> tuple[dict[int, str], dict[int, 
     ww = lines["waterway"].fillna("").to_numpy(dtype=object)
     river = ww == "river"
     canal = ww == "canal"
-    other = ~river & ~canal
+    ditch = np.isin(ww, ["ditch", "drain"])
+    other = ~river & ~canal & ~ditch
     tier1 = _nearest_by_class(pts, [(g[river], names[river], 1.0)], OSM_DIST)
     result = _majority(owner, tier1, n, MIN_SHARE)
     rest = np.array([i for i in range(len(geoms)) if i not in result], dtype=int)
     if len(rest):
-        sel = np.isin(owner, rest)
         classes = [(g[m], names[m], w) for m, w in ((river, 1.0), (canal, 1.5), (other, 2.0))]
-        tier2 = _nearest_by_class(pts[sel], classes, OSM_DIST)
-        result.update(_majority(owner[sel], tier2, n, MIN_SHARE))
+        # Ditches and drains vote like streams, except on a big river with an OSM river near:
+        # below the Isarco-Adige confluence (7,000 km2) the points split between the two rivers
+        # ~400 m away, and a ditch 95 m away won (Wolkenstein, 2026-09-29). Small ones keep
+        # their names (Berlin's Zingergraben), and so do lines mis-tagged as drains where
+        # no river is near (Matera's "Torrente Gravina di Matera", waterway=drain).
+        big = np.zeros(len(geoms), dtype=bool) if upland is None else upland >= DITCH_MAX_UPLAND
+        if big.any() and river.any():
+            near = np.zeros(len(geoms), dtype=bool)
+            ri, _ = STRtree(g[river]).query(geoms, predicate="dwithin", distance=OSM_DIST)
+            near[np.unique(ri)] = True
+            big &= near
+        for part, cls in (
+            (rest[~big[rest]], [*classes, (g[ditch], names[ditch], 2.0)]),
+            (rest[big[rest]], classes),
+        ):
+            if len(part):
+                sel = np.isin(owner, part)
+                tier2 = _nearest_by_class(pts[sel], cls, OSM_DIST)
+                result.update(_majority(owner[sel], tier2, n, MIN_SHARE))
     canal_names = set(names[canal]) - set(names[~canal])
     is_canal = {r: nm in canal_names for r, nm in result.items()}
     covered = np.zeros(len(geoms), dtype=bool)
@@ -171,7 +191,8 @@ def name_tile(
     bbox = (minx - pad, miny - pad, maxx + pad, maxy + pad)
     geoms = reaches.to_crs(METRIC_CRS).geometry.values
     ways = _clean_names(_read_bbox(osm_ways, bbox)).to_crs(METRIC_CRS)
-    names, is_canal, covered = vote_osm(geoms, ways)
+    upland = reaches["UPLAND_SKM"].to_numpy(dtype=float) if "UPLAND_SKM" in reaches else None
+    names, is_canal, covered = vote_osm(geoms, ways, upland)
     label = np.full(len(geoms), None, dtype=object)
     source = np.full(len(geoms), None, dtype=object)
     for r, nm in names.items():

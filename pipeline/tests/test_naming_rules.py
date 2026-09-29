@@ -81,3 +81,32 @@ def test_slash_and_arm_names_are_variants():
     for name in ("Дунав/Dunărea", "Dunav/Dunărea", "Brațul Borcea (Dunărea)"):
         assert lookup_curated(name, curated)["en"] == "Danube", name
     assert name_variants("Main-Donau-Kanal") == ["Main-Donau-Kanal"]
+
+
+def test_name_order_and_shared_parts_are_one_river():
+    # Neighbouring steps from the 2026-09-29 Europe run (Wolkenstein, Tolmin, Brest, Badajoz).
+    import geopandas as gpd
+
+    from downstream.naming import chain, display_key, load_curated
+
+    assert display_key("Eisack - Isarco") == display_key("Isarco - Eisack")
+    curated = load_curated()
+    for a, b, shown in [
+        ("Soča", "Isonzo / Soča / Lusinç", "Soča"),
+        ("Bug / Заходні Буг", "Bug", "Bug / Заходні Буг"),
+        ("Río Guadiana", "Río Guadiana / Rio Guadiana", "Río Guadiana"),
+    ]:
+        reaches = gpd.GeoDataFrame({"LENGTH_KM": [5.0, 3.0]})
+        groups = chain(reaches, [(a, "osm"), (b, "osm")], curated)
+        assert len(groups) == 1, (a, b)
+        assert (groups[0]["name"].get("en") or groups[0]["name"]["local"]) == shown
+
+
+def test_different_rivers_sharing_nothing_stay_apart():
+    import geopandas as gpd
+
+    from downstream.naming import chain, load_curated
+
+    reaches = gpd.GeoDataFrame({"LENGTH_KM": [5.0, 3.0]})
+    groups = chain(reaches, [("Ammer", "osm"), ("Neckar", "osm")], load_curated())
+    assert len(groups) == 2

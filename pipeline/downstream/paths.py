@@ -21,7 +21,8 @@ from downstream.seas import load_seas
 
 OUT = RAW.parent / "paths"
 
-# Acceptance and example towns (R20, D9): (name, country code) looked up in cities15000.
+# Acceptance and example towns (R20, D9): (name, country code) looked up in cities15000 and the
+# extra towns.
 EXAMPLES = [
     ("Munich", "DE"),
     ("Starnberg", "DE"),
@@ -38,6 +39,10 @@ EXAMPLES = [
     ("Innsbruck", "AT"),
     ("Salzburg", "AT"),
     ("Graz", "AT"),
+    # Added 2026-09-29: ditches beside the Adige (Bolzano); Soča under three names (Tolmin, an
+    # extra town).
+    ("Bolzano", "IT"),
+    ("Tolmin", "SI"),
 ]
 
 
@@ -158,7 +163,7 @@ def chain_text(result: dict) -> str:
 def main_examples() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     ctx = Context()
-    cities = towns.load_cities(RAW / "geonames_cities15000.zip")
+    cities = towns.load_cities(RAW / "geonames_cities15000.zip") | towns.load_extra_towns(RAW)
     wanted = {gid: c for gid, c in cities.items() if (c["name"], c["cc"]) in EXAMPLES}
     alts = towns.load_alt_names(RAW / "geonames_alt_de_en.txt", set(wanted))
     features = []

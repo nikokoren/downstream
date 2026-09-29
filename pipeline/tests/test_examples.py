@@ -24,6 +24,7 @@ NEEDED = [
     OSM_DIR / "waterways-europe-croatia.fgb",
     OSM_DIR / "waterways-europe-hungary.fgb",
     OSM_DIR / "waterways-europe-slovenia.fgb",
+    OSM_DIR / "waterways-europe-italy-nord-est.fgb",
     RAW_NE_OCEAN,
     DATA / "names" / "reach_names.csv",  # from `python -m downstream.build_names`
 ]
@@ -49,6 +50,10 @@ EXPECTED = {
     # Approved by the author 2026-09-28 (after the tunnel re-extraction and OSM SI/HR/HU):
     "graz": ([None, "Mur", "Drava", "Danube"], "Black Sea"),
     "stuttgart": ([None, "Neckar", "Rhine"], "North Sea"),
+    # 2026-09-29: were "Eisack - Isarco → Fossa di Laives - Leiferergraben → Fossa Grande →
+    # Etsch - Adige" (ditches beside the Adige) and "Tolminka → Soča → Isonzo / Soča / Lusinç".
+    "bolzano": (["Eisack - Isarco", "Etsch - Adige"], "Adriatic Sea"),
+    "tolmin": (["Tolminka", "Soča"], "Adriatic Sea"),
 }
 
 

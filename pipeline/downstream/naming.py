@@ -163,7 +163,30 @@ def display_key(name: str | None) -> str | None:
     if _CURATED is None:
         _CURATED = load_curated()
     disp = lookup_curated(name, _CURATED)
-    return name_key(disp["en"] if disp else name_variants(name)[-1])
+    if disp:
+        return name_key(disp["en"])
+    # Uncurated multi-part names: the alphabetically first part, so the order OSM writes them in
+    # doesn't matter ("Eisack - Isarco" = "Isarco - Eisack", Wolkenstein in Gröden, 2026-09-29).
+    variants = name_variants(name)
+    return min(name_key(v) for v in variants[1:]) if len(variants) > 1 else name_key(name)
+
+
+def name_parts(name: str | None) -> set[str]:
+    """Every part of a (bilingual) name, spelling-insensitive: 'Bug / Заходні Буг' -> {bug, заходні буг}."""
+    return {name_key(v) for v in name_variants(name)} if name else set()
+
+
+def _same_river(g: dict, name: str | None, disp: dict | None, key: str | None) -> bool:
+    """Is this name the river of group g? Same key, or (both uncurated or curated alike) the names
+    share a part: 'Río Guadiana' and 'Río Guadiana / Rio Guadiana', 'Bug / Заходні Буг' and 'Bug'
+    (54 neighbouring steps in the 2026-09-29 Europe run)."""
+    if g["key"] == key:
+        return True
+    if not name or not g["parts"]:
+        return False
+    if g["disp"] and disp and g["disp"]["en"] != disp["en"]:
+        return False
+    return bool(g["parts"] & name_parts(name))
 
 
 def _key(label: tuple) -> str | None:
@@ -335,16 +358,19 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
         disp = lookup_curated(name, curated) if name else None
         key = display_key(name)
         kind = "lake" if src and src.startswith("lake:") else "river"
-        if groups and groups[-1]["key"] == key and groups[-1]["kind"] == kind:
+        if groups and groups[-1]["kind"] == kind and _same_river(groups[-1], name, disp, key):
             g = groups[-1]
             g["km"] += float(length)
             g["reaches"] += 1
             if name:
                 g["spellings"][name] = g["spellings"].get(name, 0.0) + float(length)
+                g["parts"] |= name_parts(name)
+                g["disp"] = g["disp"] or disp
             continue
         groups.append(
             {
                 "key": key,
+                "parts": name_parts(name),
                 "disp": disp,
                 "spellings": {name: float(length)} if name else {},
                 "source": src,
