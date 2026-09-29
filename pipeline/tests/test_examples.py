@@ -25,6 +25,7 @@ NEEDED = [
     OSM_DIR / "waterways-europe-hungary.fgb",
     OSM_DIR / "waterways-europe-slovenia.fgb",
     RAW_NE_OCEAN,
+    DATA / "names" / "reach_names.csv",  # from `python -m downstream.build_names`
 ]
 
 # Checked by hand against a map; a leading None is "a stream" (BRIEF R6). Munich's first reach

@@ -151,8 +151,23 @@ def name_key(name: str | None) -> str | None:
     return " ".join(name.casefold().replace("ß", "ss").split())
 
 
+_CURATED: dict | None = None
+
+
+def display_key(name: str | None) -> str | None:
+    """Compare names as they'll be shown: through the curated table (Donau, Duna, Dunav are all
+    the Danube), otherwise spelling-insensitively on the last part of a bilingual OSM name."""
+    global _CURATED
+    if not name:
+        return None
+    if _CURATED is None:
+        _CURATED = load_curated()
+    disp = lookup_curated(name, _CURATED)
+    return name_key(disp["en"] if disp else name_variants(name)[-1])
+
+
 def _key(label: tuple) -> str | None:
-    return name_key(label[0])
+    return display_key(label[0])
 
 
 def is_lake(label: tuple) -> bool:
@@ -312,7 +327,7 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
     groups: list[dict] = []
     for (name, src), length in zip(names, reaches["LENGTH_KM"], strict=True):
         disp = lookup_curated(name, curated) if name else None
-        key = name_key(disp["en"] if disp else (name_variants(name)[-1] if name else None))
+        key = display_key(name)
         kind = "lake" if src and src.startswith("lake:") else "river"
         if groups and groups[-1]["key"] == key and groups[-1]["kind"] == kind:
             g = groups[-1]

@@ -1,14 +1,14 @@
 """Compute the path for example towns and write one JSON per town plus a GeoJSON for checking.
 
-Usage: uv run python -m downstream.paths [--waterways OSM_WATERWAYS.fgb ...] [--lakes OSM_LAKES.fgb ...]
+Usage: uv run python -m downstream.paths   (after downstream.build_names)
 """
 
-import argparse
 import json
 import os
 import time
 
 import geopandas as gpd
+import pandas as pd
 import pyogrio
 import shapely
 from shapely import STRtree
@@ -59,26 +59,22 @@ def start_reach(
     return net.nearest(lon, lat), "nearest overall"
 
 
-def main(osm_files: list[str], osm_lakes: list[str]) -> None:
+def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     net = Network.load(RAW / "reaches_eu.fgb")
     basins = pyogrio.read_dataframe(RAW / "basins_l12_europe.fgb")
     btree = STRtree(basins.geometry.values)
 
-    sources = []
-    if osm_files:  # one source for all regions; border ways appear in both neighbours, harmless
-        osm = pd_concat([gpd.read_file(f) for f in osm_files])
-        sources.append(naming.NameSource.build("osm", osm, 600, authoritative=True))
-    ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), load_ne(RAW / "ne_rivers_europe.zip")])
-    sources.append(naming.NameSource.build("naturalearth", ne.to_crs("EPSG:4326"), 3000))
-    lake_sources = []
-    if osm_lakes:
-        lake_sources.append(
-            naming.LakeSource.build("lake:osm", pd_concat([gpd.read_file(f) for f in osm_lakes]))
+    # Names come from the network-wide table (downstream.build_names): same name for a reach
+    # whichever town's path reaches it.
+    names_csv = RAW.parent / "names" / "reach_names.csv"
+    reach_label = {
+        int(r.HYRIV_ID): (
+            r.name if isinstance(r.name, str) else None,
+            r.source if isinstance(r.source, str) else None,
         )
-    ne_lakes = pd_concat([load_ne(RAW / "ne_lakes.zip"), load_ne(RAW / "ne_lakes_europe.zip")])
-    ne_lakes = ne_lakes[ne_lakes["featurecla"].isin(["Lake", "Alkaline Lake"])]
-    lake_sources.append(naming.LakeSource.build("lake:naturalearth", ne_lakes.to_crs("EPSG:4326")))
+        for r in pd.read_csv(names_csv, usecols=["HYRIV_ID", "name", "source"]).itertuples()
+    }
     curated = naming.load_curated()
     seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
     lakes = load_ne(RAW / "ne_lakes.zip")
@@ -94,7 +90,7 @@ def main(osm_files: list[str], osm_lakes: list[str]) -> None:
         start, how = start_reach(net, basins, btree, lon, lat)
         ids = net.downstream(start)
         reaches = net.reaches.loc[ids]
-        names = naming.name_reaches(reaches, sources, lake_sources)
+        names = [reach_label.get(int(i), (None, None)) for i in ids]
         table.add(ids, names, curated)
         groups = naming.chain(reaches, names, curated)
         first, last = reaches.iloc[0], reaches.iloc[-1]
@@ -171,19 +167,4 @@ def pd_concat(frames):
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--waterways", nargs="*", default=None)
-    ap.add_argument("--lakes", nargs="*", default=None)
-    args = ap.parse_args()
-    # Default: every region fetched by `downstream.fetch osm`.
-    waterways = (
-        args.waterways
-        if args.waterways is not None
-        else sorted(map(str, (RAW / "osm").glob("waterways-*.fgb")))
-    )
-    lakes = (
-        args.lakes
-        if args.lakes is not None
-        else sorted(map(str, (RAW / "osm").glob("lakes-*.fgb")))
-    )
-    main(waterways, lakes)
+    main()

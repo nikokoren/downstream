@@ -27,6 +27,8 @@ jobs:
           SECONDS=0
           uv run python -m downstream.fetch
           echo "fetch took ${SECONDS}s"; du -sh ../data/raw
+      - name: Name the river network (per river, all reaches)
+        run: uv run python -m downstream.build_names --workers 4
       - name: Compute paths
         run: uv run python -m downstream.paths
       - name: All tests on the real data (includes the 14 example towns)
