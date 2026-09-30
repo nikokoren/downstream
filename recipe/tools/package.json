@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Renders the recipe's views with real town files in Chromium against TRMNL Framework 3.4 (DESIGN_PHILOSOPHY part A §7).",
   "scripts": {
-    "check": "NODE_USE_ENV_PROXY=1 node render-check.mjs"
+    "check": "NODE_USE_ENV_PROXY=1 node render-check.mjs --quick",
+    "check:full": "NODE_USE_ENV_PROXY=1 node render-check.mjs"
   },
   "dependencies": {
     "playwright-core": "1.56"

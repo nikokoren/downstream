@@ -5,6 +5,7 @@ reach and count, per name, the share of points within `max_dist_m` of a line wit
 """
 
 import csv
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -145,10 +146,13 @@ def mark_lakes(reaches, labels: list[tuple], lakes: list[LakeSource], min_share=
 
 
 def name_key(name: str | None) -> str | None:
-    """Spelling-insensitive key: 'Weisse Elster' and 'Weiße Elster' are the same river."""
+    """Spelling-insensitive key: 'Weisse Elster' and 'Weiße Elster' are the same river, and so are
+    'Río Guadaira' and 'Río Guadaíra' (accents dropped, 2026-09-30)."""
     if not name:
         return None
-    return " ".join(name.casefold().replace("ß", "ss").split())
+    s = unicodedata.normalize("NFKD", name.casefold().replace("ß", "ss"))
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    return " ".join(s.split())
 
 
 _CURATED: dict | None = None
@@ -171,9 +175,30 @@ def display_key(name: str | None) -> str | None:
     return min(name_key(v) for v in variants[1:]) if len(variants) > 1 else name_key(name)
 
 
+# English OSM names give alternatives with " or " ("River Great Ouse or Ely Ouse") and the generic
+# word "River" before or after the name; both only for comparing neighbouring steps (2026-09-30:
+# Cambridge showed the Great Ouse under four names in a row).
+_OR = " or "
+
+
+def _core(key: str) -> str:
+    key = key.removeprefix("river ")
+    key = key.removesuffix(" river")
+    return key
+
+
 def name_parts(name: str | None) -> set[str]:
-    """Every part of a (bilingual) name, spelling-insensitive: 'Bug / Заходні Буг' -> {bug, заходні буг}."""
-    return {name_key(v) for v in name_variants(name)} if name else set()
+    """Every part of a (bilingual) name, spelling-insensitive: 'Bug / Заходні Буг' -> {bug,
+    заходні буг}; 'River Great Ouse or Ely Ouse' -> {..., great ouse, ely ouse}."""
+    if not name:
+        return set()
+    parts = set()
+    for v in name_variants(name):
+        for w in v.split(_OR) if _OR in v else [v]:
+            k = name_key(w)
+            if k:
+                parts |= {k, _core(k)}
+    return parts
 
 
 def _same_river(g: dict, name: str | None, disp: dict | None, key: str | None) -> bool:
@@ -388,7 +413,10 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
         if g["disp"]:
             g["name"] = {"en": g["disp"]["en"], "de": g["disp"]["de"]}
         elif g["spellings"]:
-            g["name"] = {"local": max(g["spellings"], key=g["spellings"].get)}
+            # Prefer a plain spelling over OSM's "X or Y" alternatives when the step has both
+            # ("River Great Ouse" over "Great Ouse or Ten Mile River", Cambridge 2026-09-30).
+            plain = {n: v for n, v in g["spellings"].items() if _OR not in n} or g["spellings"]
+            g["name"] = {"local": max(plain, key=plain.get)}
         else:
             g["name"] = None
     return groups
@@ -492,8 +520,7 @@ def _merge_side_arms(groups: list[dict]) -> list[dict]:
             k
             for k in range(1, len(groups) - 1)
             if all(groups[j]["kind"] == "river" for j in (k - 1, k, k + 1))
-            and groups[k - 1]["key"]
-            and groups[k - 1]["key"] == groups[k + 1]["key"]
+            and _same_groups(groups[k - 1], groups[k + 1])
         ]
         if not cands:
             return groups
@@ -503,4 +530,16 @@ def _merge_side_arms(groups: list[dict]) -> list[dict]:
         a["reaches"] += b["reaches"] + c["reaches"]
         for n, v in c["spellings"].items():
             a["spellings"][n] = a["spellings"].get(n, 0.0) + v
+        a["parts"] |= c["parts"]
+        a["disp"] = a["disp"] or c["disp"]
         groups = groups[:k] + groups[k + 2 :]
+
+
+def _same_groups(a: dict, c: dict) -> bool:
+    """Two steps are the same river: same key, or (as in _same_river) their names share a part,
+    e.g. "Great Ouse or Ten Mile River" and "River Great Ouse" (Cambridge, 2026-09-30)."""
+    if a["key"] and a["key"] == c["key"]:
+        return True
+    if a["disp"] and c["disp"] and a["disp"]["en"] != c["disp"]["en"]:
+        return False
+    return bool(a["parts"] & c["parts"])

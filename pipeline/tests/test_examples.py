@@ -59,6 +59,13 @@ EXPECTED = {
     # 2026-09-29: was "(stream)" only; the stream enters the Tagus estuary, which HydroATLAS
     # counts as sea.
     "lisbon": ([None, "Tagus"], "North Atlantic Ocean"),
+    # 2026-09-30: were "River Cam → River Great Ouse or Ely Ouse → Great Ouse or Ten Mile River →
+    # Great Ouse Relief Channel → River Great Ouse" and "... → Río Guadaira → Río Guadaíra → ...".
+    "cambridge": (["River Cam", "River Great Ouse"], "North Sea"),
+    "el-viso-del-alcor": (
+        ["Arroyo de la Alcantarilla", "Arroyo del Salado", "Río Guadaíra", "Río Guadalquivir"],
+        "North Atlantic Ocean",
+    ),
 }
 
 

@@ -16,11 +16,12 @@ TRMNL markup, BRIEF §8: full, half_horizontal, half_vertical, quadrant (Framewo
 Needs `uv run python -m downstream.fetch framework` (Framework 3.4.0 CSS/JS, fonts, MapLibre 5.24.0 into `data/raw/framework/`) and a built site (`python -m downstream.site`).
 
 ```
-cd recipe/tools && npm ci && npm run check                  # all cases
-ONLY=Munich VIEW=full DEVICE=x_land npm run check           # a subset (also JOBS=n, DEBUG=1)
+cd recipe/tools && npm ci && npm run check                  # quick check, after each change (~5 min)
+npm run check:full                                          # every case, only before shipping a version
+ONLY=Munich VIEW=full DEVICE=x_land npm run check:full      # a subset (also JOBS=n, DEBUG=1)
 ```
 
-It renders every view (inside a real mashup for the smaller ones) on OG 1-bit, OG 2-bit, X landscape and X portrait, for 10 towns picked for their edge cases (among them Vihti and the two longest town lines) plus the error screen, in English/imperial and German/metric. Liquid is rendered by `render.rb` with Ruby Liquid (`gem install liquid`; 5.14.0 checked), the engine TRMNL runs; liquidjs, used at first, accepted a tag TRMNL rejected. Maps use Chromium's software WebGL. A case fails when:
+The quick check (author 2026-09-30: after each change) renders every view on OG 1-bit and X landscape for Munich, Iisalmi, Saint-Quentin-en-Yvelines and Cambridge, in both languages: 64 cases, 4½ minutes. The full check renders every view (inside a real mashup for the smaller ones) on OG 1-bit, OG 2-bit, X landscape and X portrait, for 10 towns picked for their edge cases (among them Vihti and the two longest town lines) plus the error screen, in English/imperial and German/metric. Liquid is rendered by `render.rb` with Ruby Liquid (`gem install liquid`; 5.14.0 checked), the engine TRMNL runs; liquidjs, used at first, accepted a tag TRMNL rejected. Maps use Chromium's software WebGL. A case fails when:
 
 - a map is missing, not built or not fully drawn, or its path isn't painted (the screenshot has no ink at 10 % or more of the visible path points);
 - the path runs off the map or under the text box;

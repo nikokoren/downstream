@@ -4,7 +4,7 @@
 // four times, so ids can't collide). A case fails when a map isn't drawn, part of the path is off
 // screen or under the text box (D19), text is cut off, or the number of maps is wrong.
 //
-// Usage: node render-check.mjs [--quick]   (needs `python -m downstream.fetch framework` and a site
+// Usage: node render-check.mjs [--quick]   (npm run check = --quick; needs `python -m downstream.fetch framework` and a site
 // build). Screenshots and results go to recipe/tools/out/ (git-ignored).
 import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
@@ -85,10 +85,13 @@ const server = http.createServer((req, res) => {
 await new Promise((r) => server.listen(0, r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
+// --quick: after each change (author 2026-09-30); the full sweep only before shipping a version.
+// The hardest cases: the reference path, the longest path, the longest town line, the longest
+// 5-step path; one OG and one X screen, both languages (64 cases, ~5 min).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Löbau", "(error)"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "(error)"];
 const cases = [];
-for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : Object.keys(DEVICES)))
+for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])
     cases.push({ view, device, town, lang, units: lang === "de" ? "metric" : "imperial" });
 
@@ -162,23 +165,17 @@ async function runCase(c) {
   // maps against the screen's final paint and wait for them to settle.
   if (!process.env.NO_REFRESH) await p.evaluate(() => window.TRMNLMaps && TRMNLMaps.refresh({ maxWaitMs: 60000 }));
   lap("refresh");
-  // Then TRMNLMaps' own "drawn everything it knows about" promise for every map (the X's canvas is
-  // ~3300×2460 px, slow in software WebGL).
-  await p.evaluate(() => Promise.race([
-    Promise.all([...document.querySelectorAll("[data-downstream-map]")].map((el) => el.__downstreamMap && TRMNLMaps.ready(el.__downstreamMap))),
-    new Promise((r) => setTimeout(r, 60000)),
-  ]));
   // Then MapLibre's own "idle" (nothing left to load or paint) on every map, up to 20 s: under
   // parallel load, software WebGL was still painting some X maps when settle() resolved.
   await p.evaluate(() => Promise.race([
     Promise.all([...document.querySelectorAll("[data-downstream-map]")].map((el) => new Promise((r) => {
       const m = el.__downstreamMap;
-      if (!m) return r();
+      if (!m || (m.loaded() && m.areTilesLoaded() && !m.isMoving())) return r();
       m.once("idle", r);
-      m.triggerRepaint();
     }))),
     new Promise((r) => setTimeout(r, 20000)),
   ]));
+  lap("idle");
   const check = await p.evaluate(({ isError, copies }) => {
     const fails = [];
     const maps = [...document.querySelectorAll("[data-downstream-map]")];

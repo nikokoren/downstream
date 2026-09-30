@@ -44,6 +44,10 @@ EXAMPLES = [
     ("Bolzano", "IT"),
     ("Tolmin", "SI"),
     ("Lisbon", "PT"),  # ends on the Tagus estuary shore (downstream.estuaries)
+    # Added 2026-09-30: one river under several OSM names ("River Great Ouse or Ely Ouse", "Río
+    # Guadaira" / "Río Guadaíra").
+    ("Cambridge", "GB"),
+    ("El Viso del Alcor", "ES"),
 ]
 
 
