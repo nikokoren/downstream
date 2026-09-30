@@ -42,7 +42,7 @@ Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <e
 
 | # | Slot | Views | Source | Casing | Length now (median / p95 / max) | Budget proposal | States |
 |---|---|---|---|---|---|---|---|
-| 1 | Town | all | `town.en` / `town.de` (GeoNames, D17) | as GeoNames | en 8 / 19 / 40; de 9 / 19 / 55 | 1 line, clamp | all |
+| 1 | Town, country | all | `place.en` / `place.de`: `town.en/de` (GeoNames, D17), `ui.place` ("{town}, {country}") and `locales.COUNTRIES` (curated, 48 countries; author 2026-09-30: "Vihti" alone doesn't say where it is) | as GeoNames | town alone: en 8 / 19 / 40; de 9 / 19 / 55 | 2 lines, clamp; quadrant: "town, country → endpoint", 2 lines | all |
 | 2 | Endpoint line | all | `end_text.en/de` ("Ends in the Black Sea", curated per endpoint, see below) | sentence case | ≤ 30 | clamp 2 lines (full, half); quadrant shows `end.display` after the town | sea, lake |
 | 2b | Sink headline | all | UI word | sentence case | — | ≤ 24 | sink |
 | 3 | Label for 2 | all but quadrant | UI word ("Ends in" / "Endet in") | sentence case | — | ≤ 12 | all |

@@ -36,8 +36,8 @@ custom_fields:
 - keyname: units
   name: Units
   field_type: select
-  description: Kilometres or miles, whatever the language.
+  description: Metric (kilometres) or imperial (miles), whatever the language.
   options:
-  - Kilometres: metric
-  - Miles: imperial
+  - Metric: metric
+  - Imperial: imperial
   default: metric

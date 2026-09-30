@@ -140,5 +140,9 @@ from a town (D8). So the parts carry over like this:
 - **Liquid**: the Polling URL uses `divided_by` on whole numbers (`recipe/polling_url.liquid`). That
   is safe in TRMNL's Ruby Liquid (confirmed on TRMNL 2026-09-29) but would not floor in liquidjs;
   keep it out of any liquidjs render check, or rewrite it with `modulo` if one ever needs it.
+- **Liquid, found on the author's device 2026-09-30**: Ruby Liquid ends a `{{ }}` tag at its first
+  `}`, so `{{ x | replace: "{n}", y }}` is a syntax error on TRMNL (liquidjs accepted it). Put
+  braces only inside `{% %}` tags (`{% assign more = x | replace: "{n}", y %}`). The render check
+  now renders with Ruby Liquid (`recipe/tools/render.rb`).
 - **Process** (part A §6) applies as is: brainstorm, wireframes, real-render mock-ups with real town
   files, build, render sweep, device feedback.

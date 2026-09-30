@@ -6,39 +6,28 @@
 //
 // Usage: node render-check.mjs [--quick]   (needs `python -m downstream.fetch framework` and a site
 // build). Screenshots and results go to recipe/tools/out/ (git-ignored).
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Liquid } from "liquidjs";
 import { chromium } from "playwright-core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
-const SRC = path.join(root, "recipe/src");
 const FW = path.join(root, "data/raw/framework/3.4.0");
 const SITE = path.join(root, "data/site/eu");
 const OUT = path.join(here, "out");
 const CHROME = process.env.CHROME || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 
-// TRMNL's `{% template name %}` blocks in Shared become in-memory partials for `{% render %}`.
-const sharedRaw = fs.readFileSync(path.join(SRC, "shared.liquid"), "utf8");
-const partials = {};
-const shared = sharedRaw.replace(
-  /\{%-?\s*template\s+(\w+)\s*-?%\}([\s\S]*?)\{%-?\s*endtemplate\s*-?%\}/g,
-  (_, name, body) => { partials[name] = body; return ""; });
-const engine = new Liquid({
-  extname: "",
-  fs: {
-    readFileSync: (f) => partials[f], readFile: async (f) => partials[f],
-    existsSync: (f) => f in partials, exists: async (f) => f in partials,
-    resolve: (_r, f) => f, contains: () => true, sep: "/", dirname: () => "",
-  },
-  relativeReference: false,
-});
-const views = Object.fromEntries(["full", "half_horizontal", "half_vertical", "quadrant"].map(
-  (v) => [v, fs.readFileSync(path.join(SRC, `${v}.liquid`), "utf8")]));
+// Liquid is rendered by Ruby Liquid (render.rb), the engine TRMNL runs: liquidjs accepted a `}`
+// inside `{{ }}` that TRMNL rejected on the author's device (2026-09-30).
+function renderLiquid(view, ctx) {
+  const r = spawnSync("ruby", [path.join(here, "render.rb"), view], { input: JSON.stringify(ctx), encoding: "utf8" });
+  if (r.status !== 0) throw new Error(`Ruby Liquid, ${view}: ${(r.stderr || "").split("\n")[0]}`);
+  return r.stdout;
+}
 
 // Towns by English name from the rotation list; "(error)" = no payload (R18).
 const rotation = fs.readFileSync(path.join(SITE, "rotation.csv"), "utf8").trim().split("\n").slice(1)
@@ -67,7 +56,7 @@ const LAYOUTS = { // view → mashup wrapper and how many copies of the plugin s
 
 async function page(view, device, town, lang, units) {
   const ctx = { ...payload(town), trmnl: { plugin_settings: { custom_fields_values: { language: lang, units } } } };
-  const body = await engine.parseAndRender(shared + views[view], ctx);
+  const body = renderLiquid(view, ctx);
   const one = `<div class="view view--${view}">${body}</div>`;
   const L = LAYOUTS[view];
   const inner = L.mashup ? `<div class="mashup ${L.mashup}">${one.repeat(L.copies)}</div>` : one;
@@ -97,7 +86,7 @@ await new Promise((r) => server.listen(0, r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Löbau", "(error)"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Löbau", "(error)"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])
@@ -179,6 +168,17 @@ async function runCase(c) {
     Promise.all([...document.querySelectorAll("[data-downstream-map]")].map((el) => el.__downstreamMap && TRMNLMaps.ready(el.__downstreamMap))),
     new Promise((r) => setTimeout(r, 60000)),
   ]));
+  // Then MapLibre's own "idle" (nothing left to load or paint) on every map, up to 20 s: under
+  // parallel load, software WebGL was still painting some X maps when settle() resolved.
+  await p.evaluate(() => Promise.race([
+    Promise.all([...document.querySelectorAll("[data-downstream-map]")].map((el) => new Promise((r) => {
+      const m = el.__downstreamMap;
+      if (!m) return r();
+      m.once("idle", r);
+      m.triggerRepaint();
+    }))),
+    new Promise((r) => setTimeout(r, 20000)),
+  ]));
   const check = await p.evaluate(({ isError, copies }) => {
     const fails = [];
     const maps = [...document.querySelectorAll("[data-downstream-map]")];
@@ -187,6 +187,7 @@ async function runCase(c) {
       return { fails, maps: maps.length };
     }
     if (maps.length !== copies) fails.push(`maps ${maps.length} != ${copies}`);
+    const accepted = [];
     const inkAt = []; // visible path points, checked against the screenshot's pixels below
     for (const el of maps) {
       const m = el.__downstreamMap;
@@ -220,10 +221,14 @@ async function runCase(c) {
       for (const t of el.querySelectorAll("[data-downstream-box] > *")) {
         const orig = t.getAttribute("data-clamp-original");
         const trimmed = t.hasAttribute("data-clamp-lines-trimmed") || (orig !== null && orig.trim() !== t.textContent.trim());
-        if (trimmed || t.scrollWidth > t.clientWidth + 2) fails.push(`text cut: "${(orig || t.textContent).trim().slice(0, 40)}"`);
+        if (!(trimmed || t.scrollWidth > t.clientWidth + 2)) continue;
+        // Town lines over 45 characters (15 towns in German, 1 in English, 2026-09-30) may be
+        // shortened by the clamp, as TEXT_REQUIREMENTS slot 1 allows; counted, not failed.
+        if (Number(t.getAttribute("data-downstream-place")) > 45) accepted.push(`town line shortened: "${orig.trim().slice(0, 40)}"`);
+        else fails.push(`text cut: "${(orig || t.textContent).trim().slice(0, 40)}"`);
       }
     }
-    return { fails, inkAt, maps: maps.length, zoom: maps.map((el) => el.__downstreamMap && el.__downstreamMap.getZoom()) };
+    return { fails, accepted, inkAt, maps: maps.length, zoom: maps.map((el) => el.__downstreamMap && el.__downstreamMap.getZoom()) };
   }, { isError: c.town === "(error)", copies: LAYOUTS[c.view].copies });
   const png = await p.screenshot({ path: path.join(OUT, `${id}.png`) });
   // Layers can exist without being painted (seen on the X: water only, no path), so check the
@@ -254,14 +259,22 @@ async function runCase(c) {
     if (inked < 0.9 * check.inkAt.length) check.fails.push(`path not painted (${inked}/${check.inkAt.length} points inked)`);
   }
   const fails = [...check.fails, ...errors];
-  results.push({ id, ...c, ok: fails.length === 0, fails, zoom: check.zoom });
+  results.push({ id, ...c, ok: fails.length === 0, fails, accepted: check.accepted || [], zoom: check.zoom });
   console.log(`${fails.length ? "FAIL" : "ok  "} ${id}${fails.length ? "  " + fails.join("; ") : ""}`);
   await p.close();
 }
 // A few cases at a time (JOBS, default 3): software WebGL is CPU-bound.
 const queue = [...cases];
 await Promise.all(Array.from({ length: Number(process.env.JOBS || 3) }, async () => {
-  while (queue.length) await runCase(queue.shift());
+  while (queue.length) {
+    const c = queue.shift();
+    // A case that throws (a timeout, a Liquid error) is a failed case, not the end of the sweep.
+    await runCase(c).catch((e) => {
+      const id = `${c.view}.${c.device}.${c.town.replace(/[^\w]+/g, "")}.${c.lang}`;
+      results.push({ id, ...c, ok: false, fails: [`error: ${String(e.message || e).split("\n")[0]}`] });
+      console.log(`FAIL ${id}  error: ${String(e.message || e).split("\n")[0]}`);
+    });
+  }
 }));
 await browser.close();
 server.close();
@@ -269,4 +282,6 @@ results.sort((a, b) => a.id.localeCompare(b.id));
 fs.writeFileSync(path.join(OUT, "results.json"), JSON.stringify(results, null, 1));
 const bad = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - bad}/${results.length} cases pass`);
+const acc = results.filter((r) => r.ok && r.accepted && r.accepted.length);
+if (acc.length) console.log(`${acc.length} of them with an accepted shortened town line: ${[...new Set(acc.map((r) => r.town + "." + r.lang))].join(", ")}`);
 process.exit(bad ? 1 : 0);

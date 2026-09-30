@@ -86,3 +86,16 @@ def test_every_endpoint_line_both_languages():
     assert end_text({"type": "sea", "name": "Black Sea"})["de"] == "Endet im Schwarzen Meer"
     lake = end_text({"type": "lake", "name": "Paralimni Lake"})
     assert lake["en"] == END_FALLBACK["en"].replace("{name}", "Paralimni Lake")
+
+
+@pytest.mark.skipif(
+    not (SITE / REGION / "t").exists(), reason="run `python -m downstream.site` first"
+)
+def test_every_town_has_a_country_line():
+    """Every slot file names its town with its country ("Vihti, Finland" / "Vihti, Finnland")."""
+    import json
+
+    for f in (SITE / REGION / "t").glob("*.json"):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        assert d["place"]["en"].startswith(d["town"]["en"] + ", "), f
+        assert d["place"]["de"].startswith(d["town"]["de"] + ", "), f

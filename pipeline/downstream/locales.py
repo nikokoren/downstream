@@ -15,6 +15,7 @@ UI = {
         "distance": "Distance",
         "credits": "HydroATLAS · HydroLAKES · GeoNames",  # settings about text (D20); map: OSM
         "about": "about {range}",  # travel time estimate (R10): the word marks it as an estimate
+        "place": "{town}, {country}",  # the town line (author 2026-09-30: "Vihti" alone is unclear)
     },
     "de": {
         "ends_in": "Endet in",
@@ -24,6 +25,7 @@ UI = {
         "distance": "Strecke",
         "credits": "HydroATLAS · HydroLAKES · GeoNames",
         "about": "etwa {range}",
+        "place": "{town}, {country}",
     },
 }
 
@@ -126,4 +128,68 @@ def end_text(end: dict) -> dict[str, str]:
         return {"en": en, "de": de}
     return {
         lang: END_FALLBACK[lang].replace("{name}", disp.get(lang) or end["name"]) for lang in UI
+    }
+
+
+# Country names by GeoNames country code, for the town line ("Vihti, Finland"; author
+# 2026-09-30). Every country a town in the rotation is in; a test fails if one is missing.
+# German names checked 2026-09-30: each is the title of its German Wikipedia article (48/48, no
+# redirects). English: common short names; the check against English Wikipedia was rate-limited.
+COUNTRIES = {
+    "AD": ("Andorra", "Andorra"),
+    "AL": ("Albania", "Albanien"),
+    "AT": ("Austria", "Österreich"),
+    "BA": ("Bosnia and Herzegovina", "Bosnien und Herzegowina"),
+    "BE": ("Belgium", "Belgien"),
+    "BG": ("Bulgaria", "Bulgarien"),
+    "BY": ("Belarus", "Belarus"),
+    "CH": ("Switzerland", "Schweiz"),
+    "CZ": ("Czechia", "Tschechien"),
+    "DE": ("Germany", "Deutschland"),
+    "DK": ("Denmark", "Dänemark"),
+    "EE": ("Estonia", "Estland"),
+    "ES": ("Spain", "Spanien"),
+    "FI": ("Finland", "Finnland"),
+    "FO": ("Faroe Islands", "Färöer"),
+    "FR": ("France", "Frankreich"),
+    "GB": ("United Kingdom", "Vereinigtes Königreich"),
+    "GG": ("Guernsey", "Guernsey"),
+    "GR": ("Greece", "Griechenland"),
+    "HR": ("Croatia", "Kroatien"),
+    "HU": ("Hungary", "Ungarn"),
+    "IE": ("Ireland", "Irland"),
+    "IM": ("Isle of Man", "Isle of Man"),
+    "IS": ("Iceland", "Island"),
+    "IT": ("Italy", "Italien"),
+    "JE": ("Jersey", "Jersey"),
+    "LI": ("Liechtenstein", "Liechtenstein"),
+    "LT": ("Lithuania", "Litauen"),
+    "LU": ("Luxembourg", "Luxemburg"),
+    "LV": ("Latvia", "Lettland"),
+    "MD": ("Moldova", "Republik Moldau"),
+    "ME": ("Montenegro", "Montenegro"),
+    "MK": ("North Macedonia", "Nordmazedonien"),
+    "MT": ("Malta", "Malta"),
+    "NL": ("Netherlands", "Niederlande"),
+    "NO": ("Norway", "Norwegen"),
+    "PL": ("Poland", "Polen"),
+    "PT": ("Portugal", "Portugal"),
+    "RO": ("Romania", "Rumänien"),
+    "RS": ("Serbia", "Serbien"),
+    "SE": ("Sweden", "Schweden"),
+    "SI": ("Slovenia", "Slowenien"),
+    "SK": ("Slovakia", "Slowakei"),
+    "SM": ("San Marino", "San Marino"),
+    "TR": ("Türkiye", "Türkei"),
+    "UA": ("Ukraine", "Ukraine"),
+    "VA": ("Vatican City", "Vatikanstadt"),
+    "XK": ("Kosovo", "Kosovo"),
+}
+
+
+def place_text(town: dict, cc: str) -> dict[str, str]:
+    """ "Vihti, Finland" / "Vihti, Finnland" from the town's names and its country code."""
+    return {
+        lang: UI[lang]["place"].replace("{town}", town[lang]).replace("{country}", COUNTRIES[cc][i])
+        for i, lang in enumerate(("en", "de"))
     }

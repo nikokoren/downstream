@@ -140,6 +140,7 @@ def compute_town(
             "lon": lon,
             "lat": lat,
             "population": int(c["pop"]),
+            "cc": c["cc"],
         },
         "start": {"reach": start, "how": how},
         "reaches": len(ids),
