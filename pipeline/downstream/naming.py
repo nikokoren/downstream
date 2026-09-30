@@ -382,6 +382,7 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
     groups = _lakes_named_like_river(groups)
     groups = _merge_side_arms(groups)
     groups = _merge_repeated_lakes(groups)
+    groups = _thin_lake_runs(groups)
     for g in groups:
         g["km"] = round(g["km"], 1)
         if g["disp"]:
@@ -391,6 +392,41 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
         else:
             g["name"] = None
     return groups
+
+
+def _thin_lake_runs(groups: list[dict]) -> list[dict]:
+    """A river through a string of lakes shows once where it starts and once where it ends, and
+    each lake once: "Raudanjoki → Onkivesi → Raudanjoki → Maaninkajärvi → Raudanjoki → Unnukka →
+    Raudanjoki → Unnukka → Raudanjoki" becomes "Raudanjoki → Onkivesi → Maaninkajärvi → Unnukka →
+    Raudanjoki" (Iisalmi, 25 steps, 2026-09-30). A river step is dropped when the river steps before
+    and after it, with only lakes between, have its name; a lake already listed in that stretch is
+    dropped too. Their km go to the first step of the same name."""
+    rivers = [k for k, g in enumerate(groups) if g["kind"] == "river"]
+    drop = set()
+    for a, b, c in zip(rivers, rivers[1:], rivers[2:], strict=False):
+        key = groups[b]["key"]
+        if key and groups[a]["key"] == key == groups[c]["key"]:
+            drop.add(b)
+    # Stretches between kept river steps: repeated lakes inside one stretch are dropped.
+    first_of: dict = {}
+    for k, g in enumerate(groups):
+        if g["kind"] == "river" and k not in drop:
+            first_of = {}
+        if g["kind"] == "lake" and g["key"]:
+            if g["key"] in first_of:
+                drop.add(k)
+            else:
+                first_of[g["key"]] = k
+    out: list[dict] = []
+    for k, g in enumerate(groups):
+        if k in drop:
+            same = next((o for o in out if o["key"] == g["key"] and o["kind"] == g["kind"]), None)
+            if same is not None:
+                same["km"] += g["km"]
+                same["reaches"] += g["reaches"]
+                continue
+        out.append(g)
+    return out
 
 
 def _merge_repeated_lakes(groups: list[dict], max_gap_km: float = 5.0) -> list[dict]:

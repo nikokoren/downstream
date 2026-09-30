@@ -207,9 +207,22 @@ def name_tile(
     lakes_osm = _clean_names(_read_bbox(osm_lakes, bbox)).to_crs(METRIC_CRS)
     lakes_osm["geometry"] = lakes_osm.geometry.make_valid()
     lakes_ne = ne_lakes.cx[bbox[0] : bbox[2], bbox[1] : bbox[3]].to_crs(METRIC_CRS)
-    for src, lk in (("lake:naturalearth", lakes_ne), ("lake:osm", lakes_osm)):  # OSM wins: last
-        for r, nm in lake_of(geoms, lk).items():
-            label[r], source[r] = nm, src
+    # Natural Earth lakes only where OSM has nothing: no OSM name on the reach and no named OSM
+    # lake within OSM_DIST. NE's generalised "Lake Saimaa" covers the whole Finnish lake district,
+    # so it overwrote OSM rivers and the gaps between OSM basins: Iisalmi's chain flipped between
+    # "Lake Saimaa" and the real basins 35 times (2026-09-30).
+    near_osm_lake = np.zeros(len(geoms), dtype=bool)
+    if len(lakes_osm):
+        ri, _ = STRtree(lakes_osm.geometry.values).query(
+            geoms, predicate="dwithin", distance=OSM_DIST
+        )
+        near_osm_lake[np.unique(ri)] = True
+    for r, nm in lake_of(geoms, lakes_ne).items():
+        osm_named = source[r] is not None and source[r].startswith("osm")
+        if not osm_named and not near_osm_lake[r]:
+            label[r], source[r] = nm, "lake:naturalearth"
+    for r, nm in lake_of(geoms, lakes_osm).items():  # OSM lakes win over OSM rivers
+        label[r], source[r] = nm, "lake:osm"
     return pd.DataFrame(
         {"HYRIV_ID": reaches["HYRIV_ID"].to_numpy(), "name": label, "source": source}
     )

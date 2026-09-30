@@ -40,3 +40,23 @@ def test_committed_polling_url_matches_the_site():
     # One file per slot, and the committed URL uses the same fixed slot count.
     assert len(list((SITE / REGION / "t").glob("*.json"))) == SLOTS
     assert RECIPE_URL.read_text(encoding="utf-8") == polling_url()
+
+
+def test_ui_words_complete_in_both_languages():
+    from downstream.locales import UI
+
+    assert set(UI["en"]) == set(UI["de"])
+    assert all(v.strip() for lang in UI.values() for v in lang.values())
+
+
+def test_distance_formats_per_language_and_unit():
+    # Real totals from the 2026-09-30 build: Limhamn 1.7 km, and the 95th percentile 1,806 km.
+    from downstream.locales import distance_text
+
+    assert distance_text(1.7) == {
+        "en": {"metric": "1.7 km", "imperial": "1.1 mi"},
+        "de": {"metric": "1,7 km", "imperial": "1,1 mi"},
+    }
+    d = distance_text(1806.0)
+    assert d["en"]["metric"] == "1,806 km" and d["de"]["metric"] == "1.806 km"
+    assert d["en"]["imperial"] == "1,122 mi" and d["de"]["imperial"] == "1.122 mi"
