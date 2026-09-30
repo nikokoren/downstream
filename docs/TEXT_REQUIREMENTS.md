@@ -78,8 +78,8 @@ credits.
 
 Shown when the town file can't be read. It can't use the backend's words (they come in the same
 file), so this is the one place with words in the template, both languages, picked by the
-language setting. Whimsical, with water in it (author, 2026-09-30). Draft, one line each plus a
-smaller second line:
+language setting. Whimsical, with water in it (author, 2026-09-30). **Chosen: B** (author,
+2026-09-30), one line plus a smaller second line:
 
 | | English | Deutsch |
 |---|---|---|
@@ -92,7 +92,7 @@ smaller second line:
 1. UI words: a `ui` block in every town file.
 2. Sink: "Disappears underground" / "Versickert im Boden".
 3. Unnamed first stretch: "a stream" / "ein Bach".
-4. Error screen: whimsical, with a water reference, words in the template (above).
+4. Error screen: text B, "Our raindrop got lost in a puddle. / It'll find its way back soon." / "Unser Regentropfen steckt in einer Pfütze fest. / Er findet bald wieder heraus." Words in the template (above).
 5. No further OpenStreetMap credit beyond the map's own label.
 6. Units: separate setting, metric by default, independent of language.
 
