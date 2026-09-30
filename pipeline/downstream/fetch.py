@@ -129,7 +129,25 @@ def osm() -> None:
                 print(f"missing {kind}-{slug}.fgb (release not published yet?)")
 
 
-STEPS = {"reaches": reaches, "basins": basins, "ne": ne, "geonames": geonames, "osm": osm}
+def lakes() -> None:
+    """HydroLAKES pour points inside the Europe window (Res_time for the travel time, D3)."""
+    zp = RAW / "hydrolakes_points_v10_shp.zip"
+    _download(sources.HYDROLAKES_POINTS, zp)
+    with zipfile.ZipFile(zp) as z:
+        shp = next(n for n in z.namelist() if n.endswith(".shp"))
+    _copy_layer(
+        f"/vsizip/{zp}/{shp}", RAW / "hydrolakes_points_eu.fgb", sources.LAKE_COLUMNS, EUROPE_BBOX
+    )
+
+
+STEPS = {
+    "reaches": reaches,
+    "basins": basins,
+    "ne": ne,
+    "geonames": geonames,
+    "lakes": lakes,
+    "osm": osm,
+}
 
 
 def main(argv: list[str]) -> None:

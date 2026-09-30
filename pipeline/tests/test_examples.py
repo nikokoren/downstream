@@ -116,3 +116,16 @@ def test_every_sea_endpoint_has_a_german_name():
         if end["type"] == "sea" and not (end.get("display") or {}).get("de"):
             missing[end["name"]] = missing.get(end["name"], 0) + 1
     assert not missing, missing
+
+
+@pytest.mark.skipif(not TOWNS.exists(), reason="run `python -m downstream.paths --all` first")
+def test_lake_time_counts_lakes_on_the_path_only():
+    # 2026-09-30 build: Lake Constance's Res_time is 1,626 days (HydroLAKES); Konstanz drains
+    # through it. Geneva sits at Lake Geneva's outlet, below the lake. Basel is below Constance.
+    towns = {}
+    for f in TOWNS.glob("*.json"):
+        d = json.loads(f.read_text())
+        towns.setdefault(d["town"]["en"], d)
+    assert 1500 < towns["Konstanz"]["lake_days"] < 1800
+    assert towns["Geneva"]["lake_days"] < 30
+    assert towns["Basel"]["lake_days"] < 30

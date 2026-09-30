@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-30 — **Lake time in the travel estimate**: HydroLAKES v1.0 (CC BY 4.0, direct download, no registration) residence times added for lakes and reservoirs on each path (Estimate assumptions). New fetch step `lakes`; credits now "HydroATLAS · HydroLAKES · GeoNames" (settings about text, D20).
 - 2026-09-30 — **Travel time estimate** (D3): every town file has `travel_days` and `travel` ("about 3–6 weeks" / "etwa 3–6 Wochen"), shown after the distance. Method and limits under "Estimate assumptions". `dis_m3_pyr` added to the fetched RiverATLAS columns.
 - 2026-09-30 — **D20 (author's comment on the wireframes)**: new text order, and data credits move from the screen to the settings' about text. "Ends in <endpoint>" as one phrase needs a per-endpoint wording in both languages ("the Black Sea", "im Schwarzen Meer", "in der Ostsee"); proposed as curated columns for the ~27 endpoints, not decided.
 - 2026-09-30 — **Text decisions and Finland lakes.** `docs/TEXT_REQUIREMENTS.md` decided (UI words in every town file, sink "Disappears underground" / "Versickert im Boden", "a stream" / "ein Bach", whimsical error screen with words in the template, no second OSM credit, units a separate setting defaulting to metric). Town files now carry `ui` (en/de, `pipeline/downstream/locales.py`) and `distance` pre-formatted per language and unit. Finland: Natural Earth's generalised "Lake Saimaa" overwrote OSM rivers and the gaps between OSM basins; NE lakes now only name reaches with no OSM name and no named OSM lake within 600 m (43 chains changed, "Lake Saimaa" 77 → 1, also removed a wrong "Lago di Como" from Verbania's path). Then a river through a string of lakes shows only where it starts and ends, each lake once (54 chains changed). Longest chain 35 → 16 steps; towns with ≥ 12 steps 22 → 15; 0 endpoints changed; payload max 4.1 → 2.4 KB (2.8 KB with `ui`); 30/30 tests pass.
@@ -417,12 +418,21 @@ Verbatim excerpts with URLs: `docs/sources/TRMNL_2026-09-29.md`.
 - **Shown as a range**: estimate ÷ 1.5 to × 1.5, each end rounded to the nearest whole hour, day,
   week, month or year (unit by the upper end), prefixed "about"/"etwa". Munich: 26.5 days →
   "about 3–6 weeks".
+- **Lakes and reservoirs** (author, 2026-09-30: "closer to the real number" if the license fits):
+  HydroLAKES v1.0 (CC BY 4.0, `docs/sources/HYDROLAKES_2026-09-30.md`) `Res_time` (days = lake
+  volume / mean outflow; for a well-mixed lake also the mean time a drop stays). A lake counts when
+  its pour point is within 1 km of a path segment (not the start segment: a town at a lake's outlet,
+  Geneva, is below it) AND the lake's outflow (`Dis_avg`) is within ×/÷ 2 of that segment's flow,
+  so ponds and gravel pits beside big rivers don't add their months to the river. Reservoirs count
+  (they hold water the same way; Spain's Tagus and Ukraine's Dnieper chains add months). HydroLAKES
+  dates from 2016: it still has the Kakhovka reservoir, drained in 2023.
 - **Not included**: the time before rain reaches a stream (soaking in, groundwater: days to
-  decades); time spent mixing in lakes (633 of 6,870 towns cross one; lakes are crossed at river
-  speed; lake residence times would need HydroLAKES, not checked); dams, weirs and canals; seasonal
-  and flood flows.
-- **Numbers (2026-09-30 build)**: median 4.2 days, 95th percentile 19.8 days, max 32.8 days.
-  Units shown: hours 2,051 towns, days 3,127, weeks 1,692.
+  decades); weirs, canals; seasonal and flood flows.
+- **Numbers (2026-09-30 build, with lakes)**: 4,521 of 6,870 towns pass at least one lake or
+  reservoir; 1,198 gain over 30 days, 296 over a year. Units shown: hours 1,843 towns, days 2,295,
+  weeks 1,594, months 886, years 252. Examples: Munich "about 3–8 weeks" (Danube reservoirs +10 d),
+  Konstanz "about 3–7 years" (Lake Constance 1,629 d), Lausanne "about 7–16 years" (Lake Geneva
+  3,961 d), Jönköping "about 47–106 years" (Vättern), Geneva "about 6–14 days".
 
 ## Corrections log
 

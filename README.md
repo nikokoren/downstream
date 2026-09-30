@@ -13,6 +13,12 @@ River reaches and sub-basins come from RiverATLAS and BasinATLAS, part of HydroA
 - Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P., Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-environmental sub-basin and river reach characteristics at high spatial resolution. Scientific Data 6: 283. https://doi.org/10.1038/s41597-019-0300-6
 - Underlying river network (HydroRIVERS, in the format provided by RiverATLAS v1.0): Lehner, B., Grill G. (2013). Global river hydrography and network routing: baseline data and new approaches to study the world's large river systems. Hydrological Processes, 27(15): 2171–2186. https://doi.org/10.1002/hyp.9740
 
+### HydroLAKES (time spent in lakes)
+
+The travel time estimate uses lake residence times from HydroLAKES v1.0 by Messager, Lehner et al., licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://www.hydrosheds.org/products/hydrolakes. **Changes:** Downstream uses the lake pour points in Europe and adds the residence time of each lake on a path.
+
+- Messager, M.L., Lehner, B., Grill, G., Nedeva, I., Schmitt, O. (2016): Estimating the volume and age of water stored in global lakes using a geo-statistical approach. Nature Communications, 7: 13603. https://doi.org/10.1038/ncomms13603
+
 ### Natural Earth (river, lake and sea names)
 
 Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com (public domain), including the Europe river supplement.

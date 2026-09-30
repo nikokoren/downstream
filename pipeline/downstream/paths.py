@@ -88,6 +88,7 @@ class Context:
         self.name_en = dict(pd.read_csv(en_csv, keep_default_na=False).itertuples(index=False))
         self.seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
         self.lakes = load_ne(RAW / "ne_lakes.zip")
+        self.lake_days = lake_days_per_reach(self.net.reaches, RAW / "hydrolakes_points_eu.fgb")
         self._ends: dict[int, dict] = {}  # outlet reach -> endpoint (many towns share one)
 
     def end_of(self, last) -> dict:
@@ -111,6 +112,10 @@ def compute_town(
     groups = naming.chain(reaches, names, ctx.curated)
     first, last = reaches.iloc[0], reaches.iloc[-1]
     end = ctx.end_of(last)
+    river_days = travel_days(reaches)
+    # Lakes whose outlet is on the path, not counting the start segment: a town right at a lake's
+    # outlet (Geneva) is below the lake, not in it.
+    lake_days = float(sum(ctx.lake_days.get(int(i), 0.0) for i in ids[1:]))
     if end["type"] == "sea" and int(last["HYRIV_ID"]) in ctx.estuary:
         groups = add_estuary(groups, *ctx.estuary[int(last["HYRIV_ID"])], ctx.curated)
     groups = to_latin(groups, ctx.name_en, c["cc"])
@@ -139,7 +144,8 @@ def compute_town(
         "start": {"reach": start, "how": how},
         "reaches": len(ids),
         "total_km": round(float(first["DIST_DN_KM"] + first["LENGTH_KM"]), 1),
-        "travel_days": travel_days(reaches),
+        "travel_days": round(river_days + lake_days, 3),
+        "lake_days": round(lake_days, 3),
         "chain": [{k: g[k] for k in ("kind", "name", "source", "km", "reaches")} for g in groups],
         "end": {**end, "display": end_disp},
         # Google encoded polyline, decoded on screen by TRMNLMaps.decodePolyline() (Framework 3.3+).
@@ -180,6 +186,33 @@ def travel_days(reaches) -> float:
     speed = SPEED_COEF * q**0.2
     seconds = (reaches["LENGTH_KM"].to_numpy(dtype=float) * 1000 / speed).sum()
     return round(float(seconds) / 86400, 3)
+
+
+LAKE_SNAP_M = 1000.0  # a lake's pour point belongs to the nearest reach within this distance
+LAKE_FLOW_RATIO = 2.0  # ... and only if the lake's outflow is within ×/÷ 2 of the reach's flow
+
+
+def lake_days_per_reach(reaches, points_file) -> dict[int, float]:
+    """Days a drop spends in lakes, per reach where a lake drains (HydroLAKES `Res_time`: lake
+    volume / mean outflow; for a well-mixed lake also the mean time a drop stays). A pour point
+    counts only on a reach carrying the lake's outflow: Europe has thousands of ponds and gravel
+    pits beside big rivers whose pour points land on the river (a pond draining into the Rhine has
+    ~0.01 m3/s, the Rhine ~1,000), and they would add their months to every town downstream."""
+    pts = pyogrio.read_dataframe(points_file)
+    pts = pts[(pts["Res_time"] > 0) & (pts["Dis_avg"] > 0)].to_crs(naming.METRIC_CRS)
+    geoms = reaches.to_crs(naming.METRIC_CRS).geometry.values
+    (pi, ri), _ = STRtree(geoms).query_nearest(
+        pts.geometry.values, max_distance=LAKE_SNAP_M, return_distance=True
+    )
+    q_lake = pts["Dis_avg"].to_numpy(dtype=float)[pi]
+    q_reach = reaches["dis_m3_pyr"].to_numpy(dtype=float)[ri].clip(min=MIN_FLOW)
+    ok = (q_lake / q_reach <= LAKE_FLOW_RATIO) & (q_reach / q_lake <= LAKE_FLOW_RATIO)
+    out: dict[int, float] = {}
+    ids = reaches["HYRIV_ID"].to_numpy()
+    for p, r in zip(pi[ok], ri[ok], strict=True):
+        rid = int(ids[r])
+        out[rid] = out.get(rid, 0.0) + float(pts["Res_time"].iloc[p])
+    return out
 
 
 def add_estuary(groups: list[dict], name: str, km: float, curated: dict) -> list[dict]:

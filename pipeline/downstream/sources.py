@@ -37,3 +37,9 @@ NE_LAYERS = {
 
 # GeoNames (CC BY 4.0, D9).
 GEONAMES_DUMP = "https://download.geonames.org/export/dump"
+
+# HydroLAKES v1.0 lake pour points (Messager et al. 2016), CC BY 4.0, direct download, no
+# registration (checked 2026-09-30, docs/sources/HYDROLAKES_2026-09-30.md). Used for the time a
+# raindrop spends in lakes on its way (`Res_time`, days; D3).
+HYDROLAKES_POINTS = "https://data.hydrosheds.org/file/hydrolakes/HydroLAKES_points_v10_shp.zip"
+LAKE_COLUMNS = ["Hylak_id", "Lake_name", "Lake_type", "Res_time", "Vol_total", "Dis_avg"]

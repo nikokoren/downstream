@@ -13,7 +13,7 @@ UI = {
         "a_stream": "a stream",  # an unnamed stretch in the chain
         "more": "+{n} more",  # chain shortened: n further steps not shown
         "distance": "Distance",
-        "credits": "HydroATLAS · GeoNames",  # the map adds its own OpenStreetMap credit
+        "credits": "HydroATLAS · HydroLAKES · GeoNames",  # settings about text (D20); map: OSM
         "about": "about {range}",  # travel time estimate (R10): the word marks it as an estimate
     },
     "de": {
@@ -22,7 +22,7 @@ UI = {
         "a_stream": "ein Bach",
         "more": "+{n} weitere",
         "distance": "Strecke",
-        "credits": "HydroATLAS · GeoNames",
+        "credits": "HydroATLAS · HydroLAKES · GeoNames",
         "about": "etwa {range}",
     },
 }
