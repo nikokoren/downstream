@@ -7,6 +7,7 @@ TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a
 1. `docs/BRIEF.md` — requirements (R1–R24, P1–P7, decisions D1–D4). Source of truth for *what*.
 2. `PROJECT.md` — dated decisions, verified facts about outside systems, and the current status. Source of truth for *where we are*.
 3. `docs/TEXT_REQUIREMENTS.md` — must be filled in before any on-screen copy is written (R14).
+4. `docs/DESIGN_PHILOSOPHY.md` — how views are built (from On the Move), before touching `recipe/`.
 
 ## Working method (adopted 2026-09-27; full text in docs/BRIEF.md)
 
@@ -27,7 +28,7 @@ TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a
 - **Estimates** are labeled as estimates on screen, and the assumption is documented in `PROJECT.md` (R10).
 - **Attribution** on every view (R16); CC BY 4.0 credit for HydroATLAS (Linke et al. 2019, plus Lehner & Grill 2013) with license link and a modification note in README and store listing (R17).
 - **Payload** under ~6 KB (R3).
-- **Maps** (R12): MapLibre via TRMNLMaps; never mutate the preset's style object; use `idle` for measuring; literal stretch axes; loading fallbacks. The full map rules live in Aurora Watch's CLAUDE.md — copy them into `docs/MAP_RULES.md` before building views (not yet done; Aurora Watch is not in this repo).
+- **Maps** (R12): MapLibre via TRMNLMaps; never mutate the preset's style object; use `idle` for measuring; literal stretch axes; loading fallbacks. Design and map rules from On the Move are in `docs/DESIGN_PHILOSOPHY.md` (read it before building views); Aurora Watch's map rules are not copied yet.
 - **Endpoint classification** must not trust `NEXT_DOWN == 0 && ENDORHEIC == 0` alone (Central Asia quirk, R9/P4).
 - Raw downloaded data never gets committed (`data/` is git-ignored except its README).
 - German names only from the curated table; never use Natural Earth's `name_de` (D7).
@@ -40,6 +41,7 @@ TRMNL recipe: rotates through a fixed list of towns and, for each, shows where a
 |---|---|
 | `docs/BRIEF.md` | Requirements, verbatim |
 | `docs/TEXT_REQUIREMENTS.md` | Copy slots and budgets (R14), stub |
+| `docs/DESIGN_PHILOSOPHY.md` | View design rules from On the Move, plus the Downstream proposal |
 | `docs/sources/` | Verbatim excerpts of outside terms we depend on, dated |
 | `docs/permissions/` | Written data-use permissions, if any are ever granted |
 | `PROJECT.md` | Decisions log, verified facts, status, estimate assumptions |
