@@ -9,7 +9,8 @@
 {%- if ds_units != "imperial" -%}{%- assign ds_units = "metric" -%}{%- endif -%}
 
 {% comment %} The river chain: all steps up to max_steps, else the first two, "+N more", the last two;
-   never "+1 more", which takes as much room as the one name it hides. {% endcomment %}
+   never "+1 more", which takes as much room as the one name it hides. It starts and ends with an
+   arrow, from the town above and on to the endpoint below (author, 2026-09-30). {% endcomment %}
 {% template ds_chain %}
 {%- assign ui_l = ui[lang] -%}
 {%- assign n = chain.size -%}
@@ -17,7 +18,7 @@
 {%- assign hidden = n | minus: 4 -%}
 {%- assign shorten = false -%}
 {%- if n > max_steps and hidden > 1 -%}{%- assign shorten = true -%}{%- endif -%}
-{%- assign sep = "" -%}
+{%- assign sep = "→ " -%}
 {%- for step in chain -%}
   {%- assign i = forloop.index0 -%}
   {%- if shorten and i >= 2 and i < tail_start -%}
@@ -27,6 +28,7 @@
     {{ sep }}{{ nm }}{%- assign sep = " → " -%}
   {%- endif -%}
 {%- endfor -%}
+{{ " →" -}}
 {% endtemplate %}
 
 {% comment %} The text box over the map: town and country, path, endpoint, distance · travel time (D20). {% endcomment %}

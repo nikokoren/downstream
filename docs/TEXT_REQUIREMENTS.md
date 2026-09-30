@@ -46,7 +46,7 @@ Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <e
 | 2 | Endpoint line | all | `end_text.en/de` ("Ends in the Black Sea", curated per endpoint, see below) | sentence case | ≤ 30 | clamp 2 lines (full, half); quadrant shows `end.display` after the town | sea, lake |
 | 2b | Sink headline | all | UI word | sentence case | — | ≤ 24 | sink |
 | 3 | Label for 2 | all but quadrant | UI word ("Ends in" / "Endet in") | sentence case | — | ≤ 12 | all |
-| 4 | River chain | all but quadrant | `chain[].name` en/de/local; unnamed → `ui.a_stream` | as source | steps 2 / 6 / 35 before the Finland fix; joined en 23 / 67 / 453 chars; single names 7 / 17 / 53 | full: all steps up to a per-view maximum, then "+N more"; half views ~4 steps; quadrant: none | all |
+| 4 | River chain | all but quadrant | `chain[].name` en/de/local; unnamed → `ui.a_stream` | as source | steps 2 / 6 / 35 before the Finland fix; joined en 23 / 67 / 453 chars; single names 7 / 17 / 53 | full: all steps up to a per-view maximum, then "+N more"; half views ~4 steps; quadrant: none; starts and ends with an arrow, "→ a stream → Isar → Danube →" (author 2026-09-30); never "+1 more" | all |
 | 4b | Unnamed step | inside 4 | UI word ("a stream" / "ein Bach") | lower case | — | ≤ 10 | 1,585 towns start unnamed; 151 unnamed steps later in a chain |
 | 5 | Distance · travel time | all | `distance.<language>.<units>` ("1,806 km", "1.806 km", "1,122 mi"; under 10 with one decimal), then " · " and `travel.<language>` ("about 3–6 weeks" / "etwa 3–6 Wochen", D3) | — | 224 / 1,806 / 2,922 km | ≤ 32 | all |
 | 5b | Label for 5 | full, half | UI word ("Distance" / "Strecke") | sentence case | — | ≤ 10 | all |
