@@ -78,3 +78,52 @@ def travel_text(days: float) -> dict[str, str]:
         rng = f"{lo} {one if lo == 1 else many}" if lo == hi else f"{lo}–{hi} {many}"
         out[lang] = UI[lang]["about"].replace("{range}", rng)
     return out
+
+
+# "Ends in …" per endpoint, with the article and German case each name needs (D20 made it one
+# phrase; author approved the sketches with "Endet im Schwarzen Meer", 2026-09-30). Keyed by the
+# curated English display name; German forms follow the curated German names (German Wikipedia).
+END_PHRASES = {
+    "North Sea": ("Ends in the North Sea", "Endet in der Nordsee"),
+    "Black Sea": ("Ends in the Black Sea", "Endet im Schwarzen Meer"),
+    "Baltic Sea": ("Ends in the Baltic Sea", "Endet in der Ostsee"),
+    "North Atlantic Ocean": ("Ends in the North Atlantic", "Endet im Nordatlantik"),
+    "Adriatic Sea": ("Ends in the Adriatic Sea", "Endet im Adriatischen Meer"),
+    "English Channel": ("Ends in the English Channel", "Endet im Ärmelkanal"),
+    "Tyrrhenian Sea": ("Ends in the Tyrrhenian Sea", "Endet im Tyrrhenischen Meer"),
+    "Balearic Sea": ("Ends in the Balearic Sea", "Endet im Balearen-Meer"),
+    "Irish Sea": ("Ends in the Irish Sea", "Endet in der Irischen See"),
+    "Bay of Biscay": ("Ends in the Bay of Biscay", "Endet in der Biskaya"),
+    "Gulf of Lion": ("Ends in the Gulf of Lion", "Endet im Golfe du Lion"),
+    "Mediterranean Sea": ("Ends in the Mediterranean", "Endet im Mittelmeer"),
+    "Sea of Azov": ("Ends in the Sea of Azov", "Endet im Asowschen Meer"),
+    "Aegean Sea": ("Ends in the Aegean Sea", "Endet im Ägäischen Meer"),
+    "Bristol Channel": ("Ends in the Bristol Channel", "Endet im Bristolkanal"),
+    "Gulf of Finland": ("Ends in the Gulf of Finland", "Endet im Finnischen Meerbusen"),
+    "Kattegat": ("Ends in the Kattegat", "Endet im Kattegat"),
+    "Ionian Sea": ("Ends in the Ionian Sea", "Endet im Ionischen Meer"),
+    "Gulf of Bothnia": ("Ends in the Gulf of Bothnia", "Endet im Bottnischen Meerbusen"),
+    "Sea of Crete": ("Ends in the Sea of Crete", "Endet im Kretischen Meer"),
+    "Alboran Sea": ("Ends in the Alboran Sea", "Endet im Alborán-Meer"),
+    "Gulf of Riga": ("Ends in the Gulf of Riga", "Endet im Rigaischen Meerbusen"),
+    "Skagerrak": ("Ends in the Skagerrak", "Endet im Skagerrak"),
+    "Norwegian Sea": ("Ends in the Norwegian Sea", "Endet im Europäischen Nordmeer"),
+    "Greenland Sea": ("Ends in the Greenland Sea", "Endet in der Grönlandsee"),
+    "Lake Vegoritida": ("Ends in Lake Vegoritida", "Endet im Vegoritida-See"),
+}
+# Endpoints without a curated phrase (Paralimni Lake, 2 towns): label form, no grammar needed.
+END_FALLBACK = {"en": "Ends in: {name}", "de": "Endet in: {name}"}
+
+
+def end_text(end: dict) -> dict[str, str]:
+    """The endpoint line in both languages; sinks get ui.sink."""
+    if end["type"] == "sink":
+        return {lang: UI[lang]["sink"] for lang in UI}
+    disp = end.get("display") or {}
+    key = disp.get("en") or end["name"]
+    if key in END_PHRASES:
+        en, de = END_PHRASES[key]
+        return {"en": en, "de": de}
+    return {
+        lang: END_FALLBACK[lang].replace("{name}", disp.get(lang) or end["name"]) for lang in UI
+    }

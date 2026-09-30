@@ -70,3 +70,19 @@ def test_travel_text_ranges_and_units():
     assert travel_text(0.05)["en"] == "about 1–2 hours"  # 1.2 h: 0.8–1.8 h
     assert travel_text(3)["de"] == "etwa 2–5 Tage"
     assert travel_text(19.57)["en"] == "about 2–4 weeks"  # Vienna
+
+
+def test_recipe_settings_carry_the_polling_url():
+    """recipe/src/settings.yml (the plugin export) must hold the same Polling URL, quoted."""
+    settings = Path(__file__).resolve().parents[2] / "recipe" / "src" / "settings.yml"
+    line = next(x for x in settings.read_text().splitlines() if x.startswith("polling_url:"))
+    assert line == "polling_url: '" + polling_url().strip() + "'"
+
+
+def test_every_endpoint_line_both_languages():
+    from downstream.locales import END_FALLBACK, end_text
+
+    assert end_text({"type": "sink", "name": ""})["de"] == "Versickert im Boden"
+    assert end_text({"type": "sea", "name": "Black Sea"})["de"] == "Endet im Schwarzen Meer"
+    lake = end_text({"type": "lake", "name": "Paralimni Lake"})
+    assert lake["en"] == END_FALLBACK["en"].replace("{name}", "Paralimni Lake")

@@ -140,6 +140,19 @@ def lakes() -> None:
     )
 
 
+def framework() -> None:
+    """TRMNL Framework files for the recipe's render check (not used by the pipeline itself)."""
+    out = RAW / "framework" / sources.FRAMEWORK_VERSION
+    out.mkdir(parents=True, exist_ok=True)
+    for name, url in sources.FRAMEWORK_FILES.items():
+        _download(url, out / name)
+    for name, url in sources.MAPLIBRE_FILES.items():
+        _download(url, out / name)
+    (out / "fonts").mkdir(exist_ok=True)
+    for name in sources.FRAMEWORK_FONTS:
+        _download(f"https://trmnl.com/fonts/{name}", out / "fonts" / name)
+
+
 STEPS = {
     "reaches": reaches,
     "basins": basins,
@@ -147,6 +160,7 @@ STEPS = {
     "geonames": geonames,
     "lakes": lakes,
     "osm": osm,
+    "framework": framework,
 }
 
 

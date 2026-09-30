@@ -9,3 +9,7 @@ __pycache__/
 .venv/
 *.pyc
 .DS_Store
+
+# render check output and dependencies
+recipe/tools/out/
+recipe/tools/node_modules/

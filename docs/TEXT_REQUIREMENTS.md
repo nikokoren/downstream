@@ -43,7 +43,7 @@ Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <e
 | # | Slot | Views | Source | Casing | Length now (median / p95 / max) | Budget proposal | States |
 |---|---|---|---|---|---|---|---|
 | 1 | Town | all | `town.en` / `town.de` (GeoNames, D17) | as GeoNames | en 8 / 19 / 40; de 9 / 19 / 55 | 1 line, clamp | all |
-| 2 | Endpoint (headline) | all | `end.display.en/de` (curated), else `end.name` | as curated | en 9 / 20 / 20; de 10 / 18 / 21 | 1 line, never clamped (max 21 fits) | sea, lake |
+| 2 | Endpoint line | all | `end_text.en/de` ("Ends in the Black Sea", curated per endpoint, see below) | sentence case | ≤ 30 | clamp 2 lines (full, half); quadrant shows `end.display` after the town | sea, lake |
 | 2b | Sink headline | all | UI word | sentence case | — | ≤ 24 | sink |
 | 3 | Label for 2 | all but quadrant | UI word ("Ends in" / "Endet in") | sentence case | — | ≤ 12 | all |
 | 4 | River chain | all but quadrant | `chain[].name` en/de/local; unnamed → `ui.a_stream` | as source | steps 2 / 6 / 35 before the Finland fix; joined en 23 / 67 / 453 chars; single names 7 / 17 / 53 | full: all steps up to a per-view maximum, then "+N more"; half views ~4 steps; quadrant: none | all |
@@ -52,8 +52,8 @@ Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <e
 | 5b | Label for 5 | full, half | UI word ("Distance" / "Strecke") | sentence case | — | ≤ 10 | all |
 | 6 | Credits | settings only (D20) | `ui.credits` | as names | — | not on screen: the settings' "about this plugin" text; the map carries the OpenStreetMap credit | — |
 
-Quadrant (DESIGN_PHILOSOPHY §3): map plus one strip, town and endpoint (slots 1 and 2), plus
-credits.
+Quadrant (DESIGN_PHILOSOPHY §3, author 2026-09-30): map plus two lines, "town → endpoint" and
+distance · travel time.
 
 ## Wording rules
 
@@ -86,12 +86,15 @@ language setting. Whimsical, with water in it (author, 2026-09-30). **Chosen: B*
 | B | Our raindrop got lost in a puddle. / It'll find its way back soon. | Unser Regentropfen steckt in einer Pfütze fest. / Er findet bald wieder heraus. |
 | C | Low tide. / Back when the water returns. | Ebbe. / Wir sind zurück, wenn das Wasser wiederkommt. |
 
-## Open: "Ends in <endpoint>" as one phrase (D20)
+## "Ends in <endpoint>" as one phrase (D20)
 
-As a phrase the endpoint needs its article and, in German, its case: "Ends in the Black Sea",
-"Endet im Schwarzen Meer", "Endet in der Ostsee", "Endet im Nordatlantik"; lakes and sinks differ
-again. With ~27 endpoints this fits the curated table: an `en_in`/`de_in` phrase per endpoint.
-Proposed, not decided.
+Decided 2026-09-30 (the author approved the rendered sketches showing "Ends in the Black Sea" /
+"Endet im Schwarzen Meer"). `locales.END_PHRASES` holds one curated phrase per endpoint, in both
+languages, with its article and German case: 26 endpoints (25 seas and Lake Vegoritida). Every
+town file carries it as `end_text.en/de`. Endpoints without a phrase get a label form, "Ends in:
+<name>" / "Endet in: <name>" (only Paralimni Lake, 2 towns); sinks get `ui.sink`. On the 7,200
+slot files there are 28 distinct lines per language, the longest 30 characters ("Endet im
+Europäischen Nordmeer", "Endet im Bottnischen Meerbusen"). A test fails if a sea endpoint has no phrase.
 
 ## Decisions (2026-09-30)
 

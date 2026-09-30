@@ -1,0 +1,9 @@
+{%- if town -%}
+<div class="layout layout--col">
+  <div class="map stretch w--full" data-downstream-map data-polyline="{{ polyline | escape }}">
+    {% render "ds_box", town: town, chain: chain, ui: ui, end_text: end_text, distance: distance, travel: travel, lang: ds_lang, units: ds_units, max_steps: 6, chain_lines: 3, box_width: "w--[45cqw] portrait:w--[80cqw]", town_size: "title--large lg:title--xlarge", chain_size: "lg:description--large", end_size: "lg:title--large", dist_size: "lg:label--large" %}
+  </div>
+</div>
+{%- else -%}
+{% render "ds_error", lang: ds_lang, big: "title--large" %}
+{%- endif -%}

@@ -22,7 +22,7 @@ import shutil
 from pathlib import Path
 
 from downstream.fetch import RAW
-from downstream.locales import UI, distance_text, travel_text
+from downstream.locales import UI, distance_text, end_text, travel_text
 
 SITE = RAW.parent / "site"
 RECIPE = Path(__file__).resolve().parents[2] / "recipe"
@@ -82,6 +82,7 @@ def build() -> int:
         # ui.en or ui.de, the units setting (metric by default) picks distance.<lang>.metric/imperial.
         result["distance"] = distance_text(result["total_km"])
         result["travel"] = travel_text(result["travel_days"])
+        result["end_text"] = end_text(result["end"])
         result["ui"] = UI
         (out / "t" / f"{n}.json").write_text(
             json.dumps(result, ensure_ascii=False, separators=(",", ":"))

@@ -1,0 +1,13 @@
+{%- if town -%}
+{%- if end.type == "sink" -%}{%- assign ds_end = ui[ds_lang].sink -%}{%- else -%}{%- assign ds_end = end.display[ds_lang] | default: end.name -%}{%- endif -%}
+<div class="layout layout--col">
+  <div class="map stretch w--full" data-downstream-map data-polyline="{{ polyline | escape }}">
+    <div class="absolute bottom--2 left--2 z--2 p--2 bg--canvas outline flex flex--col w--[92cqw]" data-downstream-box>
+      <span class="w--full title title--small" data-clamp="1">{{ town[ds_lang] }} → {{ ds_end }}</span>
+      <span class="w--full label label--small" data-clamp="1">{{ distance[ds_lang][ds_units] }} · {{ travel[ds_lang] }}</span>
+    </div>
+  </div>
+</div>
+{%- else -%}
+{% render "ds_error", lang: ds_lang, big: "title--small" %}
+{%- endif -%}

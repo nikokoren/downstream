@@ -1,0 +1,43 @@
+---
+# Downstream: TRMNL recipe settings (TRMNL private plugin export format, fetched 2026-09-30).
+name: Downstream
+strategy: polling
+refresh_interval: 15
+polling_url: '{%- assign slot = "now" | date: "%s" | divided_by: 900 -%}{%- assign n = slot | modulo: 7200 -%}https://nikokoren.github.io/downstream/eu/t/{{ n }}.json'
+polling_headers: ''
+polling_verb: GET
+no_screen_padding: 'no'
+dark_mode: 'no'
+custom_fields:
+- keyname: about
+  name: About This Plugin
+  field_type: author_bio
+  category: nature,education
+  github_url: https://github.com/nikokoren/downstream
+  description: >-
+    Where does a raindrop that falls in a European town end up? Every 15 minutes Downstream picks
+    another town and follows the water: every stream, river and lake in order, all the way to the
+    sea. Travel times are rough estimates.<br><br>
+    River network: <a href="https://www.hydrosheds.org/hydroatlas">HydroATLAS</a> (Linke et al.
+    2019; Lehner &amp; Grill 2013) and lake residence times:
+    <a href="https://www.hydrosheds.org/products/hydrolakes">HydroLAKES</a> (Messager et al. 2016),
+    both <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, simplified. Towns:
+    <a href="https://www.geonames.org/">GeoNames</a> (CC BY 4.0). Stream, river and lake names and
+    the map: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>
+    (ODbL). Seas: Natural Earth. Dams, canals and city drains are not modelled.
+- keyname: language
+  name: Language
+  field_type: select
+  description: The language of the words on screen.
+  options:
+  - English: en
+  - Deutsch: de
+  default: en
+- keyname: units
+  name: Units
+  field_type: select
+  description: Kilometres or miles, whatever the language.
+  options:
+  - Kilometres: metric
+  - Miles: imperial
+  default: metric

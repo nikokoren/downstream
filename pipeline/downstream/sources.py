@@ -43,3 +43,28 @@ GEONAMES_DUMP = "https://download.geonames.org/export/dump"
 # raindrop spends in lakes on its way (`Res_time`, days; D3).
 HYDROLAKES_POINTS = "https://data.hydrosheds.org/file/hydrolakes/HydroLAKES_points_v10_shp.zip"
 LAKE_COLUMNS = ["Hylak_id", "Lake_name", "Lake_type", "Res_time", "Vol_total", "Dis_avg"]
+
+# TRMNL Framework 3.4.0 (released 2026-09-28): the recipe's render check runs against these exact
+# files (recipe/tools/render-check.mjs). Release files never change (framework releases page).
+FRAMEWORK_VERSION = "3.4.0"
+FRAMEWORK_FILES = {
+    "plugins.css": f"https://trmnl.com/css/{FRAMEWORK_VERSION}/plugins.css",
+    "plugins.js": f"https://trmnl.com/js/{FRAMEWORK_VERSION}/plugins.js",
+}
+# The fonts plugins.css loads from trmnl.com/fonts/ (every url() in the 3.4.0 stylesheet).
+FRAMEWORK_FONTS = [
+    f"{face}-{style}.woff2"
+    for face in ("TRMNL12", "TRMNL16", "TRMNL21")
+    for style in ("Regular", "Bold")
+] + [
+    "Inter.ttf",
+    "Inter-Italic.ttf",
+    "NicoClean-Regular.ttf",
+    "NicoPups-Regular.ttf",
+    "BlockKie.ttf",
+]
+# MapLibre GL JS as the recipe loads it (Framework 3.3+ docs: plugins load 5.24.0 from trmnl.com).
+MAPLIBRE_FILES = {
+    "maplibre-gl.js": "https://trmnl.com/js/maplibre-gl/5.24.0/maplibre-gl.js",
+    "maplibre-gl.css": "https://trmnl.com/js/maplibre-gl/5.24.0/maplibre-gl.css",
+}

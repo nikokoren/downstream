@@ -129,3 +129,16 @@ def test_lake_time_counts_lakes_on_the_path_only():
     assert 1500 < towns["Konstanz"]["lake_days"] < 1800
     assert towns["Geneva"]["lake_days"] < 30
     assert towns["Basel"]["lake_days"] < 30
+
+
+@pytest.mark.skipif(not TOWNS.exists(), reason="run `python -m downstream.paths --all` first")
+def test_every_sea_endpoint_has_a_phrase():
+    # "Ends in the Black Sea" / "Endet im Schwarzen Meer" (D20): each sea needs its article and case.
+    from downstream.locales import END_PHRASES
+
+    missing = set()
+    for f in TOWNS.glob("*.json"):
+        end = json.loads(f.read_text())["end"]
+        if end["type"] == "sea" and (end.get("display") or {}).get("en") not in END_PHRASES:
+            missing.add(end["name"])
+    assert not missing, missing

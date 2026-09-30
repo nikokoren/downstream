@@ -1,0 +1,108 @@
+{% comment %}
+  Downstream: shared part, prepended to every view by TRMNL (D18–D21, docs/DESIGN_PHILOSOPHY.md).
+  Every word comes from the payload (ui, end_text, distance, travel); the only exception is the
+  error screen, which shows when the payload is missing (docs/TEXT_REQUIREMENTS.md, text B).
+{% endcomment %}
+{%- assign ds_lang = trmnl.plugin_settings.custom_fields_values.language | default: "en" -%}
+{%- if ds_lang != "de" -%}{%- assign ds_lang = "en" -%}{%- endif -%}
+{%- assign ds_units = trmnl.plugin_settings.custom_fields_values.units | default: "metric" -%}
+{%- if ds_units != "imperial" -%}{%- assign ds_units = "metric" -%}{%- endif -%}
+
+{% comment %} The river chain: all steps up to max_steps, else the first two, "+N more", the last two. {% endcomment %}
+{% template ds_chain %}
+{%- assign ui_l = ui[lang] -%}
+{%- assign n = chain.size -%}
+{%- assign tail_start = n | minus: 2 -%}
+{%- assign hidden = n | minus: 4 -%}
+{%- assign sep = "" -%}
+{%- for step in chain -%}
+  {%- assign i = forloop.index0 -%}
+  {%- if n > max_steps and i >= 2 and i < tail_start -%}
+    {%- if i == 2 -%}{{ sep }}{{ ui_l.more | replace: "{n}", hidden }}{%- assign sep = " → " -%}{%- endif -%}
+  {%- else -%}
+    {%- if step.name -%}{%- assign nm = step.name[lang] | default: step.name.local -%}{%- else -%}{%- assign nm = ui_l.a_stream -%}{%- endif -%}
+    {{ sep }}{{ nm }}{%- assign sep = " → " -%}
+  {%- endif -%}
+{%- endfor -%}
+{% endtemplate %}
+
+{% comment %} The text box over the map: town, path, endpoint, distance · travel time (D20). {% endcomment %}
+{% template ds_box %}
+<div class="absolute bottom--3 left--3 z--2 p--3 bg--canvas outline flex flex--col flex--left gap--xsmall {{ box_width }}" data-downstream-box>
+  <span class="w--full title {{ town_size }}" data-clamp="1">{{ town[lang] }}</span>
+  <span class="w--full description {{ chain_size }}" data-clamp="{{ chain_lines }}">{% render "ds_chain", chain: chain, ui: ui, lang: lang, max_steps: max_steps %}</span>
+  <span class="w--full title {{ end_size }}" data-clamp="2">{{ end_text[lang] }}</span>
+  <span class="w--full label {{ dist_size }}" data-clamp="1">{{ distance[lang][units] }} · {{ travel[lang] }}</span>
+</div>
+{% endtemplate %}
+
+{% comment %} Error screen (R18): the payload didn't arrive, so its words are missing too. {% endcomment %}
+{% template ds_error %}
+<div class="layout layout--col layout--center">
+  {%- if lang == "de" -%}
+  <span class="title {{ big }} text--center">Unser Regentropfen steckt in einer Pfütze fest.</span>
+  <span class="description text--center">Er findet bald wieder heraus.</span>
+  {%- else -%}
+  <span class="title {{ big }} text--center">Our raindrop got lost in a puddle.</span>
+  <span class="description text--center">It'll find its way back soon.</span>
+  {%- endif -%}
+</div>
+{% endtemplate %}
+
+<script src="https://trmnl.com/js/maplibre-gl/5.24.0/maplibre-gl.js"></script>
+<link href="https://trmnl.com/js/maplibre-gl/5.24.0/maplibre-gl.css" rel="stylesheet">
+<script>
+  // One script for every Downstream map on the screen: a mashup can hold the plugin twice, so
+  // maps are found by attribute and given ids at run time (DESIGN_PHILOSOPHY part A §2).
+  (function () {
+    if (window.__downstreamMaps) return;
+    window.__downstreamMaps = true;
+    function whenReady(cb) {
+      var tries = 0;
+      (function attempt() {
+        if (window.TRMNLMaps && window.maplibregl && window.TRMNLPaint) return cb();
+        if (++tries > 200) return;
+        setTimeout(attempt, 50);
+      })();
+    }
+    function build() {
+      document.querySelectorAll("[data-downstream-map]").forEach(function (el, i) {
+        if (el.getAttribute("data-downstream-built")) return;
+        el.setAttribute("data-downstream-built", "1");
+        if (!el.id) el.id = "downstream-map-" + i;
+        var coords = TRMNLMaps.decodePolyline(el.getAttribute("data-polyline") || "");
+        if (!coords.length) return;
+        if (coords.length === 1) coords = [coords[0], coords[0]];
+        var box = el.querySelector("[data-downstream-box]");
+        TRMNLMaps.watch(el.id, function () {
+          var map = new maplibregl.Map(TRMNLMaps.options({ el: el.id, preset: "outline" }));
+          el.__downstreamMap = map; // for the render check (recipe/tools/render-check.mjs)
+          // Draw the path as soon as the style is ready, not on "load" (which waits for every
+          // tile): the screenshot is taken when maps settle, and the path must be in it.
+          function draw() {
+            TRMNLMaps.route(map, coords, { el: el.id });
+            TRMNLMaps.dot(map, coords[0], { el: el.id, id: "start" });
+            TRMNLMaps.dot(map, coords[coords.length - 1], { el: el.id, id: "end", hollow: true });
+          }
+          if (map.isStyleLoaded()) draw();
+          else map.once("style.load", draw);
+          // The whole path in view, clear of the text box (D19): frame it beside the box or above
+          // it, whichever leaves the larger part of the map.
+          var g = TRMNLPaint.px(16, { el: el.id });
+          var pad = { top: g, right: g, bottom: g, left: g };
+          if (box) {
+            var w = el.clientWidth, h = el.clientHeight;
+            var right = box.offsetLeft + box.offsetWidth, top = box.offsetTop;
+            if ((w - right) * h >= w * top) pad.left = right + g;
+            else pad.bottom = h - top + g;
+          }
+          TRMNLMaps.fit(map, coords, { padding: pad, maxZoom: 12 });
+          return map;
+        });
+      });
+    }
+    function start() { whenReady(build); }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+    else start();
+  })();
+</script>
