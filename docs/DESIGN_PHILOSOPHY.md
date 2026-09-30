@@ -128,6 +128,7 @@ from a town (D8). So the parts carry over like this:
   the whole path fits the part of the map not covered by the text box (fit padding on the box's
   side, as in the framework's Strava example); the render sweep fails any case where part of the
   path is off screen or under the box.
+- **Text box over the map in every view** (author, 2026-09-30, wireframe comment): the half views and the quadrant also use a full-bleed map with the text box overlaid, like the full view, instead of On the Move's side-by-side or stacked layouts (less white space). The path is framed in the part of the map the box leaves free (D19).
 - **Photo slot**: Downstream has no photo. The layouts from part A §3 without their photo slot
   ("photo off" case) are the starting point.
 - **Map** (part A §4): `outline` preset, integer zoom, path drawn with `TRMNLMaps.route` from the
