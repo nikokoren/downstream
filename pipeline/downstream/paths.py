@@ -139,6 +139,7 @@ def compute_town(
         "start": {"reach": start, "how": how},
         "reaches": len(ids),
         "total_km": round(float(first["DIST_DN_KM"] + first["LENGTH_KM"]), 1),
+        "travel_days": travel_days(reaches),
         "chain": [{k: g[k] for k in ("kind", "name", "source", "km", "reaches")} for g in groups],
         "end": {**end, "display": end_disp},
         # Google encoded polyline, decoded on screen by TRMNLMaps.decodePolyline() (Framework 3.3+).
@@ -161,6 +162,24 @@ def compute_town(
         ),
     }
     return result, line, stats
+
+
+# Travel time estimate (D3, R10; author 2026-09-30). Water speed from mean annual flow Q (m3/s):
+# v = SPEED_COEF * Q**0.2 m/s. The exponent follows Moody & Troutman (2002) hydraulic geometry
+# (width 7.2 Q^0.5, depth 0.27 Q^0.3, so v = Q / (w d) = 0.514 Q^0.2). Fed with mean instead of
+# bankfull flow that runs fast: Basel -> Lobith (720 km) came out at 3.7 days, while the Rhine's
+# flood wave takes ~5 days (CHR/IKSR Rhine Alarm Model) and water moves at ~0.6x wave speed
+# (kinematic wave, c = 5/3 v), i.e. ~8 days. SPEED_COEF = 0.514 * 3.7 / 8. Lakes are crossed at
+# the same speed: time spent mixing in a lake is not included (PROJECT.md).
+SPEED_COEF = 0.514 * 3.7 / 8.0
+MIN_FLOW = 0.01  # m3/s: reaches with no flow in the data (5 % of Europe's reaches)
+
+
+def travel_days(reaches) -> float:
+    q = reaches["dis_m3_pyr"].to_numpy(dtype=float).clip(min=MIN_FLOW)
+    speed = SPEED_COEF * q**0.2
+    seconds = (reaches["LENGTH_KM"].to_numpy(dtype=float) * 1000 / speed).sum()
+    return round(float(seconds) / 86400, 3)
 
 
 def add_estuary(groups: list[dict], name: str, km: float, curated: dict) -> list[dict]:

@@ -19,6 +19,7 @@ REACH_COLUMNS = [
     "ORD_STRA",
     "HYBAS_L12",
     "UPLAND_SKM",  # upstream area: tells a real confluence from a delta arm (D12)
+    "dis_m3_pyr",  # mean annual flow (m3/s): speed estimate for the travel time (D3, R10)
 ]
 BASIN_COLUMNS = ["HYBAS_ID", "NEXT_DOWN", "ENDO", "COAST"]
 

@@ -4,6 +4,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Status
 
+- 2026-09-30 — **Travel time estimate** (D3): every town file has `travel_days` and `travel` ("about 3–6 weeks" / "etwa 3–6 Wochen"), shown after the distance. Method and limits under "Estimate assumptions". `dis_m3_pyr` added to the fetched RiverATLAS columns.
 - 2026-09-30 — **D20 (author's comment on the wireframes)**: new text order, and data credits move from the screen to the settings' about text. "Ends in <endpoint>" as one phrase needs a per-endpoint wording in both languages ("the Black Sea", "im Schwarzen Meer", "in der Ostsee"); proposed as curated columns for the ~27 endpoints, not decided.
 - 2026-09-30 — **Text decisions and Finland lakes.** `docs/TEXT_REQUIREMENTS.md` decided (UI words in every town file, sink "Disappears underground" / "Versickert im Boden", "a stream" / "ein Bach", whimsical error screen with words in the template, no second OSM credit, units a separate setting defaulting to metric). Town files now carry `ui` (en/de, `pipeline/downstream/locales.py`) and `distance` pre-formatted per language and unit. Finland: Natural Earth's generalised "Lake Saimaa" overwrote OSM rivers and the gaps between OSM basins; NE lakes now only name reaches with no OSM name and no named OSM lake within 600 m (43 chains changed, "Lake Saimaa" 77 → 1, also removed a wrong "Lago di Como" from Verbania's path). Then a river through a string of lakes shows only where it starts and ends, each lake once (54 chains changed). Longest chain 35 → 16 steps; towns with ≥ 12 steps 22 → 15; 0 endpoints changed; payload max 4.1 → 2.4 KB (2.8 KB with `ui`); 30/30 tests pass.
 - 2026-09-30 — **Design rules from On the Move** copied into `docs/DESIGN_PHILOSOPHY.md` (on_the_move commit 03f8c7f, fetched raw; part A verbatim) with a Downstream proposal (part B, not approved). On the Move's own "For Downstream" notes assume live stream readings; Downstream has none, so part B maps the "animal" to the raindrop's path instead.
@@ -45,7 +46,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | L | No NC-licensed data without written permission (BRIEF §2) | Decided | 2026-09 (brief) |
 | D1 | Coverage for v1: Europe first (towns, per D8) | Decided | 2026-09-28 |
 | D2 | Live element (e.g. Open-Meteo "raining here now") | Likely moot: the rotation provides the change (D8) | 2026-09-28 |
-| D3 | Show travel time at all | Open | — |
+| D3 | Show travel time: yes, as a rounded estimate after the distance ("about 3–6 weeks"), flowing water only | Decided | 2026-09-30 |
 | D4 | Ask Global River Runner maintainers for permission | Open, not needed for v1 | — |
 | D5 | River data from HydroATLAS (CC BY 4.0), not the HydroRIVERS/HydroBASINS downloads (see below) | Decided | 2026-09-28 |
 | D6 | Natural Earth Europe supplement is in v1 (see below) | Decided | 2026-09-28 |
@@ -400,7 +401,28 @@ Verbatim excerpts with URLs: `docs/sources/TRMNL_2026-09-29.md`.
 
 ## Estimate assumptions (R10)
 
-_None yet. Any travel-time or "reaches the sea in N days" figure must document its flow-speed assumption here before it ships._
+### Travel time (D3, decided 2026-09-30; code: `pipeline/downstream/paths.py` `travel_days`, `locales.py` `travel_text`)
+
+- **Speed per river segment** from its mean annual flow Q (RiverATLAS `dis_m3_pyr`, m³/s):
+  v = 0.238 · Q^0.2 m/s. The exponent comes from Moody & Troutman (2002) hydraulic geometry,
+  width = 7.2 Q^0.5 and depth = 0.27 Q^0.3 (quoted in a NOAA paper, fetched 2026-09-30:
+  repository.library.noaa.gov/view/noaa/68731), so v = Q / (w·d) = 0.514 Q^0.2.
+- **Calibration**: fed with mean rather than bankfull flow, 0.514 Q^0.2 gave Basel → Lobith
+  (720 km) 3.7 days. The Rhine's flood wave takes about 5 days there (CHR/IKSR Rhine Alarm Model,
+  search result 2026-09-30; re-fetch before relying on it), and water moves at about 0.6× the wave
+  speed (kinematic wave, c = 5/3 v), so about 8 days. Coefficient = 0.514 × 3.7 / 8 = 0.238.
+  Result: small streams ~0.2 m/s, the lower Danube ~1.3 m/s.
+- **Time = Σ length / speed** over the path's segments. Segments with no flow in the data (5 % of
+  Europe's) count as 0.01 m³/s.
+- **Shown as a range**: estimate ÷ 1.5 to × 1.5, each end rounded to the nearest whole hour, day,
+  week, month or year (unit by the upper end), prefixed "about"/"etwa". Munich: 26.5 days →
+  "about 3–6 weeks".
+- **Not included**: the time before rain reaches a stream (soaking in, groundwater: days to
+  decades); time spent mixing in lakes (633 of 6,870 towns cross one; lakes are crossed at river
+  speed; lake residence times would need HydroLAKES, not checked); dams, weirs and canals; seasonal
+  and flood flows.
+- **Numbers (2026-09-30 build)**: median 4.2 days, 95th percentile 19.8 days, max 32.8 days.
+  Units shown: hours 2,051 towns, days 3,127, weeks 1,692.
 
 ## Corrections log
 

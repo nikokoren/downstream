@@ -60,3 +60,13 @@ def test_distance_formats_per_language_and_unit():
     d = distance_text(1806.0)
     assert d["en"]["metric"] == "1,806 km" and d["de"]["metric"] == "1.806 km"
     assert d["en"]["imperial"] == "1,122 mi" and d["de"]["imperial"] == "1.122 mi"
+
+
+def test_travel_text_ranges_and_units():
+    from downstream.locales import travel_text
+
+    # Munich's estimate (26.5 days): 17.7–39.8 days -> 2.5–5.7 weeks -> "3–6 weeks".
+    assert travel_text(26.5) == {"en": "about 3–6 weeks", "de": "etwa 3–6 Wochen"}
+    assert travel_text(0.05)["en"] == "about 1–2 hours"  # 1.2 h: 0.8–1.8 h
+    assert travel_text(3)["de"] == "etwa 2–5 Tage"
+    assert travel_text(19.57)["en"] == "about 2–4 weeks"  # Vienna

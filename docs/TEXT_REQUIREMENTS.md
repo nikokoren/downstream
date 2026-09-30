@@ -48,7 +48,7 @@ Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <e
 | 3 | Label for 2 | all but quadrant | UI word ("Ends in" / "Endet in") | sentence case | — | ≤ 12 | all |
 | 4 | River chain | all but quadrant | `chain[].name` en/de/local; unnamed → `ui.a_stream` | as source | steps 2 / 6 / 35 before the Finland fix; joined en 23 / 67 / 453 chars; single names 7 / 17 / 53 | full: all steps up to a per-view maximum, then "+N more"; half views ~4 steps; quadrant: none | all |
 | 4b | Unnamed step | inside 4 | UI word ("a stream" / "ein Bach") | lower case | — | ≤ 10 | 1,585 towns start unnamed; 151 unnamed steps later in a chain |
-| 5 | Distance | full, half | `distance.<language>.<units>` ("1,806 km", "1.806 km", "1,122 mi"; under 10 with one decimal) | — | 224 / 1,806 / 2,922 km | ≤ 9 | all |
+| 5 | Distance · travel time | all | `distance.<language>.<units>` ("1,806 km", "1.806 km", "1,122 mi"; under 10 with one decimal), then " · " and `travel.<language>` ("about 3–6 weeks" / "etwa 3–6 Wochen", D3) | — | 224 / 1,806 / 2,922 km | ≤ 32 | all |
 | 5b | Label for 5 | full, half | UI word ("Distance" / "Strecke") | sentence case | — | ≤ 10 | all |
 | 6 | Credits | settings only (D20) | `ui.credits` | as names | — | not on screen: the settings' "about this plugin" text; the map carries the OpenStreetMap credit | — |
 
@@ -61,8 +61,7 @@ credits.
   Meer", "in der Ostsee", "in den Bodensee"). A label ("Endet in") next to the plain name avoids a
   grammar table for 30 endpoints and thousands of rivers.
 - Plain language (R15): no "catchment", "estuary", "confluence" on screen.
-- No estimates are shown today (distances come from the river data, not from an assumption), so no
-  estimate label (R10) yet. It becomes required if travel time (D3) is ever added.
+- The travel time is an estimate (R10): it always starts with "about" / "etwa", and its assumptions are in PROJECT.md ("Estimate assumptions").
 - Numbers use the language's own separators.
 
 ## Attribution strings (R16)
