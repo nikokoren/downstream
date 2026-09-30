@@ -27,9 +27,8 @@ Working memory for the project. Every fact about an outside system carries **wha
 
 ## Next steps (in order)
 
-1. Author to review part B of `docs/DESIGN_PHILOSOPHY.md` (On the Move's design rules mapped onto Downstream). Still missing: Aurora Watch's map rules, LOCALES pattern and `fixtures/` generator (needs that repo; On the Move may cover the same ground).
-2. Fill in `docs/TEXT_REQUIREMENTS.md` before writing any copy (R14), including a line for inland sinks and for Lake Paralimni's missing German name.
-3. Build the four views.
+1. Fill in `docs/TEXT_REQUIREMENTS.md` (in progress). Still missing: Aurora Watch's map rules, LOCALES pattern and `fixtures/` generator (needs that repo; On the Move may cover the same ground).
+2. Wireframes, then real-render mock-ups, then the four views (D19).
 
 ## Deferred (come back after everything else is built)
 
@@ -59,6 +58,7 @@ Working memory for the project. Every fact about an outside system carries **wha
 | D15 | Greek and Cyrillic names shown in English: Latin part, else OSM `name:en`, else standard romanization | Decided | 2026-09-29 |
 | D16 | Keep prefixes in local names ("La Seine" style, "River Irwell") for now | Decided | 2026-09-29 |
 | D17 | Town names straight from GeoNames (as D9 picks them; e.g. "Sëlva", "Solden" in English) | Decided | 2026-09-29 |
+| D19 | View design: On the Move's rules as mapped in `docs/DESIGN_PHILOSOPHY.md` part B; every view frames the whole path (integer zoom), no edge pill | Decided | 2026-09-30 |
 | D18 | Rotation without a server: the Polling URL picks the town from the clock; static town files on GitHub Pages; Framework 3.4; path as encoded polyline | Decided | 2026-09-29 |
 
 ### D5 — River data source: HydroATLAS, CC BY 4.0 (decided 2026-09-28)

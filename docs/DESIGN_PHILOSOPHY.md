@@ -107,7 +107,7 @@ The sequence was:
 - Keep the map lean (the `outline` preset, integer zoom).
 - Always show the time of the last reading.
 
-## Part B: What this means for Downstream (proposal, 2026-09-30, not yet approved)
+## Part B: What this means for Downstream (approved 2026-09-30)
 
 On the Move's own "For Downstream" section assumes a live stream recipe (levels, flow, gauges,
 "time of the last reading"). Downstream has no live data: it shows the fixed path a raindrop takes
@@ -123,9 +123,11 @@ from a town (D8). So the parts carry over like this:
   4. one fact: the total distance (`total_km`);
   5. instead of "the date of the data": nothing live is claimed, so no timestamp. What must always be
      shown is the source credit (R16) and, where it applies, the estimate label (R10).
-- **Edge pill**: the map frames the whole path (town to endpoint), so the endpoint is normally
-  visible. The pill is for when it isn't, e.g. a quadrant that frames only the start of a
-  2,800 km path, or the endpoint hidden under the text box ("Black Sea · 2,850 km").
+- **No edge pill** (author, 2026-09-30, D19): the raindrop isn't being tracked, so every view frames
+  the whole path, town to endpoint, with `TRMNLMaps.fit()` on an integer zoom. The zoom is chosen so
+  the whole path fits the part of the map not covered by the text box (fit padding on the box's
+  side, as in the framework's Strava example); the render sweep fails any case where part of the
+  path is off screen or under the box.
 - **Photo slot**: Downstream has no photo. The layouts from part A §3 without their photo slot
   ("photo off" case) are the starting point.
 - **Map** (part A §4): `outline` preset, integer zoom, path drawn with `TRMNLMaps.route` from the
