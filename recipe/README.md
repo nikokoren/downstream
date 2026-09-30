@@ -24,7 +24,7 @@ It renders every view (inside a real mashup for the smaller ones) on OG 1-bit, O
 
 - a map is missing, not built or not fully drawn, or its path isn't painted (the screenshot has no ink at 10 % or more of the visible path points);
 - the path runs off the map or under the text box;
-- the box leaves the map;
+- the box leaves the map or covers the map's OpenStreetMap credit;
 - text is cut (the Framework's clamp trimmed it, or it overflows).
 
 Screenshots and `results.json` go to `tools/out/` (git-ignored). TRMNL's tiles, glyphs and styles are fetched once by Node and cached in `data/cache/trmnl-maps/`, since Chromium's own fetches through the sandbox proxy failed and left maps half drawn. Before checking, it calls `TRMNLMaps.refresh()` as TRMNL's screenshot service does.

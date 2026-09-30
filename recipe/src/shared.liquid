@@ -28,7 +28,7 @@
 
 {% comment %} The text box over the map: town, path, endpoint, distance · travel time (D20). {% endcomment %}
 {% template ds_box %}
-<div class="absolute bottom--3 left--3 z--2 p--3 bg--canvas outline flex flex--col flex--left gap--xsmall {{ box_width }}" data-downstream-box>
+<div class="absolute bottom--3 lg:bottom--6 left--3 z--2 p--3 bg--canvas outline flex flex--col flex--left gap--xsmall {{ box_width }}" data-downstream-box>
   <span class="w--full title {{ town_size }}" data-clamp="1">{{ town[lang] }}</span>
   <span class="w--full description {{ chain_size }}" data-clamp="{{ chain_lines }}">{% render "ds_chain", chain: chain, ui: ui, lang: lang, max_steps: max_steps %}</span>
   <span class="w--full title {{ end_size }}" data-clamp="2">{{ end_text[lang] }}</span>

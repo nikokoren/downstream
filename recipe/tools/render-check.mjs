@@ -207,6 +207,13 @@ async function runCase(c) {
       }
       if (off) fails.push(`${off}/${coords.length} path points off the map`);
       if (under) fails.push(`${under}/${coords.length} path points under the text box`);
+      // The OpenStreetMap credit (TRMNLMaps' .map__attribution) must stay visible (D20).
+      const credit = el.querySelector(".map__attribution");
+      if (!credit) fails.push("map credit missing");
+      else {
+        const a = credit.getBoundingClientRect();
+        if (a.left < box.right && a.right > box.left && a.top < box.bottom && a.bottom > box.top) fails.push("map credit covered by the text box");
+      }
       if (box.left < r.left - 1 || box.right > r.right + 1 || box.top < r.top - 1 || box.bottom > r.bottom + 1) fails.push("text box outside the map");
       // Cut-off text: the Framework's clamp engine trimmed it (data-clamp-lines-trimmed, or the
       // shown text differs from data-clamp-original), or it runs past its box horizontally.
