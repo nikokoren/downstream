@@ -37,7 +37,7 @@ The brief's list (R9, R18, R19) predates D8 (towns instead of the user's locatio
 
 ## Slots
 
-Text order from DESIGN_PHILOSOPHY part B. Budgets are proposals; "clamp" means the framework's
+Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <endpoint>" (a little smaller than the town), distance; no credits on screen. Budgets are proposals; "clamp" means the framework's
 `clamp` truncation.
 
 | # | Slot | Views | Source | Casing | Length now (median / p95 / max) | Budget proposal | States |
@@ -50,7 +50,7 @@ Text order from DESIGN_PHILOSOPHY part B. Budgets are proposals; "clamp" means t
 | 4b | Unnamed step | inside 4 | UI word ("a stream" / "ein Bach") | lower case | — | ≤ 10 | 1,585 towns start unnamed; 151 unnamed steps later in a chain |
 | 5 | Distance | full, half | `distance.<language>.<units>` ("1,806 km", "1.806 km", "1,122 mi"; under 10 with one decimal) | — | 224 / 1,806 / 2,922 km | ≤ 9 | all |
 | 5b | Label for 5 | full, half | UI word ("Distance" / "Strecke") | sentence case | — | ≤ 10 | all |
-| 6 | Credits | all | `ui.credits` | as names | — | 1 line: "HydroATLAS · GeoNames" (21); the map carries the OpenStreetMap credit | all |
+| 6 | Credits | settings only (D20) | `ui.credits` | as names | — | not on screen: the settings' "about this plugin" text; the map carries the OpenStreetMap credit | — |
 
 Quadrant (DESIGN_PHILOSOPHY §3): map plus one strip, town and endpoint (slots 1 and 2), plus
 credits.
@@ -67,7 +67,7 @@ credits.
 
 ## Attribution strings (R16)
 
-- On screen: "HydroATLAS · GeoNames". CC BY 4.0 allows attribution "in any reasonable manner based
+- Not on screen (D20, 2026-09-30): HydroATLAS and GeoNames are credited in the settings' "about this plugin" text. CC BY 4.0 allows attribution "in any reasonable manner based
   on the medium"; the full credits (creators, citations, license links, modification notes) are in
   the README and store listing (D5, R17).
 - OpenStreetMap: the map's own "© OpenStreetMap contributors" label (TRMNLMaps, bottom right) is
@@ -86,6 +86,13 @@ language setting. Whimsical, with water in it (author, 2026-09-30). **Chosen: B*
 | A | This stream has run dry for a moment. / The next town will float by soon. | Dieser Bach ist kurz ausgetrocknet. / Der nächste Ort treibt gleich vorbei. |
 | B | Our raindrop got lost in a puddle. / It'll find its way back soon. | Unser Regentropfen steckt in einer Pfütze fest. / Er findet bald wieder heraus. |
 | C | Low tide. / Back when the water returns. | Ebbe. / Wir sind zurück, wenn das Wasser wiederkommt. |
+
+## Open: "Ends in <endpoint>" as one phrase (D20)
+
+As a phrase the endpoint needs its article and, in German, its case: "Ends in the Black Sea",
+"Endet im Schwarzen Meer", "Endet in der Ostsee", "Endet im Nordatlantik"; lakes and sinks differ
+again. With ~27 endpoints this fits the curated table: an `en_in`/`de_in` phrase per endpoint.
+Proposed, not decided.
 
 ## Decisions (2026-09-30)
 

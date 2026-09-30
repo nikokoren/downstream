@@ -115,7 +115,7 @@ from a town (D8). So the parts carry over like this:
 
 - **The "animal" is the raindrop's path.** The town is where it starts; the endpoint (sea, lake or
   sink) is the destination; the chain of streams and rivers is the route.
-- **Text order**, adapted from part A §3:
+- **Text order**: superseded by D20 (2026-09-30): town (largest), path, "Ends in <endpoint>", distance; credits in the settings, not on screen. Earlier proposal, adapted from part A §3:
   1. town (small, bold);
   2. the endpoint as the headline ("Black Sea");
   3. the chain of rivers in order (the part most likely to overflow: up to ~15 steps; it needs a
