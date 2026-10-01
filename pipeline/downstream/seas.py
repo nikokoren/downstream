@@ -27,7 +27,9 @@ MIN_AREA_KM2 = 15_000
 # Natural Earth's "Inner Seas" (IHO: Inner Seas off the West Coast of Scotland) also covers the
 # Firth of Clyde and the Northern Irish coast: Glasgow, Belfast and Derry ended there (2026-09-29).
 # Not shown as an endpoint; the search continues to the next named sea by water.
-SKIP_NAMES = {"Inner Seas"}
+# "Saint Lawrence River" (class channel) is the river's estuary: 300 US towns "ended" in a river
+# (2026-10-01); the search continues to the Gulf of Saint Lawrence.
+SKIP_NAMES = {"Inner Seas", "Saint Lawrence River"}
 GROW_CELLS = 2  # narrow estuaries (Seine, Scheldt, Szczecin Lagoon) break into pockets at 1 km
 SEARCH_HALF_M = (50_000.0, 200_000.0, 800_000.0)
 

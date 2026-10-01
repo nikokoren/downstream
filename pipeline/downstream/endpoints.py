@@ -52,6 +52,11 @@ NE_WINDOW = regions.current().ne_window
 
 def load_ne(path_zip, classes=None) -> gpd.GeoDataFrame:
     g = gpd.read_file(f"zip://{path_zip}")
+    # Repair only invalid shapes (a North American one broke the clip, 2026-10-01); valid ones,
+    # all of Europe's, are left exactly as they are.
+    bad = ~g.is_valid
+    if bad.any():
+        g.loc[bad, "geometry"] = g.loc[bad, "geometry"].make_valid()
     g = g.clip(shapely.box(*NE_WINDOW))
     g.columns = [c.lower() if c != "geometry" else c for c in g.columns]
     if classes:
