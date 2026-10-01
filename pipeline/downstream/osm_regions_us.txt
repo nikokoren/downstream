@@ -1,65 +1,21 @@
-# Geofabrik regions for the United States (D22), extracted by the osm-waterways workflow (one
-# release per region). Names from Geofabrik's index (geofabrik-index workflow, parent
-# north-america, run 2, 2026-10-01). Hawaii, Puerto Rico and the US Virgin Islands are left out
-# (D22: no HydroATLAS coverage / not states). California by its two halves, like the large
-# European countries. Canada and Mexico only where US water ends up: Ontario and Quebec (Great
-# Lakes, St. Lawrence), Manitoba and Saskatchewan (Red River, Souris, Hudson Bay), New Brunswick
-# (Saint John River), British Columbia (Kootenai, Columbia), Mexico (Colorado's last stretch).
-north-america/us/alabama
-north-america/us/alaska
-north-america/us/arizona
-north-america/us/arkansas
-north-america/us/colorado
-north-america/us/connecticut
-north-america/us/delaware
-north-america/us/district-of-columbia
-north-america/us/florida
-north-america/us/georgia
-north-america/us/idaho
-north-america/us/illinois
-north-america/us/indiana
-north-america/us/iowa
-north-america/us/kansas
-north-america/us/kentucky
-north-america/us/louisiana
-north-america/us/maine
-north-america/us/maryland
-north-america/us/massachusetts
-north-america/us/michigan
-north-america/us/minnesota
-north-america/us/mississippi
-north-america/us/missouri
-north-america/us/montana
-north-america/us/nebraska
-north-america/us/nevada
-north-america/us/new-hampshire
-north-america/us/new-jersey
-north-america/us/new-mexico
-north-america/us/new-york
-north-america/us/north-carolina
-north-america/us/north-dakota
-north-america/us/ohio
-north-america/us/oklahoma
-north-america/us/oregon
-north-america/us/pennsylvania
-north-america/us/rhode-island
-north-america/us/south-carolina
-north-america/us/south-dakota
-north-america/us/tennessee
-north-america/us/texas
-north-america/us/utah
-north-america/us/vermont
-north-america/us/virginia
-north-america/us/washington
-north-america/us/west-virginia
-north-america/us/wisconsin
-north-america/us/wyoming
-north-america/us/california/norcal
-north-america/us/california/socal
-north-america/canada/british-columbia
+# OSM regions for the United States (D22), extracted by the osm-waterways workflow (one release per
+# region). Since 2026-10-01 from OpenStreetMap France (source osmfr; Geofabrik's downloads looped
+# from GitHub that day): the four US regions as whole files (us-west's outline ends at 49.5° N, so
+# no Alaska; checked on download.openstreetmap.fr/polygons, 2026-10-01). Canada and Mexico only
+# where US water ends up: Ontario and Quebec (Great Lakes, St. Lawrence), Manitoba and
+# Saskatchewan (Red River, Souris, Hudson Bay), New Brunswick (Saint John River), British Columbia
+# (Kootenai, Columbia), Mexico (Colorado's last stretch).
+north-america/us-west
+north-america/us-south
+north-america/us-midwest
+north-america/us-northeast
+north-america/canada/british_columbia
 north-america/canada/manitoba
-north-america/canada/new-brunswick
+north-america/canada/new_brunswick
 north-america/canada/ontario
 north-america/canada/quebec
 north-america/canada/saskatchewan
 north-america/mexico
+# Alaska: OpenStreetMap France has no extract. Geofabrik's (source geofabrik) once its downloads
+# work again; until then Alaska's towns get Natural Earth names (the build skips missing releases).
+north-america/us/alaska

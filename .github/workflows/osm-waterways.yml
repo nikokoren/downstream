@@ -1,4 +1,6 @@
-# Extract named OSM waterways and lakes for Geofabrik regions (one job and one release per region), D10, D11.
+# Extract named OSM waterways and lakes per region (one job and one release per region), D10, D11.
+# Sources: Geofabrik (default; Europe's releases) or OpenStreetMap France (osmfr; the United States,
+# D22, since Geofabrik's downloads looped from GitHub on 2026-10-01). Both are OpenStreetMap, ODbL.
 # Runs on GitHub because download.geofabrik.de isn't reachable from the development container.
 name: osm-waterways
 
@@ -9,6 +11,10 @@ on:
         description: "Space-separated Geofabrik region paths, e.g. europe/austria europe/germany/hessen"
         required: true
         default: europe/germany/bayern
+      source:
+        description: "geofabrik, or osmfr (download.openstreetmap.fr/extracts, paths like north-america/us-west)"
+        required: true
+        default: geofabrik
 
 permissions:
   contents: write
@@ -34,6 +40,7 @@ jobs:
         region: ${{ fromJSON(needs.plan.outputs.regions) }}
     env:
       REGION: ${{ matrix.region }}
+      SOURCE: ${{ inputs.source }}
       GH_TOKEN: ${{ github.token }}
     defaults:
       run:
@@ -46,6 +53,22 @@ jobs:
       - name: Download region extract
         run: |
           mkdir -p ../data
+          if [ "$SOURCE" = osmfr ]; then
+            # Whole US regions are 2-4.6 GB: keep only waterways and water areas (with the nodes
+            # they use) before extracting; same output, checked on New Brunswick 2026-10-01.
+            base="https://download.openstreetmap.fr/extracts/${REGION}.osm.pbf"
+            curl -fsSL --retry 3 --retry-delay 10 -o ../data/full.osm.pbf "$base"
+            curl -fsSL --retry 3 -o ../data/full.osm.pbf.md5 "$base.md5"
+            echo "$(cut -d' ' -f1 ../data/full.osm.pbf.md5)  ../data/full.osm.pbf" | md5sum -c -
+            ls -l ../data/full.osm.pbf
+            sudo apt-get install -y -q osmium-tool >/dev/null
+            osmium tags-filter ../data/full.osm.pbf w/waterway a/natural=water -o ../data/region.osm.pbf
+            rm ../data/full.osm.pbf
+            ls -l ../data/region.osm.pbf
+            echo "SOURCE_NAME=OpenStreetMap France extract" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "SOURCE_NAME=Geofabrik extract" >> "$GITHUB_ENV"
           base="https://download.geofabrik.de/${REGION}-latest.osm.pbf"
           # Cookie jar: on 2026-10-01 every download stopped with "Maximum (50) redirects followed"
           # (Europe worked on 2026-09-29); a redirect that sets a cookie loops without one.
@@ -70,7 +93,7 @@ jobs:
         run: |
           TAG="osm-waterways-$SLUG"
           cat > ../data/NOTICE.md <<NOTICE
-          Named waterway lines and named lakes (natural=water + water=lake) extracted from OpenStreetMap (Geofabrik extract ${REGION}, downloaded $(date -u +%Y-%m-%dT%H:%MZ)).
+          Named waterway lines and named lakes (natural=water + water=lake) extracted from OpenStreetMap (${SOURCE_NAME} ${REGION}, downloaded $(date -u +%Y-%m-%dT%H:%MZ)).
           © OpenStreetMap contributors. Available under the Open Database License (ODbL) 1.0:
           https://opendatacommons.org/licenses/odbl/1-0/ . See https://www.openstreetmap.org/copyright
           Produced by pipeline/downstream/osm_waterways.py in this repository (commit ${GITHUB_SHA}).
