@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest
 
+from downstream.naming import name_key
+
 DATA = Path(__file__).resolve().parents[2] / "data"
 OSM_DIR = DATA / "raw" / "osm"
 RAW_NE_OCEAN = DATA / "raw" / "ne_ocean.zip"
@@ -84,7 +86,10 @@ def test_example_paths():
     )
     for slug, (chain, sea) in EXPECTED.items():
         r = json.loads((DATA / "paths" / f"{slug}.json").read_text())
-        assert [label(g) for g in r["chain"]] == chain, slug
+        # Compared like the pipeline compares names (case and accents ignored): which spelling of
+        # a river covers more km changes with OSM edits ("Río Guadaíra" here, "Río Guadaira" on
+        # GitHub's fresh OSM download, build 18, 2026-09-30); the step structure is what's locked.
+        assert [name_key(label(g)) for g in r["chain"]] == [name_key(c) for c in chain], slug
         assert r["end"]["type"] == "sea" and r["end"]["name"] == sea, slug
         compact = json.dumps(r, ensure_ascii=False, separators=(",", ":")).encode()
         assert len(compact) < 6000, slug  # R3
