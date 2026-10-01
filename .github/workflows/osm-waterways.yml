@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 3
       matrix:
         region: ${{ fromJSON(needs.plan.outputs.regions) }}
     env:
@@ -47,8 +47,14 @@ jobs:
         run: |
           mkdir -p ../data
           base="https://download.geofabrik.de/${REGION}-latest.osm.pbf"
-          curl -fsSL --retry 3 -o ../data/region.osm.pbf "$base"
-          curl -fsSL --retry 3 -o ../data/region.osm.pbf.md5 "$base.md5"
+          # Cookie jar: on 2026-10-01 every download stopped with "Maximum (50) redirects followed"
+          # (Europe worked on 2026-09-29); a redirect that sets a cookie loops without one.
+          get() { curl -fsSL --retry 3 --retry-delay 10 -c ../data/cookies.txt -b ../data/cookies.txt -o "$2" "$1"; }
+          if ! get "$base" ../data/region.osm.pbf; then
+            echo "download failed; first redirects:"; curl -sI --max-redirs 3 -L "$base" | grep -iE '^(HTTP|location|set-cookie|retry-after)' || true
+            exit 1
+          fi
+          get "$base.md5" ../data/region.osm.pbf.md5
           echo "$(cut -d' ' -f1 ../data/region.osm.pbf.md5)  ../data/region.osm.pbf" | md5sum -c -
           ls -l ../data/region.osm.pbf
           curl -fsSI "$base" | grep -i '^last-modified' || true
