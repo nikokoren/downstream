@@ -138,6 +138,15 @@ def compute_town(
     groups = to_latin(groups, ctx.name_en, c["cc"])
     if end["type"] != "sea" and groups[-1]["kind"] == "lake":
         # The path ends in a named lake (Limni Vegoritis, Limni Ioanninon): that's the endpoint.
+        # Once in it, the water stays: a channel back out and in again (Salt Lake City: "Jordan
+        # River → Great Salt Lake → Jordan River → Great Salt Lake", 2026-10-01) is the lake.
+        k = next(
+            i for i, g in enumerate(groups) if g["kind"] == "lake" and g["key"] == groups[-1]["key"]
+        )
+        for g in groups[k + 1 :]:
+            groups[k]["km"] = round(groups[k]["km"] + g["km"], 1)
+            groups[k]["reaches"] += g["reaches"]
+        groups = groups[: k + 1]
         lake = groups[-1]["name"] or {}
         end = {
             "type": "lake",

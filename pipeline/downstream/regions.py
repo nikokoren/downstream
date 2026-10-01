@@ -20,6 +20,13 @@ class Region:
     sea_window: tuple[float, float, float, float]  # seas a river mouth can belong to
     ne_extra: tuple[str, ...]  # Natural Earth regional supplements (rivers, lakes)
     osm_regions: str  # file next to this module: the Geofabrik regions to name rivers from
+    # Natural Earth lakes at least this big (km²) name the reaches inside them even over OSM river
+    # names; None: off. For lakes OSM's regional extracts can't hold whole (the Great Lakes
+    # straddle the US-Canada border, so their outlines are incomplete in every extract).
+    ne_big_lake_km2: float | None = None
+    # Fold a short river stub at a lake's outlet into the lake (naming._drop_outlet_stubs). Off in
+    # Europe so its chains stay as built (it would change 1 of 6,918 towns, Katrineholm).
+    outlet_stubs: bool = False
 
 
 EUROPE = Region(
@@ -46,6 +53,8 @@ UNITED_STATES = Region(
     sea_window=(-180.0, 5.0, -45.0, 78.0),
     ne_extra=("rivers_north_america", "lakes_north_america"),
     osm_regions="osm_regions_us.txt",
+    ne_big_lake_km2=1000.0,
+    outlet_stubs=True,
 )
 
 REGIONS = {r.code: r for r in (EUROPE, UNITED_STATES)}

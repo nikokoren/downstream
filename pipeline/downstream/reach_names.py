@@ -20,6 +20,7 @@ import pyogrio
 import shapely
 from shapely import STRtree
 
+from downstream import regions
 from downstream.naming import METRIC_CRS
 
 SAMPLE_M = 200
@@ -127,6 +128,9 @@ def vote_ne(geoms, lines: gpd.GeoDataFrame) -> dict[int, str]:
     return _majority(owner, _nearest_by_class(pts, classes, NE_DIST), n, MIN_SHARE)
 
 
+BIG_LAKE_BUFFER_M = 2000.0
+
+
 def lake_of(geoms, lakes: gpd.GeoDataFrame) -> dict[int, str]:
     if len(lakes) == 0:
         return {}
@@ -220,6 +224,16 @@ def name_tile(
     for r, nm in lake_of(geoms, lakes_ne).items():
         osm_named = source[r] is not None and source[r].startswith("osm")
         if not osm_named and not near_osm_lake[r]:
+            label[r], source[r] = nm, "lake:naturalearth"
+    big = regions.current().ne_big_lake_km2
+    if big and len(lakes_ne):
+        # Without the lake's own outline, reaches across Lake Erie took nearby river names
+        # ("Detroit River", "Niagara River – Chippawa Channel"; US build 2026-10-01).
+        # Natural Earth's outlines are generalised: shore reaches fell just outside Lake Ontario
+        # and kept "Niagara River" (2026-10-01), so the outline is widened by BIG_LAKE_BUFFER_M.
+        big_ne = lakes_ne[lakes_ne.area >= big * 1e6].copy()
+        big_ne["geometry"] = big_ne.geometry.buffer(BIG_LAKE_BUFFER_M)
+        for r, nm in lake_of(geoms, big_ne).items():
             label[r], source[r] = nm, "lake:naturalearth"
     for r, nm in lake_of(geoms, lakes_osm).items():  # OSM lakes win over OSM rivers
         label[r], source[r] = nm, "lake:osm"

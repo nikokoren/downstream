@@ -410,6 +410,8 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
     groups = _merge_side_arms(groups)
     groups = _merge_repeated_lakes(groups)
     groups = _thin_lake_runs(groups)
+    if regions.current().outlet_stubs:
+        groups = _drop_outlet_stubs(groups)
     for g in groups:
         g["km"] = round(g["km"], 1)
         if g["disp"]:
@@ -545,3 +547,27 @@ def _same_groups(a: dict, c: dict) -> bool:
     if a["disp"] and c["disp"] and a["disp"]["en"] != c["disp"]["en"]:
         return False
     return bool(a["parts"] & c["parts"])
+
+
+def _drop_outlet_stubs(groups: list[dict], max_km: float = 1.0) -> list[dict]:
+    """A river step under max_km right after a lake, named like a river upstream of the lake and
+    followed by a different river, is the lake's outlet: Buffalo's "Lake Ontario → Niagara River
+    (0.5 km) → St. Lawrence" (2026-10-01). It joins the lake."""
+    out: list[dict] = []
+    for k, g in enumerate(groups):
+        if (
+            out
+            and k + 1 < len(groups)
+            and g["kind"] == "river"
+            and g["km"] < max_km
+            and out[-1]["kind"] == "lake"
+            and groups[k + 1]["kind"] == "river"
+            and groups[k + 1]["key"] != g["key"]
+            and g["key"] is not None
+            and any(p["kind"] == "river" and p["key"] == g["key"] for p in out[:-1])
+        ):
+            out[-1]["km"] += g["km"]
+            out[-1]["reaches"] += g["reaches"]
+            continue
+        out.append(g)
+    return out

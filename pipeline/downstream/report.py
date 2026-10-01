@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from downstream import regions
+
 
 def _pct(x: float) -> str:
     return f"{100 * x:.0f} %"
@@ -23,7 +25,7 @@ def write(df: pd.DataFrame, out: Path, seconds: float) -> Path:
         "# Downstream build report",
         "",
         (
-            f"- Towns: {len(df)} (Europe border, D9); in the rotation: {len(ok)}; "
+            f"- Towns: {len(df)} (region {regions.current().code}, D9, D22); in the rotation: {len(ok)}; "
             f"excluded (start > 5 km from the town): {len(excl)}; errors: {len(bad)}; "
             f"time: {seconds:.0f} s. Figures below cover the towns in the rotation."
         ),

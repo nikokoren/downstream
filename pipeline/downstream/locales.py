@@ -132,6 +132,7 @@ END_PHRASES = {
     "Hudson Bay": ("Ends in Hudson Bay", "Endet in der Hudson Bay"),
     "Bering Sea": ("Ends in the Bering Sea", "Endet im Beringmeer"),
     "Cook Inlet": ("Ends in Cook Inlet", "Endet im Cook Inlet"),
+    "Sevier Lake": ("Ends in Sevier Lake", "Endet im Sevier Lake"),
 }
 # Endpoints without a curated phrase (Paralimni Lake, 2 towns): label form, no grammar needed.
 END_FALLBACK = {"en": "Ends in: {name}", "de": "Endet in: {name}"}
