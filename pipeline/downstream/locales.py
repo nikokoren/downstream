@@ -208,6 +208,7 @@ COUNTRIES = {
     "SM": ("San Marino", "San Marino"),
     "TR": ("Türkiye", "Türkei"),
     "UA": ("Ukraine", "Ukraine"),
+    "US": ("United States", "Vereinigte Staaten"),  # D22; dewiki title via Wikidata, 2026-10-01
     "VA": ("Vatican City", "Vatikanstadt"),
     "XK": ("Kosovo", "Kosovo"),
 }

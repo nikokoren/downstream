@@ -37,6 +37,9 @@ SLOTS = {"eu": 7200, "us": 4000, "mix": 12000}
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
 SEED = 20260929  # fixed, so the order only changes when the set of towns changes
 REGION = "eu"  # kept for the tests and tools that read the Europe folder
+# Regions the published recipe offers (D22: the US from 2026-10-01). The build checks that the
+# site it writes matches, so a build without the US fails instead of publishing a URL to nothing.
+PUBLISHED = ["eu", "us"]
 
 NOTICE = """# Downstream: town files
 
@@ -61,7 +64,7 @@ def polling_url(folders: list[str] | None = None) -> str:
     `region`, multi-select) picks one; none or all ticked picks "mix". `join` makes the value text
     whether TRMNL passes a list or comma-separated text (undocumented, 2026-10-01).
     """
-    folders = folders or ["eu"]
+    folders = folders or PUBLISHED
     slot = '{%- assign slot = "now" | date: "%s" | divided_by: ' + str(SLOT_SECONDS) + " -%}"
     if folders == ["eu"]:
         return (

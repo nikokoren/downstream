@@ -25,7 +25,7 @@ def test_polling_url_renders_to_the_current_slot():
     # final check is on TRMNL itself.
     n = SLOTS["eu"]
     before = int(time.time()) // SLOT_SECONDS
-    url = Environment().from_string(polling_url()).render()
+    url = Environment().from_string(polling_url()).render(region=["eu"])
     after = int(time.time()) // SLOT_SECONDS
     assert url.count("\n") <= 1 and url.strip() == url.rstrip("\n").strip()
     m = re.fullmatch(re.escape(f"{BASE_URL}/{REGION}") + r"/t/(\d+)\.json", url.strip())
@@ -37,8 +37,12 @@ def test_polling_url_renders_to_the_current_slot():
     not (SITE / REGION / "t").exists(), reason="run `python -m downstream.site` first"
 )
 def test_committed_polling_url_matches_the_site():
-    # One file per slot, and the committed URL uses the same fixed slot count.
-    assert len(list((SITE / REGION / "t").glob("*.json"))) == SLOTS[REGION]
+    # One file per slot in every published folder (D22: eu, us, and mix), and the committed URL
+    # uses the same folders and fixed slot counts.
+    from downstream.site import PUBLISHED
+
+    for folder in [*PUBLISHED, "mix"] if len(PUBLISHED) > 1 else PUBLISHED:
+        assert len(list((SITE / folder / "t").glob("*.json"))) == SLOTS[folder], folder
     assert RECIPE_URL.read_text(encoding="utf-8") == polling_url()
 
 

@@ -17,7 +17,7 @@ import { chromium } from "playwright-core";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
 const FW = path.join(root, "data/raw/framework/3.4.0");
-const SITE = path.join(root, "data/site/eu");
+const SITE = path.join(root, "data/site");
 const OUT = path.join(here, "out");
 const CHROME = process.env.CHROME || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 
@@ -29,14 +29,20 @@ function renderLiquid(view, ctx) {
   return r.stdout;
 }
 
-// Towns by English name from the rotation list; "(error)" = no payload (R18).
-const rotation = fs.readFileSync(path.join(SITE, "rotation.csv"), "utf8").trim().split("\n").slice(1)
-  .map((l) => { const [n, gid, ...t] = l.split(","); return { n: +n, gid, town: t.join(",").replace(/^"|"$/g, "") }; });
+// Towns by English name from the rotation lists, Europe first, then the United States (D22);
+// "(error)" = no payload (R18).
+const rotations = ["eu", "us"].filter((f) => fs.existsSync(path.join(SITE, f, "rotation.csv"))).map((f) => ({
+  folder: f,
+  rows: fs.readFileSync(path.join(SITE, f, "rotation.csv"), "utf8").trim().split("\n").slice(1)
+    .map((l) => { const [n, gid, ...t] = l.split(","); return { n: +n, gid, town: t.join(",").replace(/^"|"$/g, "") }; }),
+}));
 function payload(town) {
   if (town === "(error)") return {};
-  const r = rotation.find((x) => x.town === town);
-  if (!r) throw new Error(`town not in rotation: ${town}`);
-  return JSON.parse(fs.readFileSync(path.join(SITE, "t", `${r.n}.json`), "utf8"));
+  for (const { folder, rows } of rotations) {
+    const r = rows.find((x) => x.town === town);
+    if (r) return JSON.parse(fs.readFileSync(path.join(SITE, folder, "t", `${r.n}.json`), "utf8"));
+  }
+  throw new Error(`town not in any rotation: ${town}`);
 }
 
 const DEVICES = {
@@ -87,9 +93,9 @@ const base = `http://127.0.0.1:${server.address().port}`;
 
 // --quick: after each change (author 2026-09-30); the full sweep only before shipping a version.
 // The hardest cases: the reference path, the longest path, the longest town line, the longest
-// 5-step path; one OG and one X screen, both languages (64 cases, ~5 min).
+// 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (80 cases).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])

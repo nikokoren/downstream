@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       regions:
-        description: "Regions to build (D22): eu, or eu us. The site gets one folder each, plus mix."
+        description: "Regions to build (D22): eu us (published since 2026-10-01). The site gets one folder each, plus mix."
         required: true
-        default: eu
+        default: eu us
 
 permissions:
   contents: read
