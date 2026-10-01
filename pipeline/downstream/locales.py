@@ -20,6 +20,7 @@ UI = {
         # Germany / travels along a stream → Isar → Danube → / ends in the Black Sea".
         "intro": "A raindrop falling on",
         "along": "travels along",
+        "and": "and",  # before the endpoint line: "and ends in the Black Sea" (author 2026-10-01)
     },
     "de": {
         "ends_in": "Endet in",
@@ -32,6 +33,7 @@ UI = {
         "place": "{town}, {country}",
         "intro": "Ein Regentropfen in",
         "along": "fließt durch",
+        "and": "und",
     },
 }
 
@@ -208,7 +210,7 @@ COUNTRIES = {
     "SM": ("San Marino", "San Marino"),
     "TR": ("Türkiye", "Türkei"),
     "UA": ("Ukraine", "Ukraine"),
-    "US": ("United States", "Vereinigte Staaten"),  # D22; dewiki title via Wikidata, 2026-10-01
+    "US": ("USA", "USA"),  # D22; author 2026-10-01: "USA", in German too
     "VA": ("Vatican City", "Vatikanstadt"),
     "XK": ("Kosovo", "Kosovo"),
 }

@@ -34,10 +34,10 @@ follows the water on a map, stream by stream and river by river, all the way to 
 | Konstanz, Germany | Bodensee (Lake Constance) → Rhine | the North Sea | 1,058 km · about 3–7 years (it waits in Lake Constance) |
 | Lisbon, Portugal | a stream → Tagus | the North Atlantic | 7.5 km · about 8–17 hours |
 | Cetinje, Montenegro | — | disappears underground (karst) | 3.7 km · about 3–6 hours |
-| Minneapolis, United States | Mississippi River → Lake Pepin → Mississippi River | the Gulf of Mexico | 3,002 km · about 3–6 weeks |
-| Denver, United States | Cherry Creek → South Platte River → Platte River → Missouri River → Mississippi River | the Gulf of Mexico | 3,938 km · about 1–3 months |
-| Salt Lake City, United States | City Creek → Jordan River → Great Salt Lake | the Great Salt Lake (no outlet) | 140 km · about 2–5 days |
-| Duluth, United States | Lake Superior → … → Lake Erie → Niagara River → Lake Ontario → St. Lawrence | the Gulf of Saint Lawrence | 2,707 km · about 102–230 years (on average water stays about 130 years in Lake Superior, HydroLAKES) |
+| Minneapolis, USA | Mississippi River → Lake Pepin → Mississippi River | the Gulf of Mexico | 3,002 km · about 3–6 weeks |
+| Denver, USA | Cherry Creek → South Platte River → Platte River → Missouri River → Mississippi River | the Gulf of Mexico | 3,938 km · about 1–3 months |
+| Salt Lake City, USA | City Creek → Jordan River → Great Salt Lake | the Great Salt Lake (no outlet) | 140 km · about 2–5 days |
+| Duluth, USA | Lake Superior → … → Lake Erie → Niagara River → Lake Ontario → St. Lawrence | the Gulf of Saint Lawrence | 2,707 km · about 102–230 years (on average water stays about 130 years in Lake Superior, HydroLAKES) |
 
 Surprises the recipe turns up:
 - **The longest trip** starts in Donaueschingen, Germany, where the Danube begins: 2,922 km to
@@ -71,7 +71,7 @@ Surprises the recipe turns up:
 
 ## Settings
 
-- **Region**: Europe, the United States, or both (the default): about 6,900 European and 3,300
+- **Region**: Europe, the USA, or both (the default): about 6,900 European and 3,300
   US towns.
 - **Language**: English or Deutsch. Everything on screen, including river and sea names where a
   German name exists ("Donau", "Schwarzes Meer", "Endet im Schwarzen Meer").

@@ -33,7 +33,7 @@ custom_fields:
     both. Use ⌘+click or Ctrl+click to select and deselect.
   options:
   - Europe: eu
-  - United States: us
+  - USA: us
 - keyname: language
   name: Language
   field_type: select
