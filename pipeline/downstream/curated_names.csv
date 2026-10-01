@@ -61,3 +61,26 @@ Skagerrak,Skagerrak,Skagerrak
 Norwegian Sea|Europäisches Nordmeer,Norwegian Sea,Europäisches Nordmeer
 Greenland Sea|Grönlandsee,Greenland Sea,Grönlandsee
 Lake Vegoritida|Λίμνη Βεγορίτιδα|Vegoritida-See,Lake Vegoritida,Vegoritida-See
+# United States (D22), 2026-10-01. German names are the German Wikipedia titles linked from the
+# English articles (Wikidata sitelinks, checked 2026-10-01); "Nordpazifik" is a German Wikipedia
+# redirect title like "Nordatlantik". Rows whose German name equals the English one are here so
+# every endpoint has a curated German name (D7).
+Gulf of Mexico|Golfo de México,Gulf of Mexico,Golf von Mexiko
+North Pacific Ocean,North Pacific Ocean,Nordpazifik
+Gulf of Saint Lawrence|Gulf of St. Lawrence|Golfe du Saint-Laurent,Gulf of Saint Lawrence,Sankt-Lorenz-Golf
+Gulf of Maine,Gulf of Maine,Golf von Maine
+Straits of Florida|Florida Strait,Straits of Florida,Floridastraße
+Golfo de California|Gulf of California,Gulf of California,Golf von Kalifornien
+Salish Sea,Salish Sea,Salish Sea
+Great Salt Lake,Great Salt Lake,Großer Salzsee
+Salton Sea,Salton Sea,Saltonsee
+Pyramid Lake,Pyramid Lake,Pyramid Lake
+Hudson Bay,Hudson Bay,Hudson Bay
+Bering Sea,Bering Sea,Beringmeer
+Cook Inlet,Cook Inlet,Cook Inlet
+Saint Lawrence|Saint Lawrence River|St. Lawrence River|Fleuve Saint-Laurent,St. Lawrence,Sankt-Lorenz-Strom
+Lake Superior|Lac Supérieur,Lake Superior,Oberer See
+Lake Michigan,Lake Michigan,Michigansee
+Lake Huron|Lac Huron,Lake Huron,Huronsee
+Lake Erie|Lac Érié,Lake Erie,Eriesee
+Lake Ontario|Lac Ontario,Lake Ontario,Ontariosee

@@ -118,6 +118,20 @@ END_PHRASES = {
     "Norwegian Sea": ("Ends in the Norwegian Sea", "Endet im Europäischen Nordmeer"),
     "Greenland Sea": ("Ends in the Greenland Sea", "Endet in der Grönlandsee"),
     "Lake Vegoritida": ("Ends in Lake Vegoritida", "Endet im Vegoritida-See"),
+    # United States (D22, 2026-10-01); German forms follow the curated German names.
+    "Gulf of Mexico": ("Ends in the Gulf of Mexico", "Endet im Golf von Mexiko"),
+    "North Pacific Ocean": ("Ends in the North Pacific", "Endet im Nordpazifik"),
+    "Gulf of Saint Lawrence": ("Ends in the Gulf of Saint Lawrence", "Endet im Sankt-Lorenz-Golf"),
+    "Gulf of Maine": ("Ends in the Gulf of Maine", "Endet im Golf von Maine"),
+    "Straits of Florida": ("Ends in the Straits of Florida", "Endet in der Floridastraße"),
+    "Gulf of California": ("Ends in the Gulf of California", "Endet im Golf von Kalifornien"),
+    "Salish Sea": ("Ends in the Salish Sea", "Endet in der Salish Sea"),
+    "Great Salt Lake": ("Ends in the Great Salt Lake", "Endet im Großen Salzsee"),
+    "Salton Sea": ("Ends in the Salton Sea", "Endet im Saltonsee"),
+    "Pyramid Lake": ("Ends in Pyramid Lake", "Endet im Pyramid Lake"),
+    "Hudson Bay": ("Ends in Hudson Bay", "Endet in der Hudson Bay"),
+    "Bering Sea": ("Ends in the Bering Sea", "Endet im Beringmeer"),
+    "Cook Inlet": ("Ends in Cook Inlet", "Endet im Cook Inlet"),
 }
 # Endpoints without a curated phrase (Paralimni Lake, 2 towns): label form, no grammar needed.
 END_FALLBACK = {"en": "Ends in: {name}", "de": "Endet in: {name}"}

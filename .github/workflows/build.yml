@@ -6,6 +6,11 @@ name: build
 
 on:
   workflow_dispatch:
+    inputs:
+      regions:
+        description: "Regions to build (D22): eu, or eu us. The site gets one folder each, plus mix."
+        required: true
+        default: eu
 
 permissions:
   contents: read
@@ -41,6 +46,18 @@ jobs:
         run: |
           uv run python -m downstream.paths --all
           head -12 ../data/report/eu/report.md
+      - name: United States (D22)
+        if: contains(inputs.regions, 'us')
+        env:
+          DOWNSTREAM_REGION: us
+        run: |
+          SECONDS=0
+          uv run python -m downstream.fetch reaches basins lakes ne osm
+          uv run python -m downstream.build_names --workers 4
+          uv run python -m downstream.paths
+          uv run python -m downstream.paths --all
+          head -12 ../data/report/us/report.md
+          echo "United States took ${SECONDS}s"
       - name: Town files for the rotation + check the committed Polling URL
         run: |
           uv run python -m downstream.site
@@ -57,6 +74,10 @@ jobs:
             gh release create name-table --title "Name table (ODbL)" --notes-file "$D/NOTICE.md" --prerelease
           gh release edit name-table --notes-file "$D/NOTICE.md"
           gh release upload name-table "$D/name_table.csv" "$D/name_en.csv" "$D/NOTICE.md" --clobber
+          if [ -f ../data/names/us/name_table/name_table.csv ]; then
+            cp ../data/names/us/name_table/name_table.csv ../data/name_table_us.csv
+            gh release upload name-table ../data/name_table_us.csv --clobber
+          fi
           gh release view build-report >/dev/null 2>&1 || \
             gh release create build-report --title "Build report" --notes "Latest build report (report.md, towns.csv). Town chains contain OpenStreetMap names: see the name-table release for the ODbL notice." --prerelease
           gh release upload build-report ../data/report/eu/report.md ../data/report/eu/towns.csv --clobber
