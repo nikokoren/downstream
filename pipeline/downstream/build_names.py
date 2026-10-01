@@ -1,7 +1,7 @@
 """Name the whole river network of a HydroATLAS region (per-river redesign).
 
 Usage: uv run python -m downstream.build_names [--workers 4]
-Writes ../data/names/raw_labels.csv (stage 1) and ../data/names/reach_names.csv (stage 2).
+Writes ../data/names/<region>/raw_labels.csv (stage 1) and reach_names.csv (stage 2).
 """
 
 import argparse
@@ -13,26 +13,29 @@ import numpy as np
 import pandas as pd
 import pyogrio
 
-from downstream import estuaries, reach_names, rivers
+from downstream import estuaries, reach_names, regions, rivers
 from downstream.endpoints import load_ne
-from downstream.fetch import RAW
+from downstream.fetch import RAW, osm_files, reaches_file
 from downstream.name_table import NameTable
 from downstream.naming import load_curated
 from downstream.paths import pd_concat
 
-OUT = RAW.parent / "names"
+REGION = regions.current()
+OUT = regions.out_dir("names")
 _G: dict = {}
 
 
 def _init() -> None:
-    _G["reaches"] = pyogrio.read_dataframe(RAW / "reaches_eu.fgb")
-    _G["ways"] = sorted((RAW / "osm").glob("waterways-*.fgb"))
-    _G["lakes"] = sorted((RAW / "osm").glob("lakes-*.fgb"))
+    _G["reaches"] = pyogrio.read_dataframe(reaches_file())
+    _G["ways"] = osm_files("waterways")
+    _G["lakes"] = osm_files("lakes")
     for f in _G["ways"] + _G["lakes"]:  # file extents once, before forking the workers
         reach_names._extent(f)
-    ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), load_ne(RAW / "ne_rivers_europe.zip")])
+    extra = [x for x in REGION.ne_extra if x.startswith("rivers")]
+    ne = pd_concat([load_ne(RAW / "ne_rivers.zip"), *(load_ne(RAW / f"ne_{x}.zip") for x in extra)])
     _G["ne"] = ne.to_crs("EPSG:4326")
-    nel = pd_concat([load_ne(RAW / "ne_lakes.zip"), load_ne(RAW / "ne_lakes_europe.zip")])
+    extra = [x for x in REGION.ne_extra if x.startswith("lakes")]
+    nel = pd_concat([load_ne(RAW / "ne_lakes.zip"), *(load_ne(RAW / f"ne_{x}.zip") for x in extra)])
     _G["ne_lakes"] = nel[nel["featurecla"].isin(["Lake", "Alkaline Lake"])].to_crs("EPSG:4326")
 
 
@@ -43,7 +46,7 @@ def _tile(rows: np.ndarray) -> pd.DataFrame:
 
 def stage2() -> None:
     t1 = time.time()
-    r = pyogrio.read_dataframe(RAW / "reaches_eu.fgb", read_geometry=False)
+    r = pyogrio.read_dataframe(reaches_file(), read_geometry=False)
     raw = pd.read_csv(OUT / "raw_labels.csv")
     cleaned = rivers.clean(r, raw)
     cleaned.to_csv(OUT / "reach_names.csv", index=False)
@@ -59,8 +62,7 @@ def stage2() -> None:
     t = table.write(OUT / "name_table", build)
     english_names(OUT / "name_table" / "name_en.csv")
     t2 = time.time()
-    ways = sorted((RAW / "osm").glob("waterways-*.fgb"))
-    est = estuaries.find(pyogrio.read_dataframe(RAW / "reaches_eu.fgb"), cleaned, ways)
+    est = estuaries.find(pyogrio.read_dataframe(reaches_file()), cleaned, osm_files("waterways"))
     est.to_csv(OUT / "estuaries.csv", index=False)
     print(f"estuaries: {len(est)} outlets in {time.time() - t2:.0f}s", flush=True)
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)
@@ -79,7 +81,7 @@ def english_names(path) -> None:
     from downstream.latin import NON_LATIN
 
     counts: dict[str, collections.Counter] = {}
-    for f in sorted((RAW / "osm").glob("*.fgb")):
+    for f in sorted(osm_files("waterways") + osm_files("lakes")):  # same order as before D22
         d = pyogrio.read_dataframe(f, columns=["name", "name_en"], read_geometry=False)
         d = d[d["name"].notna() & d["name_en"].notna()]
         d = d[d["name"].str.contains(NON_LATIN) & ~d["name_en"].str.contains(NON_LATIN)]
@@ -126,8 +128,7 @@ def main(workers: int) -> None:
     t = table.write(OUT / "name_table", build)
     english_names(OUT / "name_table" / "name_en.csv")
     t2 = time.time()
-    ways = sorted((RAW / "osm").glob("waterways-*.fgb"))
-    est = estuaries.find(pyogrio.read_dataframe(RAW / "reaches_eu.fgb"), cleaned, ways)
+    est = estuaries.find(pyogrio.read_dataframe(reaches_file()), cleaned, osm_files("waterways"))
     est.to_csv(OUT / "estuaries.csv", index=False)
     print(f"estuaries: {len(est)} outlets in {time.time() - t2:.0f}s", flush=True)
     print(f"name table: {len(table.rows)} rows -> {t}", flush=True)

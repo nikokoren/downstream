@@ -12,8 +12,9 @@ after every build. File n holds town n mod count, so a few towns come round twic
 The towns are in a fixed shuffled order, so consecutive slots jump around Europe. Every install
 shows the same town at the same time.
 
-Usage: uv run python -m downstream.site   (after `downstream.paths --all`)
-Writes ../data/site/ (the Pages site; Europe under eu/) and ../recipe/polling_url.liquid (the recipe's Polling URL).
+Usage: uv run python -m downstream.site   (after `downstream.paths --all` for each region)
+Writes ../data/site/ (the Pages site: eu/, us/, mix/) and ../recipe/polling_url.liquid (the recipe's
+Polling URL).
 """
 
 import json
@@ -21,18 +22,21 @@ import random
 import shutil
 from pathlib import Path
 
-from downstream.fetch import RAW
+from downstream import regions
 from downstream.locales import UI, distance_text, end_text, place_text, travel_text
+from downstream.regions import DATA
 
-SITE = RAW.parent / "site"
+SITE = DATA / "site"
 RECIPE = Path(__file__).resolve().parents[2] / "recipe"
 BASE_URL = "https://nikokoren.github.io/downstream"
-# Files live under a region folder (eu/t/<n>.json) so more regions, or an "everything" list, can
-# sit beside Europe later without moving the URL existing installs use (author, 2026-09-29).
-REGION = "eu"
-SLOTS = 7200  # ≥ town count; the build fails if the towns ever outgrow it
+# One folder per region (<code>/t/<n>.json), so more regions sit beside Europe without moving the
+# URL existing installs use (author, 2026-09-29), plus "mix" for both (D22: the Region setting
+# with nothing ticked). Slot counts are fixed, ≥ the town count; the build fails if one is
+# outgrown. Europe's 7,200 is what the Polling URL has used since 2026-09-29.
+SLOTS = {"eu": 7200, "us": 4000, "mix": 12000}
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
 SEED = 20260929  # fixed, so the order only changes when the set of towns changes
+REGION = "eu"  # kept for the tests and tools that read the Europe folder
 
 NOTICE = """# Downstream: town files
 
@@ -50,31 +54,43 @@ Source and method: https://github.com/nikokoren/downstream
 """
 
 
-def polling_url(n: int = SLOTS) -> str:
-    """The recipe's Polling URL. One line: TRMNL splits the rendered URL field on line breaks."""
+def polling_url(folders: list[str] | None = None) -> str:
+    """The recipe's Polling URL. One line: TRMNL splits the rendered URL field on line breaks.
+
+    Europe only: the URL used since 2026-09-29. With more folders, the Region setting (form field
+    `region`, multi-select) picks one; none or all ticked picks "mix". `join` makes the value text
+    whether TRMNL passes a list or comma-separated text (undocumented, 2026-10-01).
+    """
+    folders = folders or ["eu"]
+    slot = '{%- assign slot = "now" | date: "%s" | divided_by: ' + str(SLOT_SECONDS) + " -%}"
+    if folders == ["eu"]:
+        return (
+            slot
+            + f"{{%- assign n = slot | modulo: {SLOTS['eu']} -%}}"
+            + BASE_URL
+            + "/eu/t/{{ n }}.json\n"
+        )
+    pick = '{%- assign r = region | join: "," -%}' + (
+        f'{{%- assign f = "mix" -%}}{{%- assign c = {SLOTS["mix"]} -%}}'
+    )
+    for a, b in (("eu", "us"), ("us", "eu")):
+        pick += (
+            f'{{%- if r contains "{a}" -%}}{{%- unless r contains "{b}" -%}}'
+            f'{{%- assign f = "{a}" -%}}{{%- assign c = {SLOTS[a]} -%}}'
+            "{%- endunless -%}{%- endif -%}"
+        )
     return (
-        '{%- assign slot = "now" | date: "%s" | divided_by: ' + str(SLOT_SECONDS) + " -%}"
-        "{%- assign n = slot | modulo: "
-        + str(n)
-        + " -%}"
-        + BASE_URL
-        + f"/{REGION}/t/{{{{ n }}}}.json\n"
+        pick + slot + "{%- assign n = slot | modulo: c -%}" + BASE_URL + "/{{ f }}/t/{{ n }}.json\n"
     )
 
 
-def build() -> int:
-    towns = sorted((RAW.parent / "towns").glob("*.json"), key=lambda p: int(p.stem))
-    order = list(towns)
-    random.Random(SEED).shuffle(order)
-    if SITE.exists():
-        shutil.rmtree(SITE)
-    out = SITE / REGION
+def _write_folder(name: str, order: list[Path], cache: dict) -> None:
+    out = SITE / name
     (out / "t").mkdir(parents=True)
-    if len(order) > SLOTS:
-        raise ValueError(f"{len(order)} towns but {SLOTS} slots: raise SLOTS (and the recipe URL)")
+    if len(order) > SLOTS[name]:
+        raise ValueError(f"{name}: {len(order)} towns but {SLOTS[name]} slots: raise SLOTS")
     rows = ["n,geonameid,town"]
-    cache: dict[Path, dict] = {}
-    for n in range(SLOTS):
+    for n in range(SLOTS[name]):
         f = order[n % len(order)]
         result = dict(cache.setdefault(f, json.loads(f.read_text())))
         result["slot"] = n
@@ -90,6 +106,31 @@ def build() -> int:
         )
         rows.append(f'{n},{f.stem},"{result["town"]["en"]}"')
     (out / "rotation.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+def build() -> dict[str, int]:
+    """Every region with town files (data/towns/<code>/), plus "mix" when there are several."""
+    lists = {}
+    for code in regions.REGIONS:
+        files = sorted(
+            regions.out_dir("towns", regions.REGIONS[code]).glob("*.json"),
+            key=lambda p: int(p.stem),
+        )
+        if files:
+            order = list(files)
+            random.Random(SEED).shuffle(order)
+            lists[code] = order
+    if not lists:
+        raise ValueError("no town files: run `downstream.paths --all` first")
+    if len(lists) > 1:
+        both = sorted((f for order in lists.values() for f in order), key=lambda p: int(p.stem))
+        random.Random(SEED).shuffle(both)
+        lists["mix"] = both
+    if SITE.exists():
+        shutil.rmtree(SITE)
+    cache: dict[Path, dict] = {}
+    for name, order in lists.items():
+        _write_folder(name, order, cache)
     (SITE / "NOTICE.md").write_text(NOTICE, encoding="utf-8")
     (SITE / "index.html").write_text(
         "<!doctype html><meta charset=utf-8><title>Downstream</title>"
@@ -100,12 +141,11 @@ def build() -> int:
     )
     (SITE / ".nojekyll").write_text("")
     RECIPE.mkdir(exist_ok=True)
-    (RECIPE / "polling_url.liquid").write_text(polling_url(), encoding="utf-8")
-    return len(order)
+    folders = [c for c in regions.REGIONS if c in lists]
+    (RECIPE / "polling_url.liquid").write_text(polling_url(folders), encoding="utf-8")
+    return {name: len(order) for name, order in lists.items()}
 
 
 if __name__ == "__main__":
-    n = build()
-    print(
-        f"{n} towns in {SLOTS} slot files -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}"
-    )
+    counts = build()
+    print(f"{counts} towns per folder -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}")

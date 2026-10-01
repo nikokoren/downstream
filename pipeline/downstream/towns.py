@@ -88,18 +88,40 @@ def pick_name(town: dict, alts: dict[str, list], lang: str) -> str:
     return town["name"]
 
 
-def europe_towns(raw_dir: Path):
-    """cities15000 towns plus the extra towns, inside the Europe border (D9), as a GeoDataFrame
-    (EPSG:4326)."""
+def region_towns(raw_dir: Path, region):
+    """The region's towns (D9, D22) as a GeoDataFrame (EPSG:4326)."""
+    if region.code == "eu":
+        return europe_towns(raw_dir)
+    if region.code == "us":
+        return us_towns(raw_dir)
+    raise ValueError(region.code)
+
+
+def _frame(cities: dict):
     import geopandas as gpd
 
-    from downstream.europe import Europe
-
-    cities = load_cities(raw_dir / "geonames_cities15000.zip") | load_extra_towns(raw_dir)
     df = gpd.GeoDataFrame(list(cities.values()))
     df["lon"] = df["lon"].astype(float)
     df["lat"] = df["lat"].astype(float)
     df["pop"] = df["pop"].astype(int)
-    df = df.set_geometry(gpd.points_from_xy(df["lon"], df["lat"]), crs="EPSG:4326")
+    return df.set_geometry(gpd.points_from_xy(df["lon"], df["lat"]), crs="EPSG:4326")
+
+
+def us_towns(raw_dir: Path):
+    """cities15000 towns in the United States without Hawaii (D22: no HydroATLAS coverage).
+    GeoNames lists Puerto Rico and the other territories under their own country codes."""
+    cities = load_cities(raw_dir / "geonames_cities15000.zip")
+    us = {k: c for k, c in cities.items() if c["cc"] == "US" and c["a1"] != "HI"}
+    return _frame(us).reset_index(drop=True)
+
+
+def europe_towns(raw_dir: Path):
+    """cities15000 towns plus the extra towns, inside the Europe border (D9), as a GeoDataFrame
+    (EPSG:4326)."""
+
+    from downstream.europe import Europe
+
+    cities = load_cities(raw_dir / "geonames_cities15000.zip") | load_extra_towns(raw_dir)
+    df = _frame(cities)
     inside = Europe(raw_dir / "ne_admin0.zip").contains(df)
     return df[inside].reset_index(drop=True)

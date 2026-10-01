@@ -3,7 +3,15 @@
 # HydroATLAS v1.0 on figshare (CC BY 4.0, D5). GDAL reads single zip members via HTTP range requests.
 RIVERATLAS_ZIP = "https://ndownloader.figshare.com/files/20087486"  # RiverATLAS_Data_v10_shp.zip
 BASINATLAS_ZIP = "https://ndownloader.figshare.com/files/20087237"  # BasinATLAS_Data_v10_shp.zip
-RIVERATLAS_EU = f"/vsizip/{{/vsicurl/{RIVERATLAS_ZIP}}}/RiverATLAS_v10_shp/RiverATLAS_v10_eu.shp"
+
+
+def riveratlas(region_file: str) -> str:
+    """One RiverATLAS region file inside the zip ("eu", "na", "ar", ...)."""
+    return (
+        f"/vsizip/{{/vsicurl/{RIVERATLAS_ZIP}}}/RiverATLAS_v10_shp/RiverATLAS_v10_{region_file}.shp"
+    )
+
+
 BASINATLAS_L12 = (
     f"/vsizip/{{/vsicurl/{BASINATLAS_ZIP}}}/BasinATLAS_v10_shp/BasinATLAS_v10_lev12.shp"
 )
@@ -30,6 +38,8 @@ NE_LAYERS = {
     "rivers_europe": f"{NE_BASE}/physical/ne_10m_rivers_europe.zip",
     "lakes": f"{NE_BASE}/physical/ne_10m_lakes.zip",
     "lakes_europe": f"{NE_BASE}/physical/ne_10m_lakes_europe.zip",
+    "rivers_north_america": f"{NE_BASE}/physical/ne_10m_rivers_north_america.zip",
+    "lakes_north_america": f"{NE_BASE}/physical/ne_10m_lakes_north_america.zip",
     "marine": f"{NE_BASE}/physical/ne_10m_geography_marine_polys.zip",
     "ocean": f"{NE_BASE}/physical/ne_10m_ocean.zip",
     "admin0": f"{NE_BASE}/cultural/ne_10m_admin_0_countries.zip",

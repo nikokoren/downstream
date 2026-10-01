@@ -17,10 +17,11 @@ import geopandas as gpd
 import numpy as np
 import shapely
 
+from downstream import regions
 from downstream.naming import METRIC_CRS
 
 CELL_M = 1000.0
-WINDOW = (-30.0, 28.0, 55.0, 74.0)  # lon/lat; covers every Europe town's mouth plus open sea
+WINDOW = regions.current().sea_window  # lon/lat; every mouth in the region plus open sea
 NAMED_CLASSES = {"sea", "ocean", "gulf", "bay", "channel", "strait", "fjord"}
 MIN_AREA_KM2 = 15_000
 # Natural Earth's "Inner Seas" (IHO: Inner Seas off the West Coast of Scotland) also covers the

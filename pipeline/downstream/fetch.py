@@ -11,15 +11,15 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+import geopandas as gpd
+import pandas as pd
 import pyogrio
 
-from downstream import sources
+from downstream import regions, sources
+from downstream.regions import DATA
 
-DATA = Path(__file__).resolve().parents[2] / "data"
 RAW = DATA / "raw"
-
-# Europe window for BasinATLAS (global layer). Generous; the D9 polygon does the real cut later.
-EUROPE_BBOX = (-25.0, 34.0, 45.0, 72.0)
+REGION = regions.current()
 
 
 def _gdal_env() -> None:
@@ -32,13 +32,17 @@ def _gdal_env() -> None:
     os.environ.setdefault("CPL_VSIL_CURL_CHUNK_SIZE", str(4 * 1024 * 1024))
 
 
-def _copy_layer(src: str, dst: Path, columns: list[str], bbox=None) -> None:
+def _copy_layer(src: str | list[str], dst: Path, columns: list[str], bbox=None) -> None:
     if dst.exists():
         print(f"skip {dst.name} (exists)")
         return
     _gdal_env()
     t = time.time()
-    df = pyogrio.read_dataframe(src, columns=columns, bbox=bbox)
+    srcs = [src] if isinstance(src, str) else src
+    frames = [pyogrio.read_dataframe(s, columns=columns, bbox=bbox) for s in srcs]
+    df = frames[0]
+    if len(frames) > 1:
+        df = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=frames[0].crs)
     tmp = dst.with_suffix(".tmp.fgb")
     pyogrio.write_dataframe(df, tmp, driver="FlatGeobuf")
     tmp.rename(dst)
@@ -69,14 +73,26 @@ def _download(url: str, dst: Path) -> None:
     print(f"{dst.name}: {dst.stat().st_size} bytes")
 
 
+def reaches_file(region: regions.Region = REGION) -> Path:
+    return RAW / f"reaches_{region.code}.fgb"
+
+
+def basins_file(region: regions.Region = REGION) -> Path:
+    return RAW / f"basins_l12_{region.code}.fgb"
+
+
+def lakes_file(region: regions.Region = REGION) -> Path:
+    return RAW / f"hydrolakes_points_{region.code}.fgb"
+
+
 def reaches() -> None:
-    _copy_layer(sources.RIVERATLAS_EU, RAW / "reaches_eu.fgb", sources.REACH_COLUMNS)
+    # Several RiverATLAS files for a region (US: na + ar) just add up: each holds whole basins.
+    files = [sources.riveratlas(r) for r in REGION.riveratlas]
+    _copy_layer(files, reaches_file(), sources.REACH_COLUMNS)
 
 
 def basins() -> None:
-    _copy_layer(
-        sources.BASINATLAS_L12, RAW / "basins_l12_europe.fgb", sources.BASIN_COLUMNS, EUROPE_BBOX
-    )
+    _copy_layer(sources.BASINATLAS_L12, basins_file(), sources.BASIN_COLUMNS, REGION.bbox)
 
 
 def ne() -> None:
@@ -107,12 +123,17 @@ def geonames() -> None:
 
 
 RELEASES = "https://github.com/nikokoren/downstream/releases/download"
-OSM_REGIONS = Path(__file__).with_name("osm_regions.txt")
 
 
-def osm_regions() -> list[str]:
-    lines = OSM_REGIONS.read_text().splitlines()
+def osm_regions(region: regions.Region = REGION) -> list[str]:
+    lines = regions.osm_regions_file(region).read_text().splitlines()
     return [x.strip() for x in lines if x.strip() and not x.startswith("#")]
+
+
+def osm_files(kind: str, region: regions.Region = REGION) -> list[Path]:
+    """The region's OSM files ("waterways" or "lakes") that exist locally."""
+    paths = [RAW / "osm" / f"{kind}-{r.replace('/', '-')}.fgb" for r in osm_regions(region)]
+    return sorted(p for p in paths if p.exists())
 
 
 def osm() -> None:
@@ -130,14 +151,12 @@ def osm() -> None:
 
 
 def lakes() -> None:
-    """HydroLAKES pour points inside the Europe window (Res_time for the travel time, D3)."""
+    """HydroLAKES pour points inside the region's window (Res_time for the travel time, D3)."""
     zp = RAW / "hydrolakes_points_v10_shp.zip"
     _download(sources.HYDROLAKES_POINTS, zp)
     with zipfile.ZipFile(zp) as z:
         shp = next(n for n in z.namelist() if n.endswith(".shp"))
-    _copy_layer(
-        f"/vsizip/{zp}/{shp}", RAW / "hydrolakes_points_eu.fgb", sources.LAKE_COLUMNS, EUROPE_BBOX
-    )
+    _copy_layer(f"/vsizip/{zp}/{shp}", lakes_file(), sources.LAKE_COLUMNS, REGION.bbox)
 
 
 def framework() -> None:

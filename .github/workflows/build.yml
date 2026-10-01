@@ -40,7 +40,7 @@ jobs:
       - name: Every Europe town + build report (P7)
         run: |
           uv run python -m downstream.paths --all
-          head -12 ../data/report/report.md
+          head -12 ../data/report/eu/report.md
       - name: Town files for the rotation + check the committed Polling URL
         run: |
           uv run python -m downstream.site
@@ -51,7 +51,7 @@ jobs:
           path: data/site
       - name: Publish name table (ODbL)
         run: |
-          D=../data/names/name_table
+          D=../data/names/eu/name_table
           wc -l "$D/name_table.csv"
           gh release view name-table >/dev/null 2>&1 || \
             gh release create name-table --title "Name table (ODbL)" --notes-file "$D/NOTICE.md" --prerelease
@@ -59,7 +59,7 @@ jobs:
           gh release upload name-table "$D/name_table.csv" "$D/name_en.csv" "$D/NOTICE.md" --clobber
           gh release view build-report >/dev/null 2>&1 || \
             gh release create build-report --title "Build report" --notes "Latest build report (report.md, towns.csv). Town chains contain OpenStreetMap names: see the name-table release for the ODbL notice." --prerelease
-          gh release upload build-report ../data/report/report.md ../data/report/towns.csv --clobber
+          gh release upload build-report ../data/report/eu/report.md ../data/report/eu/towns.csv --clobber
 
   deploy:
     needs: build

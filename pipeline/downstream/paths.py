@@ -13,17 +13,19 @@ import pyogrio
 import shapely
 from shapely import STRtree
 
-from downstream import latin, naming, towns
+from downstream import latin, naming, regions, towns
 from downstream.endpoints import classify, load_ne
-from downstream.fetch import RAW
+from downstream.fetch import RAW, basins_file, lakes_file, reaches_file
 from downstream.network import Network
 from downstream.seas import load_seas
 
-OUT = RAW.parent / "paths"
+REGION = regions.current()
+OUT = regions.out_dir("paths")
+NAMES = regions.out_dir("names")
 
 # Acceptance and example towns (R20, D9): (name, country code) looked up in cities15000 and the
 # extra towns.
-EXAMPLES = [
+EXAMPLES_BY_REGION = {"eu": [
     ("Munich", "DE"),
     ("Starnberg", "DE"),
     ("Garmisch-Partenkirchen", "DE"),
@@ -48,7 +50,18 @@ EXAMPLES = [
     # Guadaira" / "Río Guadaíra").
     ("Cambridge", "GB"),
     ("El Viso del Alcor", "ES"),
-]
+], "us": [
+    # D22 trial (2026-10-01): Minneapolis → Mississippi → Gulf of Mexico is acceptance test #2;
+    # Denver a long path across the plains; Salt Lake City water that never reaches the sea;
+    # Pittsburgh Ohio → Mississippi; Seattle a very short path to the Pacific; Anchorage Alaska.
+    ("Minneapolis", "US"),
+    ("Denver", "US"),
+    ("Salt Lake City", "US"),
+    ("Pittsburgh", "US"),
+    ("Seattle", "US"),
+    ("Anchorage", "US"),
+]}  # fmt: skip
+EXAMPLES = EXAMPLES_BY_REGION[REGION.code]
 
 
 def start_reach(
@@ -72,12 +85,12 @@ class Context:
     """Everything a town lookup needs, loaded once."""
 
     def __init__(self) -> None:
-        self.net = Network.load(RAW / "reaches_eu.fgb")
-        self.basins = pyogrio.read_dataframe(RAW / "basins_l12_europe.fgb")
+        self.net = Network.load(reaches_file())
+        self.basins = pyogrio.read_dataframe(basins_file())
         self.btree = STRtree(self.basins.geometry.values)
         # Names come from the network-wide table (downstream.build_names): same name for a
         # reach whichever town's path reaches it.
-        names_csv = RAW.parent / "names" / "reach_names.csv"
+        names_csv = NAMES / "reach_names.csv"
         self.reach_label = {
             int(r.HYRIV_ID): (
                 r.name if isinstance(r.name, str) else None,
@@ -86,13 +99,13 @@ class Context:
             for r in pd.read_csv(names_csv, usecols=["HYRIV_ID", "name", "source"]).itertuples()
         }
         self.curated = naming.load_curated()
-        est = pd.read_csv(RAW.parent / "names" / "estuaries.csv")
+        est = pd.read_csv(NAMES / "estuaries.csv")
         self.estuary = {int(r.HYRIV_ID): (r.estuary, float(r.km)) for r in est.itertuples()}
-        en_csv = RAW.parent / "names" / "name_table" / "name_en.csv"
+        en_csv = NAMES / "name_table" / "name_en.csv"
         self.name_en = dict(pd.read_csv(en_csv, keep_default_na=False).itertuples(index=False))
         self.seas = load_seas(RAW / "ne_ocean.zip", RAW / "ne_marine.zip")
         self.lakes = load_ne(RAW / "ne_lakes.zip")
-        self.lake_days = lake_days_per_reach(self.net.reaches, RAW / "hydrolakes_points_eu.fgb")
+        self.lake_days = lake_days_per_reach(self.net.reaches, lakes_file())
         self._ends: dict[int, dict] = {}  # outlet reach -> endpoint (many towns share one)
 
     def end_of(self, last) -> dict:
@@ -299,17 +312,18 @@ MAX_START_KM = 5.0
 
 
 def main_all() -> None:
-    """Every Europe town (D9): one JSON per town in ../data/towns/, and the build report (P7)."""
+    """Every town of the region (D9, D22): one JSON per town in ../data/towns/<region>/, and the
+    build report (P7) in ../data/report/<region>/."""
     from downstream import report
 
-    out = RAW.parent / "towns"
+    out = regions.out_dir("towns")
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob("*.json"):  # no stale files for towns that are now excluded
         old.unlink()
     t0 = time.time()
     ctx = Context()
-    eu = towns.europe_towns(RAW)
-    cities = {r["geonameid"]: r for r in eu.drop(columns="geometry").to_dict("records")}
+    found = towns.region_towns(RAW, REGION)
+    cities = {r["geonameid"]: r for r in found.drop(columns="geometry").to_dict("records")}
     alts = towns.load_alt_names(RAW / "geonames_alt_de_en.txt", set(cities))
     print(f"{len(cities)} towns; loaded in {time.time() - t0:.0f}s", flush=True)
     rows = []
@@ -338,7 +352,7 @@ def main_all() -> None:
         rows.append(row)
         if k % 500 == 0:
             print(f"  {k}/{len(cities)} towns, {time.time() - t0:.0f}s", flush=True)
-    report.write(pd.DataFrame(rows), RAW.parent / "report", time.time() - t0)
+    report.write(pd.DataFrame(rows), regions.out_dir("report"), time.time() - t0)
 
 
 MAX_MAP_POINTS = 120  # keeps the payload under R3's ~6 KB; revisit with the TRMNL design
@@ -378,5 +392,5 @@ def pd_concat(frames):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--all", action="store_true", help="every Europe town + build report")
+    ap.add_argument("--all", action="store_true", help="every town of the region + build report")
     main_all() if ap.parse_args().all else main_examples()

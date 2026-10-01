@@ -23,7 +23,7 @@ def test_polyline_matches_googles_worked_example():
 def test_polling_url_renders_to_the_current_slot():
     # python-liquid follows Shopify Liquid, which TRMNL uses; not the same engine (Ruby), so the
     # final check is on TRMNL itself.
-    n = SLOTS
+    n = SLOTS["eu"]
     before = int(time.time()) // SLOT_SECONDS
     url = Environment().from_string(polling_url()).render()
     after = int(time.time()) // SLOT_SECONDS
@@ -38,7 +38,7 @@ def test_polling_url_renders_to_the_current_slot():
 )
 def test_committed_polling_url_matches_the_site():
     # One file per slot, and the committed URL uses the same fixed slot count.
-    assert len(list((SITE / REGION / "t").glob("*.json"))) == SLOTS
+    assert len(list((SITE / REGION / "t").glob("*.json"))) == SLOTS[REGION]
     assert RECIPE_URL.read_text(encoding="utf-8") == polling_url()
 
 
@@ -99,3 +99,26 @@ def test_every_town_has_a_country_line():
         d = json.loads(f.read_text(encoding="utf-8"))
         assert d["place"]["en"].startswith(d["town"]["en"] + ", "), f
         assert d["place"]["de"].startswith(d["town"]["de"] + ", "), f
+
+
+@pytest.mark.parametrize(
+    ("region", "folder"),
+    [
+        (None, "mix"),  # setting never saved
+        ("", "mix"),
+        ([], "mix"),  # nothing ticked (D22: a mix of both)
+        (["eu", "us"], "mix"),
+        ("eu,us", "mix"),
+        (["eu"], "eu"),
+        ("eu", "eu"),
+        (["us"], "us"),
+        ("us", "us"),
+    ],
+)
+def test_region_setting_picks_the_folder(region, folder):
+    """D22: the multi-select's value may arrive as a list or as comma-separated text (TRMNL
+    doesn't document which, 2026-10-01); both must pick the same folder."""
+    url = Environment().from_string(polling_url(["eu", "us"])).render(region=region).strip()
+    m = re.fullmatch(re.escape(BASE_URL) + r"/(\w+)/t/(\d+)\.json", url)
+    assert m and m.group(1) == folder, url
+    assert int(m.group(2)) < SLOTS[folder]

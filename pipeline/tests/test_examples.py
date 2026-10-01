@@ -18,7 +18,7 @@ OSM_DIR = DATA / "raw" / "osm"
 RAW_NE_OCEAN = DATA / "raw" / "ne_ocean.zip"
 NEEDED = [
     DATA / "raw" / "reaches_eu.fgb",
-    DATA / "raw" / "basins_l12_europe.fgb",
+    DATA / "raw" / "basins_l12_eu.fgb",
     OSM_DIR / "waterways-europe-germany-bayern.fgb",
     OSM_DIR / "lakes-europe-germany-bayern.fgb",
     OSM_DIR / "waterways-europe-austria.fgb",
@@ -28,9 +28,9 @@ NEEDED = [
     OSM_DIR / "waterways-europe-slovenia.fgb",
     OSM_DIR / "waterways-europe-italy-nord-est.fgb",
     OSM_DIR / "waterways-europe-portugal.fgb",
-    DATA / "names" / "estuaries.csv",
+    DATA / "names" / "eu" / "estuaries.csv",
     RAW_NE_OCEAN,
-    DATA / "names" / "reach_names.csv",  # from `python -m downstream.build_names`
+    DATA / "names" / "eu" / "reach_names.csv",  # from `python -m downstream.build_names`
 ]
 
 # Checked by hand against a map; a leading None is "a stream" (BRIEF R6). Munich's first reach
@@ -85,7 +85,7 @@ def test_example_paths():
         capture_output=True,
     )
     for slug, (chain, sea) in EXPECTED.items():
-        r = json.loads((DATA / "paths" / f"{slug}.json").read_text())
+        r = json.loads((DATA / "paths" / "eu" / f"{slug}.json").read_text())
         # Compared like the pipeline compares names (case and accents ignored): which spelling of
         # a river covers more km changes with OSM edits ("Río Guadaíra" here, "Río Guadaira" on
         # GitHub's fresh OSM download, build 18, 2026-09-30); the step structure is what's locked.
@@ -100,7 +100,7 @@ def test_name_table_is_written_with_notice():
     # Written by `python -m downstream.build_names` (network-wide since 2026-09-29).
     import csv
 
-    table = DATA / "names" / "name_table" / "name_table.csv"
+    table = DATA / "names" / "eu" / "name_table" / "name_table.csv"
     with open(table, encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     names = {r["name"] for r in rows}
@@ -116,7 +116,7 @@ def test_name_table_is_written_with_notice():
     assert "Open Database License" in notice and "openstreetmap.org/copyright" in notice
 
 
-TOWNS = DATA / "towns"
+TOWNS = DATA / "towns" / "eu"
 
 
 @pytest.mark.skipif(not TOWNS.exists(), reason="run `python -m downstream.paths --all` first")

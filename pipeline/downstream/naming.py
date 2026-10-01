@@ -14,7 +14,9 @@ import numpy as np
 import shapely
 from shapely import STRtree
 
-METRIC_CRS = "EPSG:3035"  # ETRS89 / LAEA Europe, metres
+from downstream import regions
+
+METRIC_CRS = regions.current().metric_crs  # equal-area, metres (EPSG:3035 in Europe)
 CURATED = Path(__file__).with_name("curated_names.csv")
 
 

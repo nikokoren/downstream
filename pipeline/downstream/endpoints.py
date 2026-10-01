@@ -3,6 +3,7 @@
 import geopandas as gpd
 import shapely
 
+from downstream import regions
 from downstream.naming import METRIC_CRS
 
 SEA_CLASSES = {
@@ -44,14 +45,14 @@ def classify(
     return {"type": "sink", "name": None, "featurecla": None, "distance_km": None}
 
 
-# Clip before projecting: whole-ocean polygons distort in a Europe projection and then
-# appear to cover Europe (found 2026-09-28: every path "ended" in the South Pacific).
-EUROPE_WINDOW = (-35.0, 25.0, 60.0, 75.0)
+# Clip before projecting: whole-ocean polygons distort in a regional projection and then
+# appear to cover the region (found 2026-09-28: every path "ended" in the South Pacific).
+NE_WINDOW = regions.current().ne_window
 
 
 def load_ne(path_zip, classes=None) -> gpd.GeoDataFrame:
     g = gpd.read_file(f"zip://{path_zip}")
-    g = g.clip(shapely.box(*EUROPE_WINDOW))
+    g = g.clip(shapely.box(*NE_WINDOW))
     g.columns = [c.lower() if c != "geometry" else c for c in g.columns]
     if classes:
         g = g[g["featurecla"].str.lower().isin(classes)]
