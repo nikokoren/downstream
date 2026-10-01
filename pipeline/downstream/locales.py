@@ -16,16 +16,22 @@ UI = {
         "credits": "HydroATLAS · HydroLAKES · GeoNames",  # settings about text (D20); map: OSM
         "about": "about {range}",  # travel time estimate (R10): the word marks it as an estimate
         "place": "{town}, {country}",  # the town line (author 2026-09-30: "Vihti" alone is unclear)
+        # The box reads as one sentence (author 2026-10-01): "A raindrop falling on / Munich,
+        # Germany / travels along a stream → Isar → Danube → / ends in the Black Sea".
+        "intro": "A raindrop falling on",
+        "along": "travels along",
     },
     "de": {
         "ends_in": "Endet in",
         "sink": "Versickert im Boden",
-        "a_stream": "ein Bach",
+        "a_stream": "einen Bach",  # accusative: it follows "fließt durch"
         "more": "+{n} weitere",
         "distance": "Strecke",
         "credits": "HydroATLAS · HydroLAKES · GeoNames",
         "about": "etwa {range}",
         "place": "{town}, {country}",
+        "intro": "Ein Regentropfen in",
+        "along": "fließt durch",
     },
 }
 
@@ -118,17 +124,22 @@ END_FALLBACK = {"en": "Ends in: {name}", "de": "Endet in: {name}"}
 
 
 def end_text(end: dict) -> dict[str, str]:
-    """The endpoint line in both languages; sinks get ui.sink."""
+    """The endpoint line in both languages; sinks get ui.sink. It ends the box's sentence, so it
+    starts in lower case: "ends in the Black Sea", "versickert im Boden" (author 2026-10-01)."""
     if end["type"] == "sink":
-        return {lang: UI[lang]["sink"] for lang in UI}
-    disp = end.get("display") or {}
-    key = disp.get("en") or end["name"]
-    if key in END_PHRASES:
-        en, de = END_PHRASES[key]
-        return {"en": en, "de": de}
-    return {
-        lang: END_FALLBACK[lang].replace("{name}", disp.get(lang) or end["name"]) for lang in UI
-    }
+        out = {lang: UI[lang]["sink"] for lang in UI}
+    else:
+        disp = end.get("display") or {}
+        key = disp.get("en") or end["name"]
+        if key in END_PHRASES:
+            en, de = END_PHRASES[key]
+            out = {"en": en, "de": de}
+        else:
+            out = {
+                lang: END_FALLBACK[lang].replace("{name}", disp.get(lang) or end["name"])
+                for lang in UI
+            }
+    return {lang: t[:1].lower() + t[1:] for lang, t in out.items()}
 
 
 # Country names by GeoNames country code, for the town line ("Vihti, Finland"; author

@@ -37,6 +37,14 @@ The brief's list (R9, R18, R19) predates D8 (towns instead of the user's locatio
 
 ## Slots
 
+**One sentence (author 2026-10-01)**, so someone who didn't install the recipe knows at once what
+the screen shows: "A raindrop falling on / Munich, Germany / travels along a stream → Isar → Danube →
+/ ends in the Black Sea / 2,588 km · about 3–8 weeks"; German "Ein Regentropfen in / München,
+Deutschland / fließt durch einen Bach → Isar → Donau → / endet im Schwarzen Meer". New words
+`ui.intro` and `ui.along` (the intro in the path's size); the endpoint line starts in lower case;
+German "einen Bach" (accusative after "durch"). Names carry no article ("travels along Seine"):
+the data has none. The quadrant keeps "town, country → endpoint".
+
 Text order (D20, author's comment 2026-09-30): town (largest), path, "Ends in <endpoint>" (a little smaller than the town), distance; no credits on screen. Budgets are proposals; "clamp" means the framework's
 `clamp` truncation.
 

@@ -80,12 +80,12 @@ def test_recipe_settings_carry_the_polling_url():
 
 
 def test_every_endpoint_line_both_languages():
-    from downstream.locales import END_FALLBACK, end_text
+    from downstream.locales import end_text
 
-    assert end_text({"type": "sink", "name": ""})["de"] == "Versickert im Boden"
-    assert end_text({"type": "sea", "name": "Black Sea"})["de"] == "Endet im Schwarzen Meer"
+    assert end_text({"type": "sink", "name": ""})["de"] == "versickert im Boden"
+    assert end_text({"type": "sea", "name": "Black Sea"})["de"] == "endet im Schwarzen Meer"
     lake = end_text({"type": "lake", "name": "Paralimni Lake"})
-    assert lake["en"] == END_FALLBACK["en"].replace("{name}", "Paralimni Lake")
+    assert lake["en"] == "ends in: Paralimni Lake"
 
 
 @pytest.mark.skipif(
