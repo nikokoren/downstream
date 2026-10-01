@@ -87,6 +87,35 @@ def polling_url(folders: list[str] | None = None) -> str:
     )
 
 
+def _display(town: dict) -> dict:
+    """A town file plus the words and pre-formatted numbers the templates show (R13): the language
+    setting picks ui.en or ui.de, the units setting (metric by default) distance.<lang>.<units>."""
+    result = dict(town)
+    result["distance"] = distance_text(result["total_km"])
+    result["travel"] = travel_text(result["travel_days"])
+    result["end_text"] = end_text(result["end"])
+    result["place"] = place_text(result["town"], result["town"]["cc"])
+    result["ui"] = UI
+    return result
+
+
+# Fixed towns for previews (the marketplace screenshot follows Munich, acceptance test #1; author
+# 2026-10-01): site preview/<name>.json, and a committed copy in recipe/preview/ to load by hand.
+PREVIEWS = {"munich": ("eu", "2867714")}
+
+
+def write_previews() -> list[Path]:
+    written = []
+    for name, (code, gid) in PREVIEWS.items():
+        town = regions.out_dir("towns", regions.REGIONS[code]) / f"{gid}.json"
+        text = json.dumps(_display(json.loads(town.read_text())), ensure_ascii=False, indent=1)
+        for d in (SITE / "preview", RECIPE / "preview"):
+            d.mkdir(parents=True, exist_ok=True)
+            (d / f"{name}.json").write_text(text + "\n", encoding="utf-8")
+            written.append(d / f"{name}.json")
+    return written
+
+
 def _write_folder(name: str, order: list[Path], cache: dict) -> None:
     out = SITE / name
     (out / "t").mkdir(parents=True)
@@ -95,15 +124,8 @@ def _write_folder(name: str, order: list[Path], cache: dict) -> None:
     rows = ["n,geonameid,town"]
     for n in range(SLOTS[name]):
         f = order[n % len(order)]
-        result = dict(cache.setdefault(f, json.loads(f.read_text())))
+        result = _display(cache.setdefault(f, json.loads(f.read_text())))
         result["slot"] = n
-        # Words and pre-formatted numbers for the templates (R13): the language setting picks
-        # ui.en or ui.de, the units setting (metric by default) picks distance.<lang>.metric/imperial.
-        result["distance"] = distance_text(result["total_km"])
-        result["travel"] = travel_text(result["travel_days"])
-        result["end_text"] = end_text(result["end"])
-        result["place"] = place_text(result["town"], result["town"]["cc"])
-        result["ui"] = UI
         (out / "t" / f"{n}.json").write_text(
             json.dumps(result, ensure_ascii=False, separators=(",", ":"))
         )
@@ -134,6 +156,7 @@ def build() -> dict[str, int]:
     cache: dict[Path, dict] = {}
     for name, order in lists.items():
         _write_folder(name, order, cache)
+    write_previews()
     (SITE / "NOTICE.md").write_text(NOTICE, encoding="utf-8")
     (SITE / "index.html").write_text(
         "<!doctype html><meta charset=utf-8><title>Downstream</title>"

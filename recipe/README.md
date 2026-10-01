@@ -11,6 +11,12 @@ TRMNL markup, BRIEF §8: full, half_horizontal, half_vertical, quadrant (Framewo
   change with GeoNames); tests fail if it or
   `src/settings.yml` is out of date. One line.
 - `tools/render-check.mjs`: the render sweep (DESIGN_PHILOSOPHY §7).
+- `preview/munich.json`: a fixed town for the marketplace preview (Munich → Isar → Danube → Black
+  Sea, acceptance test #1), the same data and words as a rotation file. Written by
+  `downstream.site` here and to the site as
+  `https://nikokoren.github.io/downstream/preview/munich.json` (always the latest build; the
+  committed copy is a snapshot). Load it in TRMNL's preview by hand, or point a test plugin's
+  Polling URL at the site copy.
 
 ## Render check
 

@@ -1,0 +1,108 @@
+{
+ "town": {
+  "geonameid": "2867714",
+  "en": "Munich",
+  "de": "München",
+  "lon": 11.57549,
+  "lat": 48.13743,
+  "population": 1505005,
+  "cc": "DE"
+ },
+ "start": {
+  "reach": 20421918,
+  "how": "sub-basin 2120475400"
+ },
+ "reaches": 623,
+ "total_km": 2587.6,
+ "travel_days": 36.2,
+ "lake_days": 9.7,
+ "chain": [
+  {
+   "kind": "river",
+   "name": null,
+   "source": null,
+   "km": 4.8,
+   "reaches": 1
+  },
+  {
+   "kind": "river",
+   "name": {
+    "local": "Isar"
+   },
+   "source": "osm",
+   "km": 152.3,
+   "reaches": 55
+  },
+  {
+   "kind": "river",
+   "name": {
+    "en": "Danube",
+    "de": "Donau"
+   },
+   "source": "osm",
+   "km": 2442.8,
+   "reaches": 567
+  }
+ ],
+ "end": {
+  "type": "sea",
+  "name": "Black Sea",
+  "featurecla": "sea",
+  "distance_km": 0.0,
+  "display": {
+   "en": "Black Sea",
+   "de": "Schwarzes Meer"
+  }
+ },
+ "polyline": "kzxdHqtoeA_cReeVsp_@ygOmcGyxb@qkJegB}ld@mkcDc~Tw~a@zaPmcG`dTg}j@lcGq~dAltZsmq@`s@i`Y|{PowH~Xu{s@r|]qddAu_Laug@pkJeii@owHaug@{rc@_ge@vyLkguAegBez|@dii@}wx@daCw{s@qqIob]jiFsv^j`Yc~Trgr@gpeBegBqyeDseKerVpqI}ld@owHglWnqIseK~wx@reK~iSdxU~`f@vmNj`Y}uQ~zf@l}GfrV{aPz{Pnh\\jzYseKzgOjiF~zf@kcGrv^jen@pddAwou@~oRvsMpkJcoh@bmA|uQzgOg{ChoEreKln[et}@cgBsmq@jcGowHoqIyiv@xgO}uQbmAoyo@flWk`YzaPvyLzaP{gOdaCosp@zgO?~iSmtZsv^}jsBnwHo}Gbs@uj`@~oRowHfuDq~dAltZ_vQdaC{aP}fe@ktZm}Gs|]nh\\yiv@l}GlcGioEffXvsMn}GbgBxgOnn[}uQjcGk`YreK`YjzYsxeAreKjiFfaCdxU~oRnwHnqIkoEjiFsp_@oqI_ilAtj`@kzoCymNqddAvsM}fe@kcGyou@`dTy`iAg{Cwda@u_Lecj@qmq@gn~@u_Lg}j@c~TcdjCf{Ca}mAwsMmn[seKsxeAyxb@qb]glW~uQuyLcs@u_LjzY}uQreKih_AktZ_pR`s@aug@glWf{CadTmcGwsMjzY{aP|uQwlgAeaCuyLiuDjiFseKkiFpqIqb]ymNowHygOgyrApkJwj`@jzY_pR",
+ "distance": {
+  "en": {
+   "metric": "2,588 km",
+   "imperial": "1,608 mi"
+  },
+  "de": {
+   "metric": "2.588 km",
+   "imperial": "1.608 mi"
+  }
+ },
+ "travel": {
+  "en": "about 3–8 weeks",
+  "de": "etwa 3–8 Wochen"
+ },
+ "end_text": {
+  "en": "ends in the Black Sea",
+  "de": "endet im Schwarzen Meer"
+ },
+ "place": {
+  "en": "Munich, Germany",
+  "de": "München, Deutschland"
+ },
+ "ui": {
+  "en": {
+   "ends_in": "Ends in",
+   "sink": "Disappears underground",
+   "a_stream": "a stream",
+   "more": "+{n} more",
+   "distance": "Distance",
+   "credits": "HydroATLAS · HydroLAKES · GeoNames",
+   "about": "about {range}",
+   "place": "{town}, {country}",
+   "intro": "A raindrop falling on",
+   "along": "travels along",
+   "and": "and"
+  },
+  "de": {
+   "ends_in": "Endet in",
+   "sink": "Versickert im Boden",
+   "a_stream": "einen Bach",
+   "more": "+{n} weitere",
+   "distance": "Strecke",
+   "credits": "HydroATLAS · HydroLAKES · GeoNames",
+   "about": "etwa {range}",
+   "place": "{town}, {country}",
+   "intro": "Ein Regentropfen in",
+   "along": "fließt durch",
+   "and": "und"
+  }
+ }
+}
