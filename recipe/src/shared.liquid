@@ -12,7 +12,7 @@
    never "+1 more", which takes as much room as the one name it hides. If that is still longer than
    chain_chars characters (shortened or not, from 4 steps), only the first and last step around
    "+N more" (Hibbing's Canadian names and Denver's five rivers overflowed two lines, 2026-10-01). The box puts ui.along before it
-   and ui.and before the endpoint line: one sentence, no arrow at the end (author, 2026-10-01). {% endcomment %}
+   and ui.and after it, before the endpoint line (author 2026-10-02: "… → Danube and / ends in the Black Sea"): one sentence, no arrow at the end (author, 2026-10-01). {% endcomment %}
 {% template ds_chain %}
 {%- assign ui_l = ui[lang] -%}
 {%- assign n = chain.size -%}
@@ -56,8 +56,8 @@
   {%- comment -%} One sentence (author 2026-10-01): "A raindrop falling on / Munich, Germany / travels along … → / ends in the Black Sea". {%- endcomment %}
   <span class="w--full description {{ chain_size }}" data-clamp="1">{{ ui[lang].intro }}</span>
   <span class="w--full title {{ ts }}" data-clamp="2" data-downstream-place="{{ place[lang].size }}">{{ place[lang] }}</span>
-  <span class="w--full description {{ chain_size }}" data-clamp="{{ chain_lines }}">{{ ui[lang].along }} {% render "ds_chain", chain: chain, ui: ui, lang: lang, max_steps: max_steps, chain_chars: chain_chars %}</span>
-  <span class="w--full title {{ end_size }}" data-clamp="2">{%- if ui[lang].and -%}{{ ui[lang].and }} {% endif -%}{{ end_text[lang] }}</span>
+  <span class="w--full description {{ chain_size }}" data-clamp="{{ chain_lines }}">{{ ui[lang].along }} {% render "ds_chain", chain: chain, ui: ui, lang: lang, max_steps: max_steps, chain_chars: chain_chars %}{% if ui[lang].and %} {{ ui[lang].and }}{% endif %}</span>
+  <span class="w--full title {{ end_size }}" data-clamp="2">{{ end_text[lang] }}</span>
   <span class="w--full label {{ dist_size }}" data-clamp="1">{{ distance[lang][units] }} · {{ travel[lang] }}</span>
 </div>
 {% endtemplate %}
