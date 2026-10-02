@@ -135,6 +135,12 @@ END_PHRASES = {
     "Bering Sea": ("Ends in the Bering Sea", "Endet im Beringmeer"),
     "Cook Inlet": ("Ends in Cook Inlet", "Endet im Cook Inlet"),
     "Sevier Lake": ("Ends in Sevier Lake", "Endet im Sevier Lake"),
+    # Canada (D23, 2026-10-02).
+    "Bay of Fundy": ("Ends in the Bay of Fundy", "Endet in der Bay of Fundy"),
+    "Beaufort Sea": ("Ends in the Beaufort Sea", "Endet in der Beaufortsee"),
+    "James Bay": ("Ends in James Bay", "Endet in der James Bay"),
+    "Labrador Sea": ("Ends in the Labrador Sea", "Endet in der Labradorsee"),
+    "Hecate Strait": ("Ends in the Hecate Strait", "Endet in der Hecate-Straße"),
 }
 # Endpoints without a curated phrase (Paralimni Lake, 2 towns): label form, no grammar needed.
 END_FALLBACK = {"en": "Ends in: {name}", "de": "Endet in: {name}"}
@@ -211,6 +217,7 @@ COUNTRIES = {
     "TR": ("Türkiye", "Türkei"),
     "UA": ("Ukraine", "Ukraine"),
     "US": ("USA", "USA"),  # D22; author 2026-10-01: "USA", in German too
+    "CA": ("Canada", "Kanada"),  # D23; "Kanada" is the German Wikipedia title
     "VA": ("Vatican City", "Vatikanstadt"),
     "XK": ("Kosovo", "Kosovo"),
 }

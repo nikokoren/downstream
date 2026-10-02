@@ -27,6 +27,9 @@ class Region:
     # Fold a short river stub at a lake's outlet into the lake (naming._drop_outlet_stubs). Off in
     # Europe so its chains stay as built (it would change 1 of 6,918 towns, Katrineholm).
     outlet_stubs: bool = False
+    # Ignore OSM waterway=flowline (helper lines drawn through lakes, Yellowknife's "Snare-Marian
+    # flowline", 2026-10-02). Off in Europe so its chains stay as built (1,760 such ways there).
+    skip_flowlines: bool = False
 
 
 EUROPE = Region(
@@ -55,9 +58,28 @@ UNITED_STATES = Region(
     osm_regions="osm_regions_us.txt",
     ne_big_lake_km2=1000.0,
     outlet_stubs=True,
+    skip_flowlines=True,
 )
 
-REGIONS = {r.code: r for r in (EUROPE, UNITED_STATES)}
+# Canada (D23, author 2026-10-02: next by TRMNL sales). Same RiverATLAS files as the US; its own
+# folder and settings so US results stay as built. The windows reach the Arctic Ocean and still
+# hold the Gulf of Mexico (the Milk River drains via the Missouri) and the Bering Sea (the Yukon).
+CANADA = Region(
+    code="ca",
+    riveratlas=("na", "ar"),
+    bbox=(-170.0, 25.0, -50.0, 84.0),
+    # Lambert azimuthal equal-area centred on Canada (lat 60 N, lon 96 W), WGS84.
+    metric_crs="+proj=laea +lat_0=60 +lon_0=-96 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+    ne_window=(-180.0, 15.0, -40.0, 86.0),
+    sea_window=(-180.0, 15.0, -45.0, 85.0),
+    ne_extra=("rivers_north_america", "lakes_north_america"),
+    osm_regions="osm_regions_ca.txt",
+    ne_big_lake_km2=1000.0,
+    outlet_stubs=True,
+    skip_flowlines=True,
+)
+
+REGIONS = {r.code: r for r in (EUROPE, UNITED_STATES, CANADA)}
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 

@@ -31,7 +31,7 @@ function renderLiquid(view, ctx) {
 
 // Towns by English name from the rotation lists, Europe first, then the United States (D22);
 // "(error)" = no payload (R18).
-const rotations = ["eu", "us"].filter((f) => fs.existsSync(path.join(SITE, f, "rotation.csv"))).map((f) => ({
+const rotations = ["eu", "us", "ca"].filter((f) => fs.existsSync(path.join(SITE, f, "rotation.csv"))).map((f) => ({
   folder: f,
   rows: fs.readFileSync(path.join(SITE, f, "rotation.csv"), "utf8").trim().split("\n").slice(1)
     .map((l) => { const [n, gid, ...t] = l.split(","); return { n: +n, gid, town: t.join(",").replace(/^"|"$/g, "") }; }),
@@ -93,9 +93,9 @@ const base = `http://127.0.0.1:${server.address().port}`;
 
 // --quick: after each change (author 2026-09-30); the full sweep only before shipping a version.
 // The hardest cases: the reference path, the longest path, the longest town line, the longest
-// 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (80 cases).
+// 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (96 cases).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montréal", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])

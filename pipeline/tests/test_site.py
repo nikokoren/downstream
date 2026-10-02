@@ -39,9 +39,9 @@ def test_polling_url_renders_to_the_current_slot():
 def test_committed_polling_url_matches_the_site():
     # One file per slot in every published folder (D22: eu, us, and mix), and the committed URL
     # uses the same folders and fixed slot counts.
-    from downstream.site import PUBLISHED
+    from downstream.site import folders
 
-    for folder in [*PUBLISHED, "mix"] if len(PUBLISHED) > 1 else PUBLISHED:
+    for folder in folders():
         assert len(list((SITE / folder / "t").glob("*.json"))) == SLOTS[folder], folder
     assert RECIPE_URL.read_text(encoding="utf-8") == polling_url()
 
@@ -110,19 +110,22 @@ def test_every_town_has_a_country_line():
     [
         (None, "mix"),  # setting never saved
         ("", "mix"),
-        ([], "mix"),  # nothing ticked (D22: a mix of both)
-        (["eu", "us"], "mix"),
-        ("eu,us", "mix"),
+        ([], "mix"),  # nothing ticked (D22: a mix of all)
+        (["eu", "us", "ca"], "mix"),
         (["eu"], "eu"),
         ("eu", "eu"),
         (["us"], "us"),
-        ("us", "us"),
+        (["ca"], "ca"),
+        (["eu", "us"], "eu-us"),
+        ("eu,us", "eu-us"),
+        (["ca", "eu"], "eu-ca"),
+        ("ca,us", "us-ca"),
     ],
 )
 def test_region_setting_picks_the_folder(region, folder):
-    """D22: the multi-select's value may arrive as a list or as comma-separated text (TRMNL
-    doesn't document which, 2026-10-01); both must pick the same folder."""
-    url = Environment().from_string(polling_url(["eu", "us"])).render(region=region).strip()
-    m = re.fullmatch(re.escape(BASE_URL) + r"/(\w+)/t/(\d+)\.json", url)
+    """D22/D23: the multi-select's value may arrive as a list or as comma-separated text (TRMNL
+    doesn't document which, 2026-10-01); both must pick the same folder, for every combination."""
+    url = Environment().from_string(polling_url()).render(region=region).strip()
+    m = re.fullmatch(re.escape(BASE_URL) + r"/([\w-]+)/t/(\d+)\.json", url)
     assert m and m.group(1) == folder, url
     assert int(m.group(2)) < SLOTS[folder]

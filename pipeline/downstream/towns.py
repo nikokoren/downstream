@@ -94,6 +94,9 @@ def region_towns(raw_dir: Path, region):
         return europe_towns(raw_dir)
     if region.code == "us":
         return us_towns(raw_dir)
+    if region.code == "ca":
+        cities = load_cities(raw_dir / "geonames_cities15000.zip")
+        return _frame({k: c for k, c in cities.items() if c["cc"] == "CA"}).reset_index(drop=True)
     raise ValueError(region.code)
 
 

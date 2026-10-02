@@ -60,6 +60,17 @@ EXAMPLES_BY_REGION = {"eu": [
     ("Pittsburgh", "US"),
     ("Seattle", "US"),
     ("Anchorage", "US"),
+], "ca": [
+    # D23 trial (2026-10-02): Winnipeg → Red River → Lake Winnipeg → Nelson → Hudson Bay;
+    # Yellowknife → Great Slave Lake → Mackenzie → Beaufort Sea (Arctic); Whitehorse → Yukon →
+    # Bering Sea (through Alaska); Calgary → Bow → Saskatchewan → Hudson Bay; Montreal → St.
+    # Lawrence; Vancouver → Fraser → Salish Sea.
+    ("Winnipeg", "CA"),
+    ("Yellowknife", "CA"),
+    ("Whitehorse", "CA"),
+    ("Calgary", "CA"),
+    ("Montréal", "CA"),
+    ("Vancouver", "CA"),
 ]}  # fmt: skip
 EXAMPLES = EXAMPLES_BY_REGION[REGION.code]
 

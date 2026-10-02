@@ -14,9 +14,9 @@ pre-formatted for each language and unit.
 
 ## Settings
 
-- **Region** (D22, author 2026-10-01): multi-select, Europe / United States; none ticked = a mix
-  of both. The Polling URL picks the folder (`eu/`, `us/`, `mix/`); the words on screen don't
-  change.
+- **Region** (D22, D23): multi-select, Europe / USA / Canada; none or all ticked = a mix of all.
+  The Polling URL picks the folder for the ticked set (`eu/`, `us/`, `ca/`, `eu-us/`, `eu-ca/`,
+  `us-ca/`, `mix/`); the words on screen don't change.
 - **Language**: English / Deutsch. Picks `ui.en`/`ui.de`, the curated `en`/`de` names, and the
   number separators ("1,806" / "1.806").
 - **Units** (author, 2026-09-30): Metric (km) / Imperial (mi), a separate setting, **default

@@ -3,7 +3,7 @@
 name: Downstream
 strategy: polling
 refresh_interval: 15
-polling_url: '{%- assign r = region | join: "," -%}{%- assign f = "mix" -%}{%- assign c = 12000 -%}{%- if r contains "eu" -%}{%- unless r contains "us" -%}{%- assign f = "eu" -%}{%- assign c = 7200 -%}{%- endunless -%}{%- endif -%}{%- if r contains "us" -%}{%- unless r contains "eu" -%}{%- assign f = "us" -%}{%- assign c = 4000 -%}{%- endunless -%}{%- endif -%}{%- assign slot = "now" | date: "%s" | divided_by: 900 -%}{%- assign n = slot | modulo: c -%}https://nikokoren.github.io/downstream/{{ f }}/t/{{ n }}.json'
+polling_url: '{%- assign r = region | join: "," -%}{%- assign k = "" -%}{%- if r contains "eu" -%}{%- assign k = k | append: "-eu" -%}{%- endif -%}{%- if r contains "us" -%}{%- assign k = k | append: "-us" -%}{%- endif -%}{%- if r contains "ca" -%}{%- assign k = k | append: "-ca" -%}{%- endif -%}{%- assign f = "mix" -%}{%- assign c = 12000 -%}{%- case k -%}{%- when "-eu" -%}{%- assign f = "eu" -%}{%- assign c = 7200 -%}{%- when "-us" -%}{%- assign f = "us" -%}{%- assign c = 4000 -%}{%- when "-ca" -%}{%- assign f = "ca" -%}{%- assign c = 600 -%}{%- when "-eu-us" -%}{%- assign f = "eu-us" -%}{%- assign c = 12000 -%}{%- when "-eu-ca" -%}{%- assign f = "eu-ca" -%}{%- assign c = 8000 -%}{%- when "-us-ca" -%}{%- assign f = "us-ca" -%}{%- assign c = 4600 -%}{%- endcase -%}{%- assign slot = "now" | date: "%s" | divided_by: 900 -%}{%- assign n = slot | modulo: c -%}https://nikokoren.github.io/downstream/{{ f }}/t/{{ n }}.json'
 polling_headers: ''
 polling_verb: GET
 no_screen_padding: 'no'
@@ -29,11 +29,12 @@ custom_fields:
   name: Region
   field_type: select
   multiple: true
-  description: Where the towns come from. Tick one or both; with none ticked you get a mix of
-    both. Use ⌘+click or Ctrl+click to select and deselect.
+  description: Where the towns come from. Tick one or more; with none ticked you get a mix of
+    all. Use ⌘+click or Ctrl+click to select and deselect.
   options:
   - Europe: eu
   - USA: us
+  - Canada: ca
 - keyname: language
   name: Language
   field_type: select

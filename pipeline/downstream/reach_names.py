@@ -195,6 +195,8 @@ def name_tile(
     bbox = (minx - pad, miny - pad, maxx + pad, maxy + pad)
     geoms = reaches.to_crs(METRIC_CRS).geometry.values
     ways = _clean_names(_read_bbox(osm_ways, bbox)).to_crs(METRIC_CRS)
+    if regions.current().skip_flowlines:
+        ways = ways[ways["waterway"] != "flowline"]
     upland = reaches["UPLAND_SKM"].to_numpy(dtype=float) if "UPLAND_SKM" in reaches else None
     names, is_canal, covered = vote_osm(geoms, ways, upland)
     label = np.full(len(geoms), None, dtype=object)

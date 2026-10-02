@@ -1,0 +1,23 @@
+# OSM regions for Canada (D23), from OpenStreetMap France (source osmfr), like the US (D22): all
+# 13 provinces and territories, plus the US regions Canadian water flows through (Milk River via
+# the Missouri and Mississippi to the Gulf of Mexico, Columbia and Kootenay to the Pacific,
+# Souris through North Dakota, Saint John along Maine) and Alaska (Yukon River to the Bering Sea;
+# Geofabrik, missing until its downloads work).
+north-america/canada/alberta
+north-america/canada/british_columbia
+north-america/canada/manitoba
+north-america/canada/new_brunswick
+north-america/canada/newfoundland_and_labrador
+north-america/canada/northwest_territories
+north-america/canada/nova_scotia
+north-america/canada/nunavut
+north-america/canada/ontario
+north-america/canada/prince_edward_island
+north-america/canada/quebec
+north-america/canada/saskatchewan
+north-america/canada/yukon
+north-america/us-west
+north-america/us-midwest
+north-america/us-northeast
+north-america/us-south
+north-america/us/alaska

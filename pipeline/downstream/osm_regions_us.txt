@@ -16,6 +16,6 @@ north-america/canada/ontario
 north-america/canada/quebec
 north-america/canada/saskatchewan
 north-america/mexico
-# Alaska: OpenStreetMap France has no extract. Geofabrik's (source geofabrik) once its downloads
-# work again; until then Alaska's towns get Natural Earth names (the build skips missing releases).
+# Alaska: OpenStreetMap France has no extract; Geofabrik's (source geofabrik, run 15, 2026-10-02,
+# after Geofabrik's downloads worked again).
 north-america/us/alaska
