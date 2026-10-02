@@ -101,7 +101,12 @@
         if (coords.length === 1) coords = [coords[0], coords[0]];
         var box = el.querySelector("[data-downstream-box]");
         TRMNLMaps.watch(el.id, function () {
-          var map = new maplibregl.Map(TRMNLMaps.options({ el: el.id, preset: "outline" }));
+          var opts = TRMNLMaps.options({ el: el.id, preset: "outline" });
+          // World copies on, so a path near the 180th meridian (the Yukon to the Bering Sea) can
+          // be framed beside the box; with them off MapLibre stops scrolling at the world's edge.
+          // A map option, not the preset's style. Off-screen copies are never drawn elsewhere.
+          opts.renderWorldCopies = true;
+          var map = new maplibregl.Map(opts);
           el.__downstreamMap = map; // for the render check (recipe/tools/render-check.mjs)
           // Draw the path as soon as the style is ready, not on "load" (which waits for every
           // tile): the screenshot is taken when maps settle, and the path must be in it.
@@ -115,14 +120,36 @@
           // The whole path in view, clear of the text box (D19): frame it beside the box or above
           // it, whichever leaves the larger part of the map.
           var g = TRMNLPaint.px(16, { el: el.id });
-          var pad = { top: g, right: g, bottom: g, left: g };
+          var pads = [{ top: g, right: g, bottom: g, left: g }];
           if (box) {
             var w = el.clientWidth, h = el.clientHeight;
             var right = box.offsetLeft + box.offsetWidth, top = box.offsetTop;
-            if ((w - right) * h >= w * top) pad.left = right + g;
-            else pad.bottom = h - top + g;
+            var beside = { top: g, right: g, bottom: g, left: right + g };
+            var above = { top: g, right: g, bottom: h - top + g, left: g };
+            pads = (w - right) * h >= w * top ? [beside, above] : [above, beside];
           }
-          TRMNLMaps.fit(map, coords, { padding: pad, maxZoom: 12 });
+          // Near the 180th meridian the map can't scroll far enough at low zoom to put the path
+          // in the padded part (Yellowknife, Whitehorse, 2026-10-02): then try the other side and
+          // keep the framing that leaves the fewest path points under the box.
+          function underBox() {
+            if (!box) return 0;
+            var l = box.offsetLeft, t = box.offsetTop, r = l + box.offsetWidth, b = t + box.offsetHeight, n = 0;
+            coords.forEach(function (c) {
+              var p = map.project(c);
+              if (p.x >= l && p.x <= r && p.y >= t && p.y <= b) n++;
+            });
+            return n;
+          }
+          var best = null;
+          for (var k = 0; k < pads.length; k++) {
+            TRMNLMaps.fit(map, coords, { padding: pads[k], maxZoom: 12 });
+            var n = underBox();
+            if (best === null || n < best.n) best = { n: n, pad: pads[k] };
+            if (n === 0) break;
+          }
+          if (best.n > 0 || best.pad !== pads[pads.length - 1]) {
+            TRMNLMaps.fit(map, coords, { padding: best.pad, maxZoom: 12 });
+          }
           return map;
         });
       });

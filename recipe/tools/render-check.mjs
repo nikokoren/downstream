@@ -95,7 +95,7 @@ const base = `http://127.0.0.1:${server.address().port}`;
 // The hardest cases: the reference path, the longest path, the longest town line, the longest
 // 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (96 cases).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montréal", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montreal", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])
