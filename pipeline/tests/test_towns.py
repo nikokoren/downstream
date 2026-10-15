@@ -23,18 +23,19 @@ def kept():
 @pytest.mark.skipif(not CITIES.exists(), reason="run `python -m downstream.fetch geonames` first")
 def test_cities_stay_and_districts_and_suburbs_go(kept):
     us, ca = kept["us"], kept["ca"]
-    assert {"Chicago", "Denver", "Aurora", "New York City"} <= us  # Aurora: over 250,000
-    assert not {"Albany Park", "North Lawndale", "Oak Lawn", "Brooklyn", "Arvada"} & us
+    assert {"Chicago", "Denver", "Aurora", "New York City", "Arvada"} <= us  # Arvada: 11 km out
+    assert not {"Albany Park", "North Lawndale", "Brooklyn"} & us
     assert {"Toronto", "Mississauga", "Montréal", "Laval"} <= ca
-    assert not {"Willowdale", "Moss Park", "Etobicoke", "Dollard-des-Ormeaux"} & ca
+    assert not {"Willowdale", "Moss Park", "Etobicoke", "Westmount"} & ca
 
 
 @pytest.mark.skipif(
     not (RAW / "ne_admin0.zip").exists(), reason="run `python -m downstream.fetch` first"
 )
-def test_munich_keeps_its_city_and_loses_its_suburbs():
+def test_munich_keeps_its_neighbour_towns_and_loses_what_touches_it():
+    # Author 2026-10-15: Dachau (17 km), Garching (14 km) and Starnberg (23 km) stay.
     from downstream import regions, towns
 
     eu = set(towns.region_towns(RAW, regions.EUROPE)["name"])
-    assert {"Munich", "Fürstenfeldbruck", "Wolfratshausen", "Tolmin"} <= eu  # Tolmin: extra town
-    assert not {"Dachau", "Pasing", "Bogenhausen", "Garching"} & eu
+    assert {"Munich", "Dachau", "Garching", "Starnberg", "Tolmin"} <= eu  # Tolmin: extra town
+    assert not {"Pasing", "Bogenhausen", "Unterhaching", "Ottobrunn bei München"} & eu

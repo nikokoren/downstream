@@ -106,7 +106,7 @@ def region_towns(raw_dir: Path, region):
 # (feature code PPLX: Pasing in Munich, Albany Park in Chicago) and dense rings of suburbs as
 # towns of their own; the rotation shows the city instead.
 CITY_POP = 100_000  # a city: a no-go zone around it for smaller towns
-ZONE_KM_AT_CITY_POP = 6.0  # zone radius 6 km × √(population / 100,000): Munich 1.26 M → 21 km
+ZONE_KM_AT_CITY_POP = 3.0  # zone radius 3 km × √(population / 100,000): Munich 1.26 M → 10.6 km
 ZONE_MAX_KM = 30.0
 KEEP_POP = 250_000  # never dropped for a zone: Aurora by Denver, Mississauga by Toronto
 # Boroughs over KEEP_POP that GeoNames doesn't mark PPLX (found 2026-10-15 by listing places over

@@ -54,14 +54,14 @@ Surprises the recipe turns up:
 - Nothing is live and nothing is tracked. For each town, the path is worked out in advance from
   a global river network. The water flows from the town's nearest stream, downhill through every
   river it joins, until it reaches the sea (or a lake, or the ground).
-- **6,841 towns** in Europe, the United States and Canada (towns with more than about 15,000 people,
+- **8,347 towns** in Europe, the United States and Canada (towns with more than about 15,000 people,
   from GeoNames, plus a handful chosen by hand). Big cities count once: their districts and the
-  suburbs right next to them are left out, so the mix leans less on sprawl. A new town every 15
-  minutes, in a fixed shuffled order that jumps around the map: the full tour takes about 6 weeks
-  for Europe, 3½ weeks for the US, 10 weeks for all three. Every Downstream screen with the same region setting shows the same town
+  towns that touch them are left out, so the mix leans less on sprawl. A new town every 15
+  minutes, in a fixed shuffled order that jumps around the map: the full tour takes about 8 weeks
+  for Europe, 4 weeks for the US, 12 weeks for all three. Every Downstream screen with the same region setting shows the same town
   at the same time.
-- **About 6,200 differently named rivers, streams and lakes** appear in the paths; 47 different
-  endpoints. The median path is 248 km; the longest passes 20 named waters (Hibbing, Minnesota,
+- **About 6,800 differently named rivers, streams and lakes** appear in the paths; 47 different
+  endpoints. The median path is 229 km; the longest passes 20 named waters (Hibbing, Minnesota,
   through all five Great Lakes).
 - **Travel time is a rough estimate** and always shown as a range starting with "about": water
   runs faster in big rivers than in small streams (speed estimated from each stretch's average
@@ -72,8 +72,8 @@ Surprises the recipe turns up:
 
 ## Settings
 
-- **Region**: Europe, the USA, Canada, or any mix (the default is all three): about 4,300
-  European, 2,300 US and 200 Canadian towns.
+- **Region**: Europe, the USA, Canada, or any mix (the default is all three): about 5,300
+  European, 2,800 US and 250 Canadian towns.
 - **Language**: English or Deutsch. Everything on screen, including river and sea names where a
   German name exists ("Donau", "Schwarzes Meer", "Endet im Schwarzen Meer").
 - **Units**: Metric (km, the default) or Imperial (miles), independent of the language.

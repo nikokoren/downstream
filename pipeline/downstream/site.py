@@ -32,16 +32,17 @@ BASE_URL = "https://nikokoren.github.io/downstream"
 # One folder per region (<code>/t/<n>.json), so more regions sit beside Europe without moving the
 # URL existing installs use (author, 2026-09-29), one per combination of ticked regions
 # ("eu-us", D23), and "mix" for all of them or none (D22: nothing ticked = a mix). Slot counts are
-# fixed, ≥ the town count; the build fails if one is outgrown. Europe's 7,200 is what the Polling
-# URL has used since 2026-09-29.
+# fixed, ≥ the town count, about 2 % over it (GeoNames changes daily); the build fails if one is
+# outgrown. Resized 2026-10-15 for D24 (author: a new Polling URL is fine); file n holds town n mod
+# count, so the slots over the count show a town a second time.
 SLOTS = {
-    "eu": 7200,
-    "us": 4000,
-    "ca": 600,
-    "eu-us": 12000,
-    "eu-ca": 8000,
-    "us-ca": 4600,
-    "mix": 12000,
+    "eu": 5400,
+    "us": 2900,
+    "ca": 260,
+    "eu-us": 8250,
+    "eu-ca": 5650,
+    "us-ca": 3150,
+    "mix": 8500,
 }
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
 SEED = 20260929  # fixed, so the order only changes when the set of towns changes
