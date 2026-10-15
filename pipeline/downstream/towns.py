@@ -89,15 +89,60 @@ def pick_name(town: dict, alts: dict[str, list], lang: str) -> str:
 
 
 def region_towns(raw_dir: Path, region):
-    """The region's towns (D9, D22) as a GeoDataFrame (EPSG:4326)."""
+    """The region's towns (D9, D22) as a GeoDataFrame (EPSG:4326), thinned around cities (D24)."""
     if region.code == "eu":
-        return europe_towns(raw_dir)
-    if region.code == "us":
-        return us_towns(raw_dir)
-    if region.code == "ca":
+        found = europe_towns(raw_dir)
+    elif region.code == "us":
+        found = us_towns(raw_dir)
+    elif region.code == "ca":
         cities = load_cities(raw_dir / "geonames_cities15000.zip")
-        return _frame({k: c for k, c in cities.items() if c["cc"] == "CA"}).reset_index(drop=True)
-    raise ValueError(region.code)
+        found = _frame({k: c for k, c in cities.items() if c["cc"] == "CA"})
+    else:
+        raise ValueError(region.code)
+    return found[~near_city(found, set(extra_town_ids()))].reset_index(drop=True)
+
+
+# D24 (author 2026-10-15): a better mix of town and country. cities15000 lists city districts
+# (feature code PPLX: Pasing in Munich, Albany Park in Chicago) and dense rings of suburbs as
+# towns of their own; the rotation shows the city instead.
+CITY_POP = 100_000  # a city: a no-go zone around it for smaller towns
+ZONE_KM_AT_CITY_POP = 6.0  # zone radius 6 km × √(population / 100,000): Munich 1.26 M → 21 km
+ZONE_MAX_KM = 30.0
+KEEP_POP = 250_000  # never dropped for a zone: Aurora by Denver, Mississauga by Toronto
+# Boroughs over KEEP_POP that GeoNames doesn't mark PPLX (found 2026-10-15 by listing places over
+# 250,000 inside a bigger city's zone); the city itself stays.
+DISTRICTS = {
+    "5110266": "The Bronx",
+    "5110302": "Brooklyn",
+    "5125771": "Manhattan",
+    "5133273": "Queens",
+    "5139568": "Staten Island",
+    "2646003": "Islington",
+    "5950268": "Etobicoke",
+}
+
+
+def near_city(df, keep: set[str]):
+    """Boolean Series: towns to drop. City districts (PPLX and DISTRICTS), and towns under
+    KEEP_POP inside a bigger city's zone. Towns in `keep` (the author's extra towns) always stay."""
+    import numpy as np
+    import pandas as pd
+
+    pop = df["pop"].to_numpy()
+    lat = np.radians(df["lat"].to_numpy())
+    lon = np.radians(df["lon"].to_numpy())
+    district = ((df["fcode"] == "PPLX") | df["geonameid"].isin(DISTRICTS)).to_numpy()
+    drop = district.copy()
+    for i in np.flatnonzero((pop >= CITY_POP) & ~district):
+        radius = min(ZONE_MAX_KM, ZONE_KM_AT_CITY_POP * (pop[i] / CITY_POP) ** 0.5)
+        a = (
+            np.sin((lat - lat[i]) / 2) ** 2
+            + np.cos(lat) * np.cos(lat[i]) * np.sin((lon - lon[i]) / 2) ** 2
+        )
+        km = 12_742 * np.arcsin(np.sqrt(a))  # haversine, Earth's mean diameter
+        drop |= (km < radius) & (pop < pop[i]) & (pop < KEEP_POP)
+    drop &= ~df["geonameid"].isin(keep).to_numpy()
+    return pd.Series(drop, index=df.index)
 
 
 def _frame(cities: dict):

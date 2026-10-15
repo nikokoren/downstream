@@ -28,12 +28,12 @@ npm run check:full                                          # every case, only b
 ONLY=Munich VIEW=full DEVICE=x_land npm run check:full      # a subset (also JOBS=n, DEBUG=1)
 ```
 
-The quick check (author 2026-09-30: after each change) renders every view on OG 1-bit and X landscape for Munich, Iisalmi, Saint-Quentin-en-Yvelines and Cambridge, in both languages: 64 cases, 4½ minutes. The full check renders every view (inside a real mashup for the smaller ones) on OG 1-bit, OG 2-bit, X landscape and X portrait, for 10 towns picked for their edge cases (among them Vihti and the two longest town lines) plus the error screen, in English/imperial and German/metric. Liquid is rendered by `render.rb` with Ruby Liquid (`gem install liquid`; 5.14.0 checked), the engine TRMNL runs; liquidjs, used at first, accepted a tag TRMNL rejected. Maps use Chromium's software WebGL. A case fails when:
+The quick check (author 2026-09-30: after each change) renders every view on OG 1-bit and X landscape for Munich, Iisalmi, Letchworth Garden City, Cambridge, Hibbing and Calgary, in both languages: 96 cases. The full check renders every view (inside a real mashup for the smaller ones) on OG 1-bit, OG 2-bit, X landscape and X portrait, for 20 towns picked for their edge cases (among them Vihti, Hafnarfjordur's 0.3 km path and the two longest town lines) plus the error screen, in English/imperial and German/metric. Liquid is rendered by `render.rb` with Ruby Liquid (`gem install liquid`; 5.14.0 checked), the engine TRMNL runs; liquidjs, used at first, accepted a tag TRMNL rejected. Maps use Chromium's software WebGL. A case fails when:
 
 - a map is missing, not built or not fully drawn, or its path isn't painted (the screenshot has no ink at 10 % or more of the visible path points);
 - the path runs off the map or under the text box;
 - the box leaves the map or covers the map's OpenStreetMap credit;
-- text is cut (the Framework's clamp trimmed it, or it overflows). Exception: town lines over 45 characters (15 towns in German, 1 in English) may be shortened; they are counted, not failed.
+- text is cut (the Framework's clamp trimmed it, or it overflows). Exception: town lines over 45 characters (1 town in German, none in English, 2026-10-15) may be shortened; they are counted, not failed.
 - a case throws (Liquid error, timeout).
 
 Screenshots and `results.json` go to `tools/out/` (git-ignored). TRMNL's tiles, glyphs and styles are fetched once by Node and cached in `data/cache/trmnl-maps/`, since Chromium's own fetches through the sandbox proxy failed and left maps half drawn. Before checking, it calls `TRMNLMaps.refresh()` as TRMNL's screenshot service does.

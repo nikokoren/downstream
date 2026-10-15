@@ -95,7 +95,7 @@ const base = `http://127.0.0.1:${server.address().port}`;
 // The hardest cases: the reference path, the longest path, the longest town line, the longest
 // 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (96 cases).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Limhamn", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Woluwe-Saint-Lambert", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montreal", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Letchworth Garden City", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Hafnarfjordur", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Brandýs nad Labem-Stará Boleslav", "Letchworth Garden City", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montreal", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])
@@ -225,7 +225,7 @@ async function runCase(c) {
         const orig = t.getAttribute("data-clamp-original");
         const trimmed = t.hasAttribute("data-clamp-lines-trimmed") || (orig !== null && orig.trim() !== t.textContent.trim());
         if (!(trimmed || t.scrollWidth > t.clientWidth + 2)) continue;
-        // Town lines over 45 characters (15 towns in German, 1 in English, 2026-09-30) may be
+        // Town lines over 45 characters (1 town in German, none in English, 2026-10-15) may be
         // shortened by the clamp, as TEXT_REQUIREMENTS slot 1 allows; counted, not failed.
         if (Number(t.getAttribute("data-downstream-place")) > 45) accepted.push(`town line shortened: "${orig.trim().slice(0, 40)}"`);
         else fails.push(`text cut: "${(orig || t.textContent).trim().slice(0, 40)}"`);
