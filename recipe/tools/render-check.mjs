@@ -18,8 +18,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
 const FW = path.join(root, "data/raw/framework/3.4.0");
 const SITE = path.join(root, "data/site");
-const OUT = path.join(here, "out");
+const OUT = process.env.DS_RENDER_OUT || path.join(here, "out");
 const CHROME = process.env.CHROME || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+const preview = process.argv.includes("--preview");
+const offline = process.env.OFFLINE_BASEMAP === "1";
 
 // Liquid is rendered by Ruby Liquid (render.rb), the engine TRMNL runs: liquidjs accepted a `}`
 // inside `{{ }}` that TRMNL rejected on the author's device (2026-09-30).
@@ -38,6 +40,7 @@ const rotations = ["eu", "us", "ca"].filter((f) => fs.existsSync(path.join(SITE,
 }));
 function payload(town) {
   if (town === "(error)") return {};
+  if (preview && town === "Munich") return JSON.parse(fs.readFileSync(process.env.DS_PREVIEW_PAYLOAD || path.join(root, "recipe/preview/munich.json"), "utf8"));
   for (const { folder, rows } of rotations) {
     const r = rows.find((x) => x.town === town);
     if (r) return JSON.parse(fs.readFileSync(path.join(SITE, folder, "t", `${r.n}.json`), "utf8"));
@@ -48,6 +51,8 @@ function payload(town) {
 const DEVICES = {
   og_1bit: { cls: "screen--og screen--md screen--1bit", w: 800, h: 480, dpr: 1 },
   og_2bit: { cls: "screen--og screen--md screen--2bit", w: 800, h: 480, dpr: 1 },
+  og_1bit_port: { cls: "screen--og screen--md screen--1bit screen--portrait", w: 480, h: 800, dpr: 1 },
+  og_2bit_port: { cls: "screen--og screen--md screen--2bit screen--portrait", w: 480, h: 800, dpr: 1 },
   // The Framework scales the X's 1040×780 CSS layout by its 1.8 pixel ratio itself, so the page
   // is 1872×1404 at 1× (measured 2026-09-30: .screen is 1872×1404).
   x_land: { cls: "screen--v2 screen--lg screen--density-2x screen--4bit", w: 1872, h: 1404, dpr: 1 },
@@ -60,14 +65,29 @@ const LAYOUTS = { // view → mashup wrapper and how many copies of the plugin s
   quadrant: { mashup: "mashup--2x2", copies: 4 },
 };
 
-async function page(view, device, town, lang, units) {
-  const ctx = { ...payload(town), trmnl: { plugin_settings: { custom_fields_values: { language: lang, units } } } };
+// An explicit offline preview uses the bundled Natural Earth land as a diagnostic basemap.
+// Framework, MapLibre, route geometry, fit, labels and globe code remain real. This does not
+// validate TRMNL's hosted vector tiles; never silently substitute it for the normal sweep.
+const land = offline ? JSON.parse(fs.readFileSync(path.join(root, "recipe/src/shared.liquid"), "utf8").match(/var WORLD_LAND = (.*);/)[1]) : null;
+const offlineScript = offline ? `<script>
+  const originalOptions = TRMNLMaps.options;
+  TRMNLMaps.options = function (arg) {
+    const opts = originalOptions(arg), paint = {el: arg.el};
+    const ink = TRMNLPaint.textColor("default", paint), paper = TRMNLPaint.semantic("canvas", paint).color;
+    opts.style = {version: 8, sources: {land: {type: "geojson", data: {type: "MultiPolygon", coordinates: ${JSON.stringify(land)}}}},
+      layers: [{id: "paper", type: "background", paint: {"background-color": paper}},
+        {id: "coasts", type: "line", source: "land", paint: {"line-color": ink, "line-width": 0.75}}]};
+    return opts;
+  };
+</script>` : "";
+async function page(view, device, town, lang, units, worldMap) {
+  const ctx = { ...payload(town), trmnl: { plugin_settings: { custom_fields_values: { language: lang, units, world_map: worldMap, watershed_pairs: process.env.WATERSHED_PAIRS === "1", map_labels: process.env.MAP_LABELS === undefined ? undefined : process.env.MAP_LABELS !== "0" } } } };
   const body = renderLiquid(view, ctx);
   const one = `<div class="view view--${view}">${body}</div>`;
   const L = LAYOUTS[view];
   const inner = L.mashup ? `<div class="mashup ${L.mashup}">${one.repeat(L.copies)}</div>` : one;
   return `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="/fw/plugins.css"><script src="/fw/plugins.js"></script></head>
+<link rel="stylesheet" href="/fw/plugins.css"><script src="/fw/plugins.js"></script>${offlineScript}</head>
 <body class="environment trmnl"><div class="screen ${DEVICES[device].cls}">${inner}</div></body></html>`;
 }
 
@@ -95,16 +115,18 @@ const base = `http://127.0.0.1:${server.address().port}`;
 // The hardest cases: the reference path, the longest path, the longest town line, the longest
 // 5-step path, the longest US path (Great Lakes); one OG and one X screen, both languages (96 cases).
 const quick = process.argv.includes("--quick");
-const TOWNS = process.env.ONLY ? [process.env.ONLY] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Hafnarfjordur", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Letchworth Garden City", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montreal", "(error)"];
+const TOWNS = process.env.ONLY ? [process.env.ONLY] : preview ? ["Munich"] : quick ? ["Munich", "Iisalmi", "Saint-Quentin-en-Yvelines", "Cambridge", "Hibbing", "Calgary"] : ["Munich", "Löbau", "Cetinje", "Hafnarfjordur", "Konstanz", "Iisalmi", "Lisbon", "Vihti", "Letchworth Garden City", "Saint-Quentin-en-Yvelines", "Cambridge", "Milton Keynes", "Denver", "Salt Lake City", "Hibbing", "Country Club Hills", "Anchorage", "Yellowknife", "Whitehorse", "Montreal", "(error)"];
 const cases = [];
 for (const view of (process.env.VIEW ? [process.env.VIEW] : Object.keys(LAYOUTS))) for (const device of (process.env.DEVICE ? [process.env.DEVICE] : quick ? ["og_1bit", "x_land"] : Object.keys(DEVICES)))
   for (const town of TOWNS) for (const lang of ["en", "de"])
-    cases.push({ view, device, town, lang, units: lang === "de" ? "metric" : "imperial" });
+    for (const units of process.env.UNITS === "all" ? ["metric", "imperial"] : [lang === "de" ? "metric" : "imperial"])
+      for (const world_map of process.env.WORLD_MAP === "both" ? [false, true] : [process.env.WORLD_MAP === "1"])
+        cases.push({ view, device, town, lang, units, world_map });
 
 // No proxy option: Chromium picks up the environment's proxy for outside hosts (MapLibre, tiles)
 // and goes direct to the local server (checked 2026-09-30; an explicit proxy broke loopback).
 const browser = await chromium.launch({
-  executablePath: CHROME, args: ["--use-gl=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"],
+  executablePath: CHROME, args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"],
 });
 fs.mkdirSync(OUT, { recursive: true });
 const results = [];
@@ -150,9 +172,9 @@ await ctx.route("https://trmnl.com/js/maplibre-gl/5.24.0/*", (route) => {
   route.fulfill({ path: f, contentType: f.endsWith(".css") ? "text/css" : "text/javascript" });
 });
 async function runCase(c) {
-  const id = `${c.view}.${c.device}.${c.town.replace(/[^\w]+/g, "")}.${c.lang}`;
+  const id = `${c.view}.${c.device}.${c.town.replace(/[^\w]+/g, "")}.${c.lang}${process.env.UNITS === "all" ? "." + c.units : ""}${c.world_map ? ".globe" : ""}`;
   const D = DEVICES[c.device];
-  pages.set(`/${id}`, await page(c.view, c.device, c.town, c.lang, c.units));
+  pages.set(`/${id}`, await page(c.view, c.device, c.town, c.lang, c.units, c.world_map));
   const p = await ctx.newPage();
   await p.setViewportSize({ width: D.w, height: D.h });
   if (process.env.DEBUG) p.on("requestfailed", (r) => console.log("   failed:", r.url().slice(0, 120), r.failure()?.errorText));
@@ -182,9 +204,12 @@ async function runCase(c) {
     new Promise((r) => setTimeout(r, 20000)),
   ]));
   lap("idle");
-  const check = await p.evaluate(({ isError, copies }) => {
+  const expectedRoutes = process.env.WATERSHED_PAIRS === "1" && c.view === "full" && payload(c.town).routes?.length === 2 ? 2 : 1;
+  const check = await p.evaluate(({ isError, copies, globeExpected, expectedRoutes }) => {
     const fails = [];
     const maps = [...document.querySelectorAll("[data-downstream-map]")];
+    const globes = document.querySelectorAll("[data-downstream-globe]");
+    if (globes.length !== (globeExpected ? copies : 0)) fails.push(`globes ${globes.length} != ${globeExpected ? copies : 0}`);
     if (isError) {
       if (maps.length) fails.push("error case shows a map");
       return { fails, maps: maps.length };
@@ -198,15 +223,34 @@ async function runCase(c) {
       if (!m.loaded() || !m.areTilesLoaded()) fails.push("map not fully drawn");
       const routeLayers = m.getStyle().layers.filter((l) => l.id.startsWith("trmnl-route")).length;
       if (!routeLayers) fails.push("path not drawn");
-      const coords = TRMNLMaps.decodePolyline(el.getAttribute("data-polyline"));
+      const routes = [...el.querySelectorAll("[data-downstream-route]")].map(node=>({
+        coords: TRMNLMaps.decodePolyline(node.dataset.polyline || "")
+      }));
+      if (routes.length !== expectedRoutes) fails.push(`routes ${routes.length} != ${expectedRoutes}`);
+      const coords = routes.flatMap(route => route.coords);
       const r = el.getBoundingClientRect();
-      const box = el.querySelector("[data-downstream-box]").getBoundingClientRect();
+      const boxes = [...el.querySelectorAll("[data-downstream-box]")].map(b=>b.getBoundingClientRect());
+      if (boxes.length !== expectedRoutes) fails.push(`cards ${boxes.length} != ${expectedRoutes}`);
+      const box = boxes[0];
+      const globe = el.querySelector("[data-world-rect]");
+      const locator = globe ? JSON.parse(globe.getAttribute("data-world-rect")) : null;
+      if (locator) {
+        const sx = r.width / el.clientWidth, sy = r.height / el.clientHeight;
+        const l = r.left + locator.x * sx, t = r.top + locator.y * sy;
+        const right = l + locator.w * sx, bottom = t + locator.h * sy;
+        if (l < r.left || t < r.top || right > r.right || bottom > r.bottom) fails.push("globe outside the map");
+        if (l < box.right && right > box.left && t < box.bottom && bottom > box.top) fails.push("globe overlaps text box");
+        const marker = globe.querySelector("[data-world-marker]");
+        if (Math.abs(+marker.getAttribute("cx") - locator.x - locator.w / 2) > 0.01 || Math.abs(+marker.getAttribute("cy") - locator.y - locator.h / 2) > 0.01) fails.push("globe marker not centred");
+        if (!globe.querySelector("[data-world-land]").getAttribute("d")) fails.push("globe land missing");
+      }
       let off = 0, under = 0;
       for (const c of coords) {
         // project() is in the map's own CSS px; the screen may be scaled, so map to page px.
         const pt = m.project(c), x = r.left + pt.x * (r.width / el.clientWidth), y = r.top + pt.y * (r.height / el.clientHeight);
+        if (locator && pt.x >= locator.x && pt.x <= locator.x + locator.w && pt.y >= locator.y && pt.y <= locator.y + locator.h) fails.push("path under globe");
         if (x < r.left || x > r.right || y < r.top || y > r.bottom) off++;
-        else if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) under++;
+        else if (boxes.some(box=>x >= box.left && x <= box.right && y >= box.top && y <= box.bottom)) under++;
         else inkAt.push([Math.round(x), Math.round(y)]);
       }
       if (off) fails.push(`${off}/${coords.length} path points off the map`);
@@ -216,9 +260,71 @@ async function runCase(c) {
       if (!credit) fails.push("map credit missing");
       else {
         const a = credit.getBoundingClientRect();
-        if (a.left < box.right && a.right > box.left && a.top < box.bottom && a.bottom > box.top) fails.push("map credit covered by the text box");
+        if (boxes.some(box=>a.left < box.right && a.right > box.left && a.top < box.bottom && a.bottom > box.top)) fails.push("map credit covered by the text box");
       }
-      if (box.left < r.left - 1 || box.right > r.right + 1 || box.top < r.top - 1 || box.bottom > r.bottom + 1) fails.push("text box outside the map");
+      if (boxes.some(box=>box.left < r.left - 1 || box.right > r.right + 1 || box.top < r.top - 1 || box.bottom > r.bottom + 1)) fails.push("text box outside the map");
+      const labelReport = el.__downstreamLabels;
+      if (!labelReport) fails.push("map labels not drawn");
+      else {
+        const blocked = [...boxes, ...(credit ? [credit.getBoundingClientRect()] : [])];
+        const labelRects = [];
+        for (const label of labelReport.labels) {
+          const a = label.rect, sx = r.width / el.clientWidth, sy = r.height / el.clientHeight;
+          const rect = {left:r.left+a.x*sx,top:r.top+a.y*sy,right:r.left+(a.x+a.w)*sx,bottom:r.top+(a.y+a.h)*sy};
+          const intersects = b => rect.left<b.right&&rect.right>b.left&&rect.top<b.bottom&&rect.bottom>b.top;
+          if (blocked.some(intersects) || labelRects.some(intersects)) fails.push("map label overlaps text/credit/another label");
+          if (locator && a.x<locator.x+locator.w&&a.x+a.w>locator.x&&a.y<locator.y+locator.h&&a.y+a.h>locator.y) fails.push("map label overlaps globe");
+          if (a.x<0||a.y<0||a.x+a.w>el.clientWidth||a.y+a.h>el.clientHeight) fails.push("map label outside the map");
+          labelRects.push(rect);
+        }
+        // Check the actual SVG strokes as well as the boxes. A callout can leave its
+        // own river at the anchor; elsewhere it must not obscure any journey or label.
+        const px = n => TRMNLPaint.px(n, {el});
+        const clear3=px(3),clear7=px(7),clear8=px(8),clear2=px(2),clear1=px(1),clearRoute=px(2.5),clearMarker=px(6);
+        const project = c => m.project([c[0] + 360 * Math.round((m.getCenter().lng-c[0])/360), c[1]]);
+        const lines = routes.map(route => route.coords.map(project));
+        function distanceToLine(p, a, b) {
+          const dx=b.x-a.x, dy=b.y-a.y;
+          const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy||1)));
+          return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);
+        }
+        const inside = (p, b, pad=0) => p.x>=b.x-pad&&p.x<=b.x+b.w+pad&&p.y>=b.y-pad&&p.y<=b.y+b.h+pad;
+        const callouts = [...el.querySelectorAll('[data-downstream-callout]')].map(g => {
+          const rect=g.querySelector('rect'), path=g.querySelector('path'), circle=g.querySelector('circle');
+          const length=path.getTotalLength();
+          const maskId=path.getAttribute('mask')?.slice(5,-1);
+          const cutouts=maskId?[...document.getElementById(maskId).querySelectorAll('path,circle')]:[];
+          const visible=p=>!cutouts.some(n=>n.tagName==='path'?n.isPointInStroke(p):n.isPointInFill(p));
+          return {text:g.dataset.downstreamLabel,
+            rect:{x:+rect.getAttribute('x'),y:+rect.getAttribute('y'),w:+rect.getAttribute('width'),h:+rect.getAttribute('height')},
+            anchor:{x:+circle.getAttribute('cx'),y:+circle.getAttribute('cy')},
+            samples:Array.from({length:Math.ceil(length)+1},(_,i)=>path.getPointAtLength(Math.min(length,i))).filter(visible)};
+        });
+        const routeSamples = lines.flatMap(line=>line.slice(1).flatMap((b,i)=>{
+            const a=line[i], n=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y));
+            return Array.from({length:n+1},(_,j)=>({x:a.x+(b.x-a.x)*j/(n||1),y:a.y+(b.y-a.y)*j/(n||1)}));
+        }));
+        for(const label of callouts) {
+          if(routeSamples.some(p=>inside(p,label.rect,clear3))) fails.push('label too close to river: '+label.text);
+          if(lines.some(line=>[line[0],line.at(-1)].some(p=>inside(p,label.rect,clear7)))) fails.push('label covers route marker: '+label.text);
+          const free=label.samples.filter(p=>Math.hypot(p.x-label.anchor.x,p.y-label.anchor.y)>clear8);
+          if(free.some(p=>lines.some(line=>line.slice(1).some((b,i)=>distanceToLine(p,line[i],b)<clearRoute)))) fails.push('label connector crosses river: '+label.text);
+          if(free.some(p=>lines.some(line=>[line[0],line.at(-1)].some(q=>Math.hypot(p.x-q.x,p.y-q.y)<clearMarker)))) fails.push('label connector covers route marker: '+label.text);
+          if(callouts.some(other=>other!==label&&label.samples.some(p=>inside(p,other.rect,clear1)))) fails.push('label connector crosses another label: '+label.text);
+          if(callouts.some(other=>other!==label&&free.some(p=>other.samples.some(q=>Math.hypot(p.x-q.x,p.y-q.y)<clear1)))) fails.push('label connectors overlap: '+label.text);
+        }
+        if(labelReport.enabled) for(const node of el.querySelectorAll('.map__labels .map__label:not(.hidden)')) {
+          const b=node.getBoundingClientRect(), sx=r.width/el.clientWidth, sy=r.height/el.clientHeight;
+          const rect={x:(b.left-r.left)/sx,y:(b.top-r.top)/sy,w:b.width/sx,h:b.height/sy};
+          if(routeSamples.some(p=>inside(p,rect,clear2))) fails.push('background label covers river: '+node.textContent);
+          if(callouts.some(l=>l.samples.some(p=>inside(p,rect,clear2))) || callouts.some(l=>l.rect.x<rect.x+rect.w&&l.rect.x+l.rect.w>rect.x&&l.rect.y<rect.y+rect.h&&l.rect.y+l.rect.h>rect.y)) fails.push('background label overlaps callout: '+node.textContent);
+        }
+        if (labelReport.labels.some(l=>l.kind==="sea")) fails.push("unwanted sea label");
+        if (el.dataset.mapLabels === "no") {
+          if (labelReport.labels.length || el.querySelector("[data-downstream-labels]") || labelReport.enabled !== false) fails.push("map-label setting off still draws callouts");
+        } else if (el.closest(".view--full") && labelReport.labels.filter(l=>l.kind==="town").length !== expectedRoutes) fails.push("start-town label missing in full view");
+        if (labelReport.omitted.length) accepted.push("crowded-map labels omitted: "+labelReport.omitted.join(", "));
+      }
       // Cut-off text: the Framework's clamp engine trimmed it (data-clamp-lines-trimmed, or the
       // shown text differs from data-clamp-original), or it runs past its box horizontally.
       for (const t of el.querySelectorAll("[data-downstream-box] > *")) {
@@ -231,8 +337,9 @@ async function runCase(c) {
         else fails.push(`text cut: "${(orig || t.textContent).trim().slice(0, 40)}"`);
       }
     }
-    return { fails, accepted, inkAt, maps: maps.length, zoom: maps.map((el) => el.__downstreamMap && el.__downstreamMap.getZoom()) };
-  }, { isError: c.town === "(error)", copies: LAYOUTS[c.view].copies });
+    return { fails, accepted, inkAt, maps: maps.length, zoom: maps.map((el) => el.__downstreamMap && el.__downstreamMap.getZoom()),
+      labels:maps.map(el=>el.__downstreamLabels) };
+  }, { isError: c.town === "(error)", copies: LAYOUTS[c.view].copies, expectedRoutes, globeExpected: c.world_map && c.view === "full" && c.town !== "(error)" && expectedRoutes === 1 });
   const png = await p.screenshot({ path: path.join(OUT, `${id}.png`) });
   // Layers can exist without being painted (seen on the X: water only, no path), so check the
   // pixels: a visible path point counts as drawn when a dark pixel lies within 3 px of it.
@@ -262,7 +369,7 @@ async function runCase(c) {
     if (inked < 0.9 * check.inkAt.length) check.fails.push(`path not painted (${inked}/${check.inkAt.length} points inked)`);
   }
   const fails = [...check.fails, ...errors];
-  results.push({ id, ...c, ok: fails.length === 0, fails, accepted: check.accepted || [], zoom: check.zoom });
+  results.push({ id, ...c, ok: fails.length === 0, fails, accepted: check.accepted || [], zoom: check.zoom, labels:check.labels });
   console.log(`${fails.length ? "FAIL" : "ok  "} ${id}${fails.length ? "  " + fails.join("; ") : ""}`);
   await p.close();
 }
@@ -273,7 +380,7 @@ await Promise.all(Array.from({ length: Number(process.env.JOBS || 3) }, async ()
     const c = queue.shift();
     // A case that throws (a timeout, a Liquid error) is a failed case, not the end of the sweep.
     await runCase(c).catch((e) => {
-      const id = `${c.view}.${c.device}.${c.town.replace(/[^\w]+/g, "")}.${c.lang}`;
+      const id = `${c.view}.${c.device}.${c.town.replace(/[^\w]+/g, "")}.${c.lang}${process.env.UNITS === "all" ? "." + c.units : ""}${c.world_map ? ".globe" : ""}`;
       results.push({ id, ...c, ok: false, fails: [`error: ${String(e.message || e).split("\n")[0]}`] });
       console.log(`FAIL ${id}  error: ${String(e.message || e).split("\n")[0]}`);
     });
@@ -285,6 +392,7 @@ results.sort((a, b) => a.id.localeCompare(b.id));
 fs.writeFileSync(path.join(OUT, "results.json"), JSON.stringify(results, null, 1));
 const bad = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - bad}/${results.length} cases pass`);
+if (offline) console.log("Offline Natural Earth basemap; hosted TRMNL tiles were not validated.");
 const acc = results.filter((r) => r.ok && r.accepted && r.accepted.length);
-if (acc.length) console.log(`${acc.length} of them with an accepted shortened town line: ${[...new Set(acc.map((r) => r.town + "." + r.lang))].join(", ")}`);
+if (acc.length) console.log(`${acc.length} with an accepted long-town clamp or small-view label omission; see results.json for details`);
 process.exit(bad ? 1 : 0);

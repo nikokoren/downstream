@@ -1,0 +1,1126 @@
+{
+ "review_only": true,
+ "approved": false,
+ "captured": "2026-11-13",
+ "sources": [
+  {
+   "url": "https://github.com/nikokoren/downstream/releases/download/build-report/towns.csv",
+   "sha256": "3ecfcd05c9716f22106d866e51471dfa19dc05f190caaf2946066c7b7bd73cbe"
+  },
+  {
+   "source": "https://files.pythonhosted.org/packages/48/c2/52f1b29de8839b4b55cd2641dfd722a6a94953d74fa82514e26084a92318/geonamescache-3.0.2-py3-none-any.whl",
+   "version": "3.0.2",
+   "archive_sha256": "b830e8942f2d58c7e68782dcf4dff2ffe8c4104a35ee881ed1ad4023cefcdba4",
+   "captured": "2026-11-13",
+   "city_file_sha256": "24e87d89c775305650301618fa434d26e47e1b64ba5e27a5611e0f351908fd11",
+   "description": "GeoNames city coordinates distributed in GeoNamesCache 3.0.2; joined by GeoNames ID."
+  }
+ ],
+ "coverage": {
+  "report_rows": 5384,
+  "matched_sea_towns": 5234,
+  "missing_ids": [
+   "3069236",
+   "2876741",
+   "2610155",
+   "2619097",
+   "2620587",
+   "2637022",
+   "3168931",
+   "7302105",
+   "2743595",
+   "2752240",
+   "2756543",
+   "3162778",
+   "2764238",
+   "2764957",
+   "2773848",
+   "2777927",
+   "2819284",
+   "2885778",
+   "2930367",
+   "2953042",
+   "3005091",
+   "3186814",
+   "3166784",
+   "3181730",
+   "3219195",
+   "3189038",
+   "3197983"
+  ]
+ },
+ "thresholds": {
+  "max_km": 50.0,
+  "max_start_km": 1.0,
+  "min_path_km": 100.0
+ },
+ "shortlist_spacing_km": 75,
+ "pairs": [
+  {
+   "id": "2980291-2981206",
+   "distance_km": 10.69,
+   "towns": [
+    {
+     "geonameid": "2980291",
+     "name": "Saint-Etienne",
+     "de": "Saint-Étienne",
+     "country": "FR",
+     "lon": 4.39,
+     "lat": 45.43389,
+     "population": 176280,
+     "destination": "Bay of Biscay",
+     "total_km": 833.5,
+     "start_dist_km": 0.03,
+     "chain": "Le Furan → Loire",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2981206",
+     "name": "Saint-Chamond",
+     "de": "Saint-Chamond",
+     "country": "FR",
+     "lon": 4.51294,
+     "lat": 45.4759,
+     "population": 38014,
+     "destination": "Gulf of Lion",
+     "total_km": 337.4,
+     "start_dist_km": 0.13,
+     "chain": "Le Gier → Rhône",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    4.451447179666402,
+    45.45491157846271
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2634617-2647639",
+   "distance_km": 11.574,
+   "towns": [
+    {
+     "geonameid": "2634617",
+     "name": "Wednesbury",
+     "de": "Wednesbury",
+     "country": "GB",
+     "lon": -2.02355,
+     "lat": 52.5514,
+     "population": 20313,
+     "destination": "North Sea",
+     "total_km": 231.6,
+     "start_dist_km": 0.72,
+     "chain": "River Tame → River Trent",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2647639",
+     "name": "Halesowen",
+     "de": "Halesowen",
+     "country": "GB",
+     "lon": -2.04938,
+     "lat": 52.44859,
+     "population": 60097,
+     "destination": "Bristol Channel",
+     "total_km": 135.7,
+     "start_dist_km": 0.38,
+     "chain": "River Stour → River Severn",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    -2.036480063065946,
+    52.49999592936039
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "3063447-3069305",
+   "distance_km": 13.924,
+   "towns": [
+    {
+     "geonameid": "3063447",
+     "name": "Valašské Meziříčí",
+     "de": "Wallachisch Meseritsch",
+     "country": "CZ",
+     "lon": 17.97113,
+     "lat": 49.47181,
+     "population": 22568,
+     "destination": "Black Sea",
+     "total_km": 2263.7,
+     "start_dist_km": 0.12,
+     "chain": "Rožnovská Bečva → Bečva → Morava → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3069305",
+     "name": "Nový Jičín",
+     "de": "Neutitschein",
+     "country": "CZ",
+     "lon": 18.01028,
+     "lat": 49.59438,
+     "population": 22740,
+     "destination": "Baltic Sea",
+     "total_km": 780.3,
+     "start_dist_km": 0.21,
+     "chain": "Grasmanka → Jičínka → Oder → Dąbie → Oder",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    17.990680525630324,
+    49.533096982012324
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2953089-2958595",
+   "distance_km": 14.306,
+   "towns": [
+    {
+     "geonameid": "2953089",
+     "name": "Balingen",
+     "de": "Balingen",
+     "country": "DE",
+     "lon": 8.85464,
+     "lat": 48.27525,
+     "population": 34414,
+     "destination": "North Sea",
+     "total_km": 903.5,
+     "start_dist_km": 0.01,
+     "chain": "Eyach → Neckar → Rhine",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2958595",
+     "name": "Albstadt",
+     "de": "Albstadt",
+     "country": "DE",
+     "lon": 9.02596,
+     "lat": 48.21644,
+     "population": 46950,
+     "destination": "Black Sea",
+     "total_km": 2868.6,
+     "start_dist_km": 0.08,
+     "chain": "Schmiecha → Schmeie → Danube",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    8.94034910126598,
+    48.24587698183419
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2659496-2660076",
+   "distance_km": 14.435,
+   "towns": [
+    {
+     "geonameid": "2659496",
+     "name": "Neuchâtel",
+     "de": "Neuenburg",
+     "country": "CH",
+     "lon": 6.931,
+     "lat": 46.99179,
+     "population": 33475,
+     "destination": "North Sea",
+     "total_km": 1116.2,
+     "start_dist_km": 0.65,
+     "chain": "Le Seyon → Lac de Neuchâtel → La Thièle → Bielersee / Lac de Bienne → Aare → Rhine",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2660076",
+     "name": "La Chaux-de-Fonds",
+     "de": "La Chaux-de-Fonds",
+     "country": "CH",
+     "lon": 6.82586,
+     "lat": 47.09993,
+     "population": 37942,
+     "destination": "Gulf of Lion",
+     "total_km": 826.0,
+     "start_dist_km": 0.06,
+     "chain": "La Ronde → Le Doubs → La Saône → Rhône",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    6.878483119765114,
+    47.045872321849366
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2907851-2959927",
+   "distance_km": 18.28,
+   "towns": [
+    {
+     "geonameid": "2907851",
+     "name": "Heidenheim",
+     "de": "Heidenheim an der Brenz",
+     "country": "DE",
+     "lon": 10.15162,
+     "lat": 48.67798,
+     "population": 50067,
+     "destination": "Black Sea",
+     "total_km": 2738.7,
+     "start_dist_km": 0.17,
+     "chain": "Stubental-Wedel → Brenz → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2959927",
+     "name": "Aalen",
+     "de": "Aalen",
+     "country": "DE",
+     "lon": 10.0933,
+     "lat": 48.83777,
+     "population": 67085,
+     "destination": "North Sea",
+     "total_km": 856.1,
+     "start_dist_km": 0.12,
+     "chain": "Schwarzer Kocher → Kocher → Neckar → Rhine",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    10.122506243117737,
+    48.75787924570538
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "785238-785485",
+   "distance_km": 19.518,
+   "towns": [
+    {
+     "geonameid": "785238",
+     "name": "Suva Reka",
+     "de": "Suva Reka",
+     "country": "XK",
+     "lon": 20.825,
+     "lat": 42.35861,
+     "population": 72229,
+     "destination": "Adriatic Sea",
+     "total_km": 216.6,
+     "start_dist_km": 0.26,
+     "chain": "Toplluhë → Drini i Bardhë → Liqeni i Vërmicës → Drini i Bardhë → Drini → Liqeni i Komanit → Liqeni i Vau i Dejës → Drini → Buna",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "785485",
+     "name": "Shtime",
+     "de": "Shtime",
+     "country": "XK",
+     "lon": 21.03972,
+     "lat": 42.43306,
+     "population": 35000,
+     "destination": "Black Sea",
+     "total_km": 1668.0,
+     "start_dist_km": 0.44,
+     "chain": "Carralevë → Sitnicë → Ibar → West Morava → Great Morava → Danube",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    20.93229655040959,
+    42.39588539016095
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2814270-2878270",
+   "distance_km": 20.773,
+   "towns": [
+    {
+     "geonameid": "2814270",
+     "name": "Wangen",
+     "de": "Wangen im Allgäu",
+     "country": "DE",
+     "lon": 9.83247,
+     "lat": 47.6895,
+     "population": 27045,
+     "destination": "North Sea",
+     "total_km": 1124.7,
+     "start_dist_km": 0.7,
+     "chain": "Obere Argen → Argen → Bodensee → Rhine",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2878270",
+     "name": "Leutkirch",
+     "de": "Leutkirch im Allgäu",
+     "country": "DE",
+     "lon": 10.0205,
+     "lat": 47.82672,
+     "population": 22362,
+     "destination": "Black Sea",
+     "total_km": 2818.8,
+     "start_dist_km": 0.76,
+     "chain": "Eschach → Aitrach → Iller → Danube",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    9.926361399925336,
+    47.75814891700022
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "723526-724503",
+   "distance_km": 23.219,
+   "towns": [
+    {
+     "geonameid": "723526",
+     "name": "Spišská Nová Ves",
+     "de": "Neudorf",
+     "country": "SK",
+     "lon": 20.56153,
+     "lat": 48.94464,
+     "population": 34855,
+     "destination": "Black Sea",
+     "total_km": 2027.9,
+     "start_dist_km": 0.4,
+     "chain": "Hornád → Hernád → Sajó → Tisza → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "724503",
+     "name": "Kežmarok",
+     "de": "Kesmark",
+     "country": "SK",
+     "lon": 20.43352,
+     "lat": 49.13571,
+     "population": 15271,
+     "destination": "Baltic Sea",
+     "total_km": 1004.1,
+     "start_dist_km": 0.64,
+     "chain": "Poprad → Dunajec → Vistula",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    20.497647588707565,
+    49.04019354357128
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2876755-2918987",
+   "distance_km": 23.319,
+   "towns": [
+    {
+     "geonameid": "2876755",
+     "name": "Löbau",
+     "de": "Löbau",
+     "country": "DE",
+     "lon": 14.66738,
+     "lat": 51.09954,
+     "population": 18374,
+     "destination": "North Sea",
+     "total_km": 699.8,
+     "start_dist_km": 0.67,
+     "chain": "Löbauer Wasser → Dubrauker Fließ → Spree → Bärwalder See → Spree → Fürstenwalder Spree → Müggelspree → Großer Müggelsee → Müggelspree → Treptower Spree → Spree → Havel → Jungfernsee → Tiefer See → Havel → Elbe",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2918987",
+     "name": "Görlitz",
+     "de": "Görlitz",
+     "country": "DE",
+     "lon": 14.98853,
+     "lat": 51.15518,
+     "population": 57751,
+     "destination": "Baltic Sea",
+     "total_km": 364.5,
+     "start_dist_km": 0.62,
+     "chain": "Lausitzer Neiße / Nysa Łużycka → Oder → Dąbie → Oder",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    14.82785853541466,
+    51.127470300219464
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2933882-2950096",
+   "distance_km": 23.327,
+   "towns": [
+    {
+     "geonameid": "2933882",
+     "name": "Eberswalde",
+     "de": "Eberswalde",
+     "country": "DE",
+     "lon": 13.81951,
+     "lat": 52.83492,
+     "population": 41980,
+     "destination": "Baltic Sea",
+     "total_km": 123.7,
+     "start_dist_km": 0.06,
+     "chain": "Finowkanal → Oderberger Gewässer → Wriezener Alte Oder → Oder → Dąbie → Oder",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2950096",
+     "name": "Bernau bei Berlin",
+     "de": "Bernau",
+     "country": "DE",
+     "lon": 13.58708,
+     "lat": 52.67982,
+     "population": 34866,
+     "destination": "North Sea",
+     "total_km": 420.2,
+     "start_dist_km": 0.54,
+     "chain": "Panke → Spandauer See → Havel → Jungfernsee → Tiefer See → Havel → Elbe",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    13.703088597341955,
+    52.757427433352476
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "3074199-3075919",
+   "distance_km": 23.461,
+   "towns": [
+    {
+     "geonameid": "3074199",
+     "name": "Jihlava",
+     "de": "Iglau",
+     "country": "CZ",
+     "lon": 15.59124,
+     "lat": 49.3961,
+     "population": 50108,
+     "destination": "Black Sea",
+     "total_km": 2242.3,
+     "start_dist_km": 0.04,
+     "chain": "Koželužský potok → Jihlávka → Jihlava → Mlýnský náhon → Dyje → March / Morava → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3075919",
+     "name": "Havlíčkův Brod",
+     "de": "Havlíčkův Brod",
+     "country": "CZ",
+     "lon": 15.57937,
+     "lat": 49.6069,
+     "population": 23368,
+     "destination": "North Sea",
+     "total_km": 972.9,
+     "start_dist_km": 0.07,
+     "chain": "Sázava → Vltava → Elbe",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    15.585317747664552,
+    49.50150111746116
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "3063907-3096779",
+   "distance_km": 26.073,
+   "towns": [
+    {
+     "geonameid": "3063907",
+     "name": "Trutnov",
+     "de": "Trautenau",
+     "country": "CZ",
+     "lon": 15.9127,
+     "lat": 50.56101,
+     "population": 29337,
+     "destination": "North Sea",
+     "total_km": 983.0,
+     "start_dist_km": 0.4,
+     "chain": "Úpa → Elbe → Správčický písník → Elbe",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3096779",
+     "name": "Kamienna Góra",
+     "de": "Kamienna Góra",
+     "country": "PL",
+     "lon": 16.03037,
+     "lat": 50.78314,
+     "population": 21743,
+     "destination": "Baltic Sea",
+     "total_km": 475.3,
+     "start_dist_km": 0.25,
+     "chain": "Bóbr → Oder → Dąbie → Oder",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    15.971396173753538,
+    50.6720909129064
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "727011-728330",
+   "distance_km": 26.358,
+   "towns": [
+    {
+     "geonameid": "727011",
+     "name": "Sofia",
+     "de": "Sofia",
+     "country": "BG",
+     "lon": 23.32415,
+     "lat": 42.69751,
+     "population": 1152556,
+     "destination": "Black Sea",
+     "total_km": 927.9,
+     "start_dist_km": 0.97,
+     "chain": "Vladayska reka → Iskar → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "728330",
+     "name": "Pernik",
+     "de": "Pernik",
+     "country": "BG",
+     "lon": 23.03318,
+     "lat": 42.59671,
+     "population": 82467,
+     "destination": "Aegean Sea",
+     "total_km": 340.0,
+     "start_dist_km": 0.75,
+     "chain": "Struma → Limni Kerkinis → Struma",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    23.178547554288137,
+    42.647202600464404
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "702550-708313",
+   "distance_km": 27.649,
+   "towns": [
+    {
+     "geonameid": "702550",
+     "name": "Lviv",
+     "de": "Lwiw",
+     "country": "UA",
+     "lon": 24.02324,
+     "lat": 49.83826,
+     "population": 717273,
+     "destination": "Baltic Sea",
+     "total_km": 1121.9,
+     "start_dist_km": 0.56,
+     "chain": "Poltva River → Bug → Narew → Vistula",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "708313",
+     "name": "Horodok",
+     "de": "Gorodok",
+     "country": "UA",
+     "lon": 23.6481,
+     "lat": 49.78476,
+     "population": 15993,
+     "destination": "Black Sea",
+     "total_km": 1226.9,
+     "start_dist_km": 0.22,
+     "chain": "Vereshchytsia → Strviazh → Dniester",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    23.835566620222657,
+    49.811661839536676
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "726320-730565",
+   "distance_km": 29.794,
+   "towns": [
+    {
+     "geonameid": "726320",
+     "name": "Troyan Municipality",
+     "de": "Troyan",
+     "country": "BG",
+     "lon": 24.71589,
+     "lat": 42.89427,
+     "population": 21162,
+     "destination": "Black Sea",
+     "total_km": 823.1,
+     "start_dist_km": 0.11,
+     "chain": "Beli Osam → Osam → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "730565",
+     "name": "Karlovo",
+     "de": "Karlowo",
+     "country": "BG",
+     "lon": 24.8,
+     "lat": 42.63333,
+     "population": 30340,
+     "destination": "Aegean Sea",
+     "total_km": 426.8,
+     "start_dist_km": 0.89,
+     "chain": "Stara reka → Stryama → Maritsa",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    24.758033246422258,
+    42.76380921320984
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "627800-629454",
+   "distance_km": 31.154,
+   "towns": [
+    {
+     "geonameid": "627800",
+     "name": "Ivatsevichy",
+     "de": "Ivatsevichi",
+     "country": "BY",
+     "lon": 25.33509,
+     "lat": 52.70793,
+     "population": 22189,
+     "destination": "Baltic Sea",
+     "total_km": 772.1,
+     "start_dist_km": 0.28,
+     "chain": "Kletna → Hrywda → Shchara River → Neman",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "629454",
+     "name": "Byaroza",
+     "de": "Byaroza",
+     "country": "BY",
+     "lon": 24.9782,
+     "lat": 52.53129,
+     "population": 27986,
+     "destination": "Black Sea",
+     "total_km": 1604.8,
+     "start_dist_km": 0.47,
+     "chain": "Krechat → Yaselda → Pripyat → Dnieper",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    25.15628586071128,
+    52.61974504895432
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2824801-2864549",
+   "distance_km": 32.042,
+   "towns": [
+    {
+     "geonameid": "2824801",
+     "name": "Sulzbach-Rosenberg",
+     "de": "Sulzbach-Rosenberg",
+     "country": "DE",
+     "lon": 11.74598,
+     "lat": 49.50126,
+     "population": 19379,
+     "destination": "Black Sea",
+     "total_km": 2606.7,
+     "start_dist_km": 0.09,
+     "chain": "Rosenbach → Vils → Naab → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2864549",
+     "name": "Neumarkt in der Oberpfalz",
+     "de": "Neumarkt in der Oberpfalz",
+     "country": "DE",
+     "lon": 11.46278,
+     "lat": 49.28028,
+     "population": 39557,
+     "destination": "North Sea",
+     "total_km": 1055.6,
+     "start_dist_km": 0.71,
+     "chain": "Ludwig-Donau-Main-Kanal → Schwarzach → Rednitz → Regnitz → Main → Rhine",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    11.60406242096863,
+    49.39085776935387
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2977295-3029030",
+   "distance_km": 36.576,
+   "towns": [
+    {
+     "geonameid": "2977295",
+     "name": "Saint-Quentin",
+     "de": "Saint-Quentin",
+     "country": "FR",
+     "lon": 3.28757,
+     "lat": 49.84889,
+     "population": 55407,
+     "destination": "English Channel",
+     "total_km": 180.7,
+     "start_dist_km": 0.94,
+     "chain": "(stream) → La Somme Rivière → La Somme → La Somme Canalisée",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3029030",
+     "name": "Cambrai",
+     "de": "Cambrai",
+     "country": "FR",
+     "lon": 3.23472,
+     "lat": 50.17596,
+     "population": 36492,
+     "destination": "North Sea",
+     "total_km": 233.6,
+     "start_dist_km": 0.35,
+     "chain": "Scheldt",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    3.261234675752002,
+    50.01243032546971
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "625144-628634",
+   "distance_km": 37.363,
+   "towns": [
+    {
+     "geonameid": "625144",
+     "name": "Minsk",
+     "de": "Minsk",
+     "country": "BY",
+     "lon": 27.56653,
+     "lat": 53.90019,
+     "population": 1742124,
+     "destination": "Black Sea",
+     "total_km": 1597.6,
+     "start_dist_km": 0.26,
+     "chain": "Svislach → Berezina → Dnieper",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "628634",
+     "name": "Dzyarzhynsk",
+     "de": "Dsjarschynsk",
+     "country": "BY",
+     "lon": 27.13171,
+     "lat": 53.68477,
+     "population": 29607,
+     "destination": "Baltic Sea",
+     "total_km": 921.9,
+     "start_dist_km": 0.25,
+     "chain": "Nyatsechka → Dzyahilnya → Peratuts → Usa → Neman",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    27.348563031842765,
+    53.792678038664356
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2814131-2866135",
+   "distance_km": 38.664,
+   "towns": [
+    {
+     "geonameid": "2814131",
+     "name": "Waren",
+     "de": "Waren (Müritz)",
+     "country": "DE",
+     "lon": 12.68128,
+     "lat": 53.51986,
+     "population": 21470,
+     "destination": "North Sea",
+     "total_km": 301.9,
+     "start_dist_km": 0.59,
+     "chain": "(stream) → Müritz → Kölpinsee → Fleesensee → Müritz-Elde-Wasserstraße → Plauer See → Müritz-Elde-Wasserstraße → Alte Elde → Löcknitz → Elbe",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2866135",
+     "name": "Neubrandenburg",
+     "de": "Neubrandenburg",
+     "country": "DE",
+     "lon": 13.26105,
+     "lat": 53.55735,
+     "population": 68082,
+     "destination": "Baltic Sea",
+     "total_km": 135.8,
+     "start_dist_km": 0.78,
+     "chain": "Linde → Tollense → Peene",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    12.971036954877361,
+    53.538956362799105
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "3191281-3337476",
+   "distance_km": 38.682,
+   "towns": [
+    {
+     "geonameid": "3191281",
+     "name": "Sarajevo",
+     "de": "Sarajevo",
+     "country": "BA",
+     "lon": 18.35644,
+     "lat": 43.84864,
+     "population": 696731,
+     "destination": "Black Sea",
+     "total_km": 1832.4,
+     "start_dist_km": 0.08,
+     "chain": "Miljacka → Bosna → Sava → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3337476",
+     "name": "Konjic",
+     "de": "Konjic",
+     "country": "BA",
+     "lon": 17.96082,
+     "lat": 43.65126,
+     "population": 15950,
+     "destination": "Adriatic Sea",
+     "total_km": 139.2,
+     "start_dist_km": 0.55,
+     "chain": "Neretva",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    18.158304972685155,
+    43.75012202422426
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2514946-2521710",
+   "distance_km": 40.043,
+   "towns": [
+    {
+     "geonameid": "2514946",
+     "name": "Loja",
+     "de": "Loja",
+     "country": "ES",
+     "lon": -4.15129,
+     "lat": 37.16887,
+     "population": 21574,
+     "destination": "North Atlantic Ocean",
+     "total_km": 367.4,
+     "start_dist_km": 0.01,
+     "chain": "Río Genil → Río Guadalquivir",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "2521710",
+     "name": "Antequera",
+     "de": "Antequera",
+     "country": "ES",
+     "lon": -4.56123,
+     "lat": 37.01938,
+     "population": 45168,
+     "destination": "Alboran Sea",
+     "total_km": 101.8,
+     "start_dist_km": 0.82,
+     "chain": "Río de la Villa → (stream) → Río Guadalhorce",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    -4.356461322265257,
+    37.09430260759669
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "686896-712374",
+   "distance_km": 40.291,
+   "towns": [
+    {
+     "geonameid": "686896",
+     "name": "Zolochiv",
+     "de": "Solotschiw",
+     "country": "UA",
+     "lon": 24.90376,
+     "lat": 49.8074,
+     "population": 22608,
+     "destination": "Baltic Sea",
+     "total_km": 1091.0,
+     "start_dist_km": 0.18,
+     "chain": "Zolochivka → Bug → Narew → Vistula",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "712374",
+     "name": "Berezhany",
+     "de": "Bereschany",
+     "country": "UA",
+     "lon": 24.93686,
+     "lat": 49.44578,
+     "population": 17697,
+     "destination": "Black Sea",
+     "total_km": 1108.3,
+     "start_dist_km": 0.26,
+     "chain": "(stream) → Zolota Lypa → Dniester",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    24.92037125163254,
+    49.62659402143131
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "2969958-3034911",
+   "distance_km": 45.989,
+   "towns": [
+    {
+     "geonameid": "2969958",
+     "name": "Verdun",
+     "de": "Verdun",
+     "country": "FR",
+     "lon": 5.3829,
+     "lat": 49.15964,
+     "population": 21798,
+     "destination": "North Sea",
+     "total_km": 615.3,
+     "start_dist_km": 0.11,
+     "chain": "Meuse",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3034911",
+     "name": "Bar-le-Duc",
+     "de": "Bar-le-Duc",
+     "country": "FR",
+     "lon": 5.16108,
+     "lat": 48.77275,
+     "population": 18595,
+     "destination": "English Channel",
+     "total_km": 667.8,
+     "start_dist_km": 0.22,
+     "chain": "L'Ornain → La Saulx → La Bruxenelle → La Marne → Seine",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    5.2715609897972415,
+    48.96625157363365
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  },
+  {
+   "id": "3064673-3099169",
+   "distance_km": 48.837,
+   "towns": [
+    {
+     "geonameid": "3064673",
+     "name": "Šumperk",
+     "de": "Mährisch-Schönberg",
+     "country": "CZ",
+     "lon": 16.97061,
+     "lat": 49.96528,
+     "population": 24444,
+     "destination": "Black Sea",
+     "total_km": 2279.9,
+     "start_dist_km": 0.13,
+     "chain": "Bratrušovský potok → Desná → Morava → Danube",
+     "travel_days": null,
+     "model_file": null
+    },
+    {
+     "geonameid": "3099169",
+     "name": "Głuchołazy",
+     "de": "Głuchołazy",
+     "country": "PL",
+     "lon": 17.38355,
+     "lat": 50.31505,
+     "population": 15120,
+     "destination": "Baltic Sea",
+     "total_km": 673.6,
+     "start_dist_km": 0.46,
+     "chain": "Biała Głuchołaska → Nysa Kłodzka → Oder → Dąbie → Oder",
+     "travel_days": null,
+     "model_file": null
+    }
+   ],
+   "midpoint": [
+    17.176327278057585,
+    50.14035117380098
+   ],
+   "review": "route, basin, travel-time and screen review required"
+  }
+ ]
+}

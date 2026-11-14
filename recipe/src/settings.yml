@@ -3,7 +3,7 @@
 name: Downstream
 strategy: polling
 refresh_interval: 15
-polling_url: '{%- assign r = region | join: "," -%}{%- assign k = "" -%}{%- if r contains "eu" -%}{%- assign k = k | append: "-eu" -%}{%- endif -%}{%- if r contains "us" -%}{%- assign k = k | append: "-us" -%}{%- endif -%}{%- if r contains "ca" -%}{%- assign k = k | append: "-ca" -%}{%- endif -%}{%- assign f = "mix" -%}{%- assign c = 8500 -%}{%- case k -%}{%- when "-eu" -%}{%- assign f = "eu" -%}{%- assign c = 5400 -%}{%- when "-us" -%}{%- assign f = "us" -%}{%- assign c = 2900 -%}{%- when "-ca" -%}{%- assign f = "ca" -%}{%- assign c = 260 -%}{%- when "-eu-us" -%}{%- assign f = "eu-us" -%}{%- assign c = 8250 -%}{%- when "-eu-ca" -%}{%- assign f = "eu-ca" -%}{%- assign c = 5650 -%}{%- when "-us-ca" -%}{%- assign f = "us-ca" -%}{%- assign c = 3150 -%}{%- endcase -%}{%- assign slot = "now" | date: "%s" | divided_by: 900 -%}{%- assign n = slot | modulo: c -%}https://nikokoren.github.io/downstream/{{ f }}/t/{{ n }}.json'
+polling_url: '{%- assign r = region | join: "," -%}{%- assign k = "" -%}{%- if r contains "eu" -%}{%- assign k = k | append: "-eu" -%}{%- endif -%}{%- if r contains "us" -%}{%- assign k = k | append: "-us" -%}{%- endif -%}{%- if r contains "ca" -%}{%- assign k = k | append: "-ca" -%}{%- endif -%}{%- assign f = "mix" -%}{%- assign c = 8500 -%}{%- assign p = 2880 -%}{%- case k -%}{%- when "-eu" -%}{%- assign f = "eu" -%}{%- assign c = 5400 -%}{%- assign p = 2016 -%}{%- when "-us" -%}{%- assign f = "us" -%}{%- assign c = 2900 -%}{%- assign p = 864 -%}{%- when "-ca" -%}{%- assign f = "ca" -%}{%- assign c = 260 -%}{%- assign p = 288 -%}{%- when "-eu-us" -%}{%- assign f = "eu-us" -%}{%- assign c = 8250 -%}{%- assign p = 2880 -%}{%- when "-eu-ca" -%}{%- assign f = "eu-ca" -%}{%- assign c = 5650 -%}{%- assign p = 2016 -%}{%- when "-us-ca" -%}{%- assign f = "us-ca" -%}{%- assign c = 3150 -%}{%- assign p = 864 -%}{%- endcase -%}{%- assign mode = "t" -%}{%- if watershed_pairs == true or watershed_pairs == "true" or watershed_pairs == "yes" -%}{%- assign mode = "p" -%}{%- assign c = p -%}{%- endif -%}{%- assign slot = "now" | date: "%s" | divided_by: 900 -%}{%- assign n = slot | modulo: c -%}https://nikokoren.github.io/downstream/{{ f }}/{{ mode }}/{{ n }}.json'
 polling_headers: ''
 polling_verb: GET
 no_screen_padding: 'no'
@@ -51,3 +51,20 @@ custom_fields:
   - Metric: metric
   - Imperial: imperial
   default: metric
+- keyname: world_map
+  name: Globe view
+  field_type: boolean
+  description: Show a small globe centred on the town, bottom right in full-screen views.
+  default: false
+- keyname: map_labels
+  name: Map labels
+  field_type: boolean
+  description: Label the starting towns and river changes on the map.
+  default: true
+- keyname: watershed_pairs
+  name: Explore drainage divides
+  field_type: boolean
+  description: >-
+    In full screen, follow rain from two nearby towns to different seas.
+    Smaller layouts show one journey.
+  default: false

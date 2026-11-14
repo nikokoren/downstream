@@ -6,6 +6,7 @@ Usage: uv run python -m downstream.paths   (after downstream.build_names)
 import argparse
 import json
 import time
+from itertools import pairwise
 
 import geopandas as gpd
 import pandas as pd
@@ -151,13 +152,7 @@ def compute_town(
         # The path ends in a named lake (Limni Vegoritis, Limni Ioanninon): that's the endpoint.
         # Once in it, the water stays: a channel back out and in again (Salt Lake City: "Jordan
         # River → Great Salt Lake → Jordan River → Great Salt Lake", 2026-10-01) is the lake.
-        k = next(
-            i for i, g in enumerate(groups) if g["kind"] == "lake" and g["key"] == groups[-1]["key"]
-        )
-        for g in groups[k + 1 :]:
-            groups[k]["km"] = round(groups[k]["km"] + g["km"], 1)
-            groups[k]["reaches"] += g["reaches"]
-        groups = groups[: k + 1]
+        groups = close_lake_chain(groups)
         lake = groups[-1]["name"] or {}
         end = {
             "type": "lake",
@@ -168,7 +163,8 @@ def compute_town(
     end = {**end, "name": latin.english(end["name"], ctx.name_en, c["cc"])}
     end_disp = naming.lookup_curated(end["name"], ctx.curated) if end["name"] else None
     line = shapely.line_merge(shapely.MultiLineString(list(reaches.geometry.values)))
-    simple = simplify_to(line, MAX_MAP_POINTS)
+    changes = map_changes(groups, reaches)
+    simple = simplify_to(line, MAX_MAP_POINTS, keep=[c["at"] for c in changes])
     result = {
         "town": {
             "geonameid": gid,
@@ -185,6 +181,7 @@ def compute_town(
         "travel_days": round(river_days + lake_days, 3),
         "lake_days": round(lake_days, 3),
         "chain": [{k: g[k] for k in ("kind", "name", "source", "km", "reaches")} for g in groups],
+        "changes": changes,
         "end": {**end, "display": end_disp},
         # Google encoded polyline, decoded on screen by TRMNLMaps.decodePolyline() (Framework 3.3+).
         "polyline": encode_polyline(shapely.get_coordinates(simple)),
@@ -205,7 +202,50 @@ def compute_town(
             json.dumps(result, ensure_ascii=False, separators=(",", ":")).encode()
         ),
     }
+    from downstream.pair_validation import seal_checks, source_checks
+
+    result["pair_checks"] = source_checks(result, ctx.net, ctx.basins, ctx.btree, REGION, ids=ids)
+    result["start"]["distance_km"] = result["pair_checks"]["start_distance_km"]
+    if line.geom_type != "LineString":
+        result["pair_checks"]["issues"].append("source_route_geometry_disconnected")
+        result["pair_checks"]["status"] = "rejected"
+    seal_checks(result)
     return result, line, stats
+
+
+def close_lake_chain(groups):
+    """The first arrival at the terminal lake ends the displayed journey."""
+    k = next(
+        i for i, g in enumerate(groups) if g["kind"] == "lake" and g["key"] == groups[-1]["key"]
+    )
+    for g in groups[k + 1 :]:
+        groups[k]["km"] = round(groups[k]["km"] + g["km"], 1)
+        groups[k]["reaches"] += g["reaches"]
+    return groups[: k + 1]
+
+
+def map_changes(groups: list[dict], reaches) -> list[dict]:
+    """Named river hand-offs at the first source vertex of the next retained chain step.
+
+    Unnamed stretches and estuary additions without a network vertex are not located by guess.
+    Lake runs can omit intervening returns to the same river; their displayed adjacency does
+    not establish a direct confluence. Only river-to-river changes get a map callout.
+    The endpoint is described in the box and never becomes a map callout.
+    """
+    changes = []
+    for prev, step in pairwise(groups):
+        index = step.get("_start")
+        if (
+            prev["kind"] != "river"
+            or step["kind"] != "river"
+            or not prev["name"]
+            or not step["name"]
+            or index is None
+        ):
+            continue
+        at = list(reaches.geometry.iloc[index].coords[0])
+        changes.append({"at": at, "from": prev["name"], "to": step["name"]})
+    return changes
 
 
 # Travel time estimate (D3, R10; author 2026-09-30). Water speed from mean annual flow Q (m3/s):
@@ -360,6 +400,8 @@ def main_all() -> None:
                 "en": result["town"]["en"],
                 "de": result["town"]["de"],
                 "total_km": result["total_km"],
+                "travel_days": result["travel_days"],
+                "lake_days": result["lake_days"],
                 "end_type": result["end"]["type"],
                 "end_name": result["end"]["name"],
                 "chain": chain_text(result),
@@ -395,12 +437,31 @@ def encode_polyline(coords) -> str:
     return "".join(out)
 
 
-def simplify_to(line, max_points: int):
+def simplify_to(line, max_points: int, keep=()):
+    # Split at real hand-offs before simplifying, so their leader dots stay on the map path.
+    # Merged geometry can have the opposite orientation to the reach table; coordinate locks
+    # work in either direction and do not assume cumulative lengths locate the changes.
+    coords = shapely.get_coordinates(line)
+    required = {tuple(p) for p in keep}
+    locks = sorted({0, len(coords) - 1} | {i for i, c in enumerate(coords) if tuple(c) in required})
+    if len(locks) > max_points:
+        raise ValueError("more map hand-offs than the map point budget")
+    parts = [shapely.LineString(coords[a : b + 1]) for a, b in pairwise(locks)]
+
+    def simplify(tolerance):
+        if not required:
+            return line.simplify(tolerance, preserve_topology=False)
+        out = []
+        for part in parts:
+            cs = list(part.simplify(tolerance, preserve_topology=False).coords)
+            out.extend(cs if not out else cs[1:])
+        return shapely.LineString(out)
+
     tol = 0.002
-    simple = line.simplify(tol, preserve_topology=False)
+    simple = simplify(tol)
     while len(shapely.get_coordinates(simple)) > max_points:
         tol *= 1.5
-        simple = line.simplify(tol, preserve_topology=False)
+        simple = simplify(tol)
     return simple
 
 

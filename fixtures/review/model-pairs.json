@@ -1,0 +1,631 @@
+{
+ "captured_utc": "2026-11-13T18:36:14.521596+00:00",
+ "review_only": true,
+ "changes": "UI/display redundancy removed from captured packets; no geography or estimates changed. Source verification remains pending.",
+ "pairs": [
+  {
+   "region": "eu",
+   "id": "2820256-2825297",
+   "distance_km": 73.709,
+   "sources": [
+    {
+     "region": "eu",
+     "geonameid": "2820256",
+     "url": "https://nikokoren.github.io/downstream/eu/t/1438.json",
+     "sha256": "31a7876d4a423ac35ac2a86467a0f15da6958b076b5bcbba3ad9cbfb154739e6"
+    },
+    {
+     "region": "eu",
+     "geonameid": "2825297",
+     "url": "https://nikokoren.github.io/downstream/eu/t/4959.json",
+     "sha256": "2cfe4e7ca4ee29a50030a5c7a059b76b040ef3a6c81dbfee5c7017eaa53517a1"
+    }
+   ],
+   "towns": [
+    {
+     "town": {
+      "geonameid": "2820256",
+      "en": "Ulm",
+      "de": "Ulm",
+      "lon": 9.99155,
+      "lat": 48.39841,
+      "population": 120451,
+      "cc": "DE"
+     },
+     "start": {
+      "reach": 20414620,
+      "how": "sub-basin 2120469530"
+     },
+     "reaches": 650,
+     "total_km": 2742.4,
+     "travel_days": 38.841,
+     "lake_days": 10.6,
+     "chain": [
+      {
+       "kind": "river",
+       "name": {
+        "en": "Danube",
+        "de": "Donau"
+       },
+       "source": "osm",
+       "km": 2756.1,
+       "reaches": 650
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "Black Sea",
+      "featurecla": "sea",
+      "distance_km": 0.0,
+      "display": {
+       "en": "Black Sea",
+       "de": "Schwarzes Meer"
+      }
+     },
+     "polyline": "}{jfH{a~{@_pR{tjAecj@a}mAskJqsfDq|]}nkA_pRg{C`Yy~a@|fe@cdjCdcj@}wx@lcGq~dAnh\\}nkA|{PowH~Xu{s@r|]qddAskJiuzB{rc@_ge@pqIqbsCdii@}wx@~X{vqBj`Yc~Trgr@gpeBwsM}g{FnqIseK~wx@reK~kz@|fe@j`Y}uQ~zf@l}GfrV{aPz{Pnh\\f_rAs_Lrv^jen@pddAwou@~oRvsMpkJcoh@bmA|uQdxUjiFln[et}@guD}prBxgO}uQbmAoyo@flWk`YzaPvyLzaP{gOdaCosp@zrc@mtZsv^}jsBrkJeii@~oRowHfuDq~dArv^{xb@}fe@ktZm}Gs|]nh\\yiv@~iS~qy@nyo@g}j@jzYsxeAzxb@`{f@z{P_af@oqI_ilAtj`@kzoCymNqddAvsM}fe@kcGyou@xgOqfkB}nkAupuCc~TcdjCf{Ca}mAkzYahbByxb@qb]}fe@zaPsv^~`f@ko{Bqmq@egByxb@jzY{aP|uQwlgAc~TuyLpqIqb]ymNowHygOgyrApkJwj`@jzY_pR"
+    },
+    {
+     "town": {
+      "geonameid": "2825297",
+      "en": "Stuttgart",
+      "de": "Stuttgart",
+      "lon": 9.17702,
+      "lat": 48.78232,
+      "population": 612663,
+      "cc": "DE"
+     },
+     "start": {
+      "reach": 20404774,
+      "how": "sub-basin 2120458450"
+     },
+     "reaches": 200,
+     "total_km": 796.6,
+     "travel_days": 11.193,
+     "lake_days": 0.9,
+     "chain": [
+      {
+       "kind": "river",
+       "name": null,
+       "source": null,
+       "km": 8.7,
+       "reaches": 1
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Neckar"
+       },
+       "source": "osm",
+       "km": 171.9,
+       "reaches": 39
+      },
+      {
+       "kind": "river",
+       "name": {
+        "en": "Rhine",
+        "de": "Rhein"
+       },
+       "source": "osm",
+       "km": 620.1,
+       "reaches": 160
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "North Sea",
+      "featurecla": "sea",
+      "distance_km": 6.0,
+      "display": {
+       "en": "North Sea",
+       "de": "Nordsee"
+      }
+     },
+     "polyline": "onphHktwv@isXkgZioEreKkoEkoE?rkJowHegBcmAnwHwsMeaCg{Cf{CcgBo}G{gOcgBg{CnqIoqIf{CcmAcgBseKreKaYjiFegBiuDguDvsMo}GdaCbmAzgOnwHl}G`YvsMg{Cf{C`s@|{PseKtyLioEnh\\owHhuDiuDcs@_jSt_LiuDymNm}GkcGcmAreKwsMfuDiuDlcGuyL?{gO`jSreKrxeAuyLzaPuyLr_LegBcgBeaCdaCgaCreKs_LvsMegBuyLseKreKwsMcmAiuDvsMbmAnwHowHbxUcxU~oRegBnwHseK?owHn}GifXxxb@owHuyLguDvsMiuD`s@iuDiuDg{CjoEg{Ccs@qkJdxUiuDg{CowHhuDdgBnwHmcGbgBas@pqIioE`YaYmcGkiFreKowHiuDkiFxmNmcG{aPkiFhuDg{Ccs@eaClcGiuDmcGg{ClcGkiF??xmNwmN~XcmAbdTqqIvmNioE_YaYtyLu_LxmNm}Gbii@c~Tnh\\lcGzcw@o}Gnh\\huDhfXg{C|{PdaCl}GkcG`dThoEpqIas@jiFzaPdt}@iuDtp_@f{C~`f@u_Lpb]"
+    }
+   ]
+  },
+  {
+   "region": "us",
+   "id": "5642934-5656882",
+   "distance_km": 75.9,
+   "sources": [
+    {
+     "region": "us",
+     "geonameid": "5642934",
+     "url": "https://nikokoren.github.io/downstream/us/t/2.json",
+     "sha256": "1aacab53668bf0a14c2e8df43be38d1430a91b8adb7f8ca1016c27eb0a8b0e55"
+    },
+    {
+     "region": "us",
+     "geonameid": "5656882",
+     "url": "https://nikokoren.github.io/downstream/us/t/1859.json",
+     "sha256": "fa08f511fea1e45ead03cdc4611e1cdcdacc23b56419c6845877225bc98d69d7"
+    }
+   ],
+   "towns": [
+    {
+     "town": {
+      "geonameid": "5642934",
+      "en": "Butte",
+      "de": "Butte",
+      "lon": -112.53474,
+      "lat": 46.00382,
+      "population": 34190,
+      "cc": "US"
+     },
+     "start": {
+      "reach": 70394700,
+      "how": "sub-basin 7121005050"
+     },
+     "reaches": 588,
+     "total_km": 1969.5,
+     "travel_days": 124.459,
+     "lake_days": 98.8,
+     "chain": [
+      {
+       "kind": "river",
+       "name": {
+        "local": "Silver Bow Creek"
+       },
+       "source": "osm",
+       "km": 36.9,
+       "reaches": 10
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Mill-Willow Bypass"
+       },
+       "source": "osm",
+       "km": 7.2,
+       "reaches": 2
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Clark Fork"
+       },
+       "source": "osm",
+       "km": 519.6,
+       "reaches": 159
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lake Pend Oreille"
+       },
+       "source": "lake:osm",
+       "km": 43.9,
+       "reaches": 16
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Pend Oreille River"
+       },
+       "source": "osm",
+       "km": 157.9,
+       "reaches": 51
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Pend-d'Oreille River"
+       },
+       "source": "osm",
+       "km": 26.0,
+       "reaches": 8
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Columbia River"
+       },
+       "source": "osm",
+       "km": 1185.9,
+       "reaches": 342
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "North Pacific Ocean",
+      "featurecla": "sea",
+      "distance_km": 40.0,
+      "display": {
+       "en": "North Pacific Ocean",
+       "de": "Nordpazifik"
+      }
+     },
+     "polyline": "{iuwGf}xmTkiFtas@sgr@u_Lcug@bmAecj@hjfBas@f_rAs|]f}j@dgB`ug@kzYbdT`s@ze~Ai`Yr_Lqb]~qy@qkJ{{PlcGy~a@wyLkiFi`Ynh\\{aPhssAglWrkJ}{Pz{PseKx~a@erVt_L_pRtlgA}ld@lvaAhuD~zf@`dThfX{aPbqoA_pRtyLgfXdgBkoEmcGs_LzgOg}j@vsMup_@}{P}{P~oRlcG|ld@psp@hssAr_LioEjiFxgO~fe@~oRzld@u_L`{f@b~ThoEjzYdxUkcGtyLhoEkcGnh\\qqIf{Cas@`wnAymNcmA_pRxmNioE`jSjcGv~a@reKhuDioEtp_@zaPb~TioEtyLseKcmAbmAtp_@f{Cl}Gb~TioErv^jtZjiFdii@pkJeaChwk@drVreKkiFl}G}ld@`jS?daC{aPpb]joEnyo@cdTflWf{CreKktZegB{xb@ymNadThuDseKx~a@}ld@hql@`YzaPkkm@zaPygOvsM?t_LzaPjiFlriBtyLdrVpb]teaCo}Gpmq@ltZd|cB}uQvda@?fpeBnb]xq|A_pRfyrA}wx@pqImn[`dT_pRhwk@jiFtj`@cdTnh\\"
+    },
+    {
+     "town": {
+      "geonameid": "5656882",
+      "en": "Helena",
+      "de": "Helena",
+      "lon": -112.03611,
+      "lat": 46.59271,
+      "population": 32091,
+      "cc": "US"
+     },
+     "start": {
+      "reach": 70374647,
+      "how": "sub-basin 7120366250"
+     },
+     "reaches": 1329,
+     "total_km": 5566.9,
+     "travel_days": 1961.17,
+     "lake_days": 1899.3,
+     "chain": [
+      {
+       "kind": "river",
+       "name": null,
+       "source": null,
+       "km": 7.8,
+       "reaches": 1
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Tenmile Creek"
+       },
+       "source": "osm",
+       "km": 5.2,
+       "reaches": 1
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Prickly Pear Creek"
+       },
+       "source": "osm",
+       "km": 14.8,
+       "reaches": 6
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Missouri River"
+       },
+       "source": "osm",
+       "km": 2285.6,
+       "reaches": 533
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lewis and Clark Lake"
+       },
+       "source": "lake:osm",
+       "km": 27.6,
+       "reaches": 10
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Missouri River"
+       },
+       "source": "osm",
+       "km": 1324.3,
+       "reaches": 306
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Mississippi River"
+       },
+       "source": "osm",
+       "km": 1913.2,
+       "reaches": 472
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "Gulf of Mexico",
+      "featurecla": "sea",
+      "distance_km": 4.0,
+      "display": {
+       "en": "Gulf of Mexico",
+       "de": "Golf von Mexiko"
+      }
+     },
+     "polyline": "wah{Gnd|jTmtZwda@a}mAreKc`rDm~sIfn~@mpbA{aPw{iDnjcA_zuE}ld@men@i`Yux{D{cw@sas@ymN}||Izrc@}{fCup_@g}j@dxUgcj@ifXg{yBjdgB_etBhoE{~wCxou@c~Tf{CmpbAbbcBq|]f}j@}}w@n{vAt_LvfhAalz@p|]tp_@ln[_ge@vlgA_Yfwk@n{vAb`|@mtZpddA}{fCseKc`|@boh@iwk@`f{@flWbug@uj`@hdgBqyeDtp_@g_rA}{PwjvCtlgAo_eDxheFevdBxbpBbgBzafCwq|Aboh@kdgBv{s@jkm@jvaA{}w@t_LsmgDuas@}ryCx~a@et}@dcj@nqIjiFkvaAdkpA}__Bqb]u_bCvda@}__BoddAwhoBtyLaug@x|pBjen@lxhBmedDhssA`Y|}w@geqAboh@dgB|wx@lvaA}uQ|uQlc}B|uQ~fe@ziv@vbpBh`Y~bmA|y_Bdz|@dgBj`oClc}BtcpEwsM|}w@oyo@xq|AnavAtaiDbz|@poxAsczAhh_Ao}G~`f@ib`AreK}}mDtas@hoEjxhB}afC"
+    }
+   ]
+  },
+  {
+   "region": "ca",
+   "id": "5884588-6128577",
+   "distance_km": 76.537,
+   "sources": [
+    {
+     "region": "ca",
+     "geonameid": "5884588",
+     "url": "https://nikokoren.github.io/downstream/ca/t/189.json",
+     "sha256": "d339e604be1d77300c8524e3bc13035199043883f5bc905d47aeb21745f55a17"
+    },
+    {
+     "region": "ca",
+     "geonameid": "6128577",
+     "url": "https://nikokoren.github.io/downstream/ca/t/242.json",
+     "sha256": "ed25d23e5fc73eeb8c986d8b38f6423ac077df43dd481fa1e40af9f79307b232"
+    }
+   ],
+   "towns": [
+    {
+     "town": {
+      "geonameid": "5884588",
+      "en": "Amos",
+      "de": "Amos",
+      "lon": -78.11624,
+      "lat": 48.56688,
+      "population": 17918,
+      "cc": "CA"
+     },
+     "start": {
+      "reach": 70304130,
+      "how": "sub-basin 7120975730"
+     },
+     "reaches": 85,
+     "total_km": 392.8,
+     "travel_days": 28.382,
+     "lake_days": 21.4,
+     "chain": [
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière Harricana"
+       },
+       "source": "osm",
+       "km": 22.4,
+       "reaches": 6
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Obalski"
+       },
+       "source": "lake:osm",
+       "km": 10.9,
+       "reaches": 4
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière Harricana"
+       },
+       "source": "osm",
+       "km": 359.9,
+       "reaches": 75
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "James Bay",
+      "featurecla": "sea",
+      "distance_km": 0.0,
+      "display": {
+       "en": "James Bay",
+       "de": "James Bay"
+      }
+     },
+     "polyline": "oyigH`cv{MgaCdgBg{CcmAcmAcmA?g{CeaCkoE`YeaCgaCegBcgB`YgaCcmAcmA?as@`s@mcGm}GcgB?cmAbmA~Xf{CkiFl}Gas@faC?fuDas@bs@g{CegBcs@`YcgBcs@aYhuD`s@bmAeaCdaCkiF_YeaCdaCcmAas@aYcmAkiF~XiuDowHcmAfaCg{CdaCcmAcmA?eaCcmAcs@`Yg{Cas@cmAg{Cf{CgaC?as@as@?egBegB_YeaCfuDm}G`YegBdaC?f{CcmAbmAiuD`YeaCpqIegBdaCioEdgBiuDegBcgB`s@?faCkoEfuDkiFpqIkiFzaPg{ChoE_YlcGcs@bmAioEcmAeaCdaCkiF`YkoEhoEoqIhuDegBaYegBcgB{{Pz{Pcs@rkJseKr_LeaClcGioElcG?daCgaCnwHas@?kiFioEkiF~XcmAcmAegB?eaCdgB?f{CioEhoEg{Cbs@iuDaYg{CbmAioEaYu_LjoEeaCaYgaCdaC?bmAcmAdgBseKbmAkiFjiFg{C`Yas@`s@eaC?cmAdgB?daCg{CdaCseK~oRseKt_LmcG?g{ChuDm}Gf{Co}Gr_Lm}Gn}GiuDbgBioErkJaYdaCioEhuD?bgBmcGlcGguDbmAgaCdaC?dgBg{Cf{C"
+    },
+    {
+     "town": {
+      "geonameid": "6128577",
+      "en": "Rouyn-Noranda",
+      "de": "Rouyn-Noranda",
+      "lon": -79.02311,
+      "lat": 48.23656,
+      "population": 23504,
+      "cc": "CA"
+     },
+     "start": {
+      "reach": 70315117,
+      "how": "sub-basin 7120326480"
+     },
+     "reaches": 337,
+     "total_km": 1173.2,
+     "travel_days": 1053.832,
+     "lake_days": 1039.5,
+     "chain": [
+      {
+       "kind": "river",
+       "name": {
+        "local": "Ruisseau Osisko"
+       },
+       "source": "osm",
+       "km": 4.0,
+       "reaches": 1
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Rouyn"
+       },
+       "source": "lake:osm",
+       "km": 3.1,
+       "reaches": 1
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Routhier"
+       },
+       "source": "lake:osm",
+       "km": 0.6,
+       "reaches": 1
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière Kinojévis"
+       },
+       "source": "osm",
+       "km": 18.2,
+       "reaches": 2
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Kinojévis"
+       },
+       "source": "lake:osm",
+       "km": 6.6,
+       "reaches": 4
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière Kinojévis"
+       },
+       "source": "osm",
+       "km": 28.3,
+       "reaches": 6
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière des Outaouais"
+       },
+       "source": "osm",
+       "km": 35.0,
+       "reaches": 7
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Simard"
+       },
+       "source": "lake:osm",
+       "km": 10.3,
+       "reaches": 4
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac des Quinze"
+       },
+       "source": "lake:osm",
+       "km": 46.5,
+       "reaches": 13
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Rivière des Outaouais"
+       },
+       "source": "osm",
+       "km": 25.3,
+       "reaches": 4
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Ottawa River / Rivière des Outaouais"
+       },
+       "source": "naturalearth",
+       "km": 362.5,
+       "reaches": 105
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Coulonge"
+       },
+       "source": "lake:osm",
+       "km": 14.8,
+       "reaches": 4
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Ottawa River / Rivière des Outaouais"
+       },
+       "source": "osm",
+       "km": 37.5,
+       "reaches": 6
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac des Chats"
+       },
+       "source": "lake:osm",
+       "km": 44.5,
+       "reaches": 12
+      },
+      {
+       "kind": "river",
+       "name": {
+        "local": "Ottawa River / Rivière des Outaouais"
+       },
+       "source": "osm",
+       "km": 187.8,
+       "reaches": 56
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac des Deux-Montagnes"
+       },
+       "source": "lake:osm",
+       "km": 33.9,
+       "reaches": 14
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Saint-Louis"
+       },
+       "source": "lake:osm",
+       "km": 30.3,
+       "reaches": 8
+      },
+      {
+       "kind": "river",
+       "name": {
+        "en": "St. Lawrence",
+        "de": "Sankt-Lorenz-Strom"
+       },
+       "source": "osm",
+       "km": 92.9,
+       "reaches": 21
+      },
+      {
+       "kind": "lake",
+       "name": {
+        "local": "Lac Saint-Pierre"
+       },
+       "source": "lake:osm",
+       "km": 47.7,
+       "reaches": 13
+      },
+      {
+       "kind": "river",
+       "name": {
+        "en": "St. Lawrence",
+        "de": "Sankt-Lorenz-Strom"
+       },
+       "source": "osm",
+       "km": 149.0,
+       "reaches": 55
+      }
+     ],
+     "end": {
+      "type": "sea",
+      "name": "Gulf of Saint Lawrence",
+      "featurecla": "sea",
+      "distance_km": 794.0,
+      "display": {
+       "en": "Gulf of Saint Lawrence",
+       "de": "Sankt-Lorenz-Golf"
+      }
+     },
+     "polyline": "qmpeH|`caNfhDmgZ|uQlcGb~Ta{f@vyL?hoEguDdgBjiFjtZreKn}GskJl}Gf{Cf{CfrVln[`ug@cmAnwHseKt_LdgBvsMkiFjcGdgBvsMg{CbdT~oRvmNr_LcgBpqIbgBflWcxUtp_@~Xf}j@}fe@reK}{Pb~TqkJreKymNvmNg{CzaP_pRvyLob]tyLkoEf{Cc`|@jiFs_LeaC{rc@xgOk|`AeaCymNnwHmn[ln[{cw@t_L`s@zaPajSjcGoh\\jiFoqIcgBu_L_vQaYfaCglWfuDkiFpqIf{CpkJas@f{CwsMf{Cas@faCfuDjcGm}GreKcmApqIcoh@nwHygOcmAajSowHm}G?grVlcGc~T~iSglW?kcG{{PmtZwyLgn~@m}G}uQcmAgcj@qqIc~TbmA{cw@t_Lken@reKseKreKc`|@l}Gu_LeaCulgAiuDo}GwsMdgB{rc@}uQwda@a{f@sv^}{PeaCc~TajSktZerVgt}@}{Pi`Ym}Guj`@erVajSg{CmtZ_vQmn[f{C{rc@_pReeqAs_LymN"
+    }
+   ]
+  }
+ ]
+}

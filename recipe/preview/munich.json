@@ -10,7 +10,8 @@
  },
  "start": {
   "reach": 20421918,
-  "how": "sub-basin 2120475400"
+  "how": "sub-basin 2120475400",
+  "distance_km": 0.712428
  },
  "reaches": 623,
  "total_km": 2587.6,
@@ -54,7 +55,7 @@
    "de": "Schwarzes Meer"
   }
  },
- "polyline": "kzxdHqtoeA_cReeVsp_@ygOmcGyxb@qkJegB}ld@mkcDc~Tw~a@zaPmcG`dTg}j@lcGq~dAltZsmq@`s@i`Y|{PowH~Xu{s@r|]qddAu_Laug@pkJeii@owHaug@{rc@_ge@vyLkguAegBez|@dii@}wx@daCw{s@qqIob]jiFsv^j`Yc~Trgr@gpeBegBqyeDseKerVpqI}ld@owHglWnqIseK~wx@reK~iSdxU~`f@vmNj`Y}uQ~zf@l}GfrV{aPz{Pnh\\jzYseKzgOjiF~zf@kcGrv^jen@pddAwou@~oRvsMpkJcoh@bmA|uQzgOg{ChoEreKln[et}@cgBsmq@jcGowHoqIyiv@xgO}uQbmAoyo@flWk`YzaPvyLzaP{gOdaCosp@zgO?~iSmtZsv^}jsBnwHo}Gbs@uj`@~oRowHfuDq~dAltZ_vQdaC{aP}fe@ktZm}Gs|]nh\\yiv@l}GlcGioEffXvsMn}GbgBxgOnn[}uQjcGk`YreK`YjzYsxeAreKjiFfaCdxU~oRnwHnqIkoEjiFsp_@oqI_ilAtj`@kzoCymNqddAvsM}fe@kcGyou@`dTy`iAg{Cwda@u_Lecj@qmq@gn~@u_Lg}j@c~TcdjCf{Ca}mAwsMmn[seKsxeAyxb@qb]glW~uQuyLcs@u_LjzY}uQreKih_AktZ_pR`s@aug@glWf{CadTmcGwsMjzY{aP|uQwlgAeaCuyLiuDjiFseKkiFpqIqb]ymNowHygOgyrApkJwj`@jzY_pR",
+ "polyline": "kzxdHqtoeA_cReeVsp_@ygOmcGyxb@qkJegB}ld@mkcDc~Tw~a@zaPmcG`dTg}j@lcGq~dAltZsmq@`s@i`Y|{PowH~Xu{s@r|]qddAu_Laug@pkJeii@owHaug@{rc@_ge@vyLkguAegBez|@dii@}wx@daCw{s@qqIob]jiFsv^j`Yc~Trgr@gpeBegBqyeDseKerVpqI}ld@o}Gi`YzgOqqIbii@zaPn}Gg{C~iSdxU~`f@vmNj`Y}uQ~zf@l}GfrV{aPz{Pnh\\jzYseKzgOjiF~zf@kcGrv^jen@pddAwou@~oRvsMpkJcoh@bmA|uQzgOg{ChoEreKln[et}@cgBsmq@jcGowHoqIyiv@xgO}uQbmAoyo@flWk`YzaPvyLzaP{gOdaCosp@zgO?~iSmtZsv^}jsBnwHo}Gbs@uj`@~oRowHfuDq~dAltZ_vQdaC{aP}fe@ktZm}Gs|]rp_@{}w@_Yv~a@vsMn}GaYvsMjzYskJpkJoh\\vsMas@jzYsxeAreKjiFfaCdxU~oRnwHvmNglWkcGw}zAtj`@kzoCymNqddAvsM}fe@kcGyou@`dTy`iAg{Cwda@u_Lecj@qmq@gn~@u_Lg}j@c~TcdjCf{Ca}mAwsMmn[seKsxeAyxb@qb]glW~uQuyLcs@u_LjzY}uQreKih_AktZ_pR`s@aug@glWf{CadTmcGwsMjzY{aP|uQwlgAeaCuyLiuDjiFseKkiFpqIqb]ymNowHygOgyrApkJwj`@jzY_pR",
  "distance": {
   "en": {
    "metric": "2,588 km",
@@ -89,7 +90,8 @@
    "place": "{town}, {country}",
    "intro": "A raindrop falling on",
    "along": "travels along",
-   "and": "and"
+   "and": "and",
+   "travel_unavailable": "time estimate unavailable"
   },
   "de": {
    "ends_in": "Endet in",
@@ -102,7 +104,24 @@
    "place": "{town}, {country}",
    "intro": "Ein Regentropfen in",
    "along": "fließt durch",
-   "and": "und"
+   "and": "und",
+   "travel_unavailable": "Dauer unbekannt"
   }
- }
+ },
+ "slot": 1729,
+ "changes": [
+  {
+   "at": [
+    12.977083333332786,
+    48.80624999999946
+   ],
+   "from": {
+    "local": "Isar"
+   },
+   "to": {
+    "en": "Danube",
+    "de": "Donau"
+   }
+  }
+ ]
 }

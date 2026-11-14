@@ -381,7 +381,7 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
     Norderelbe), but never across a lake. The spelling shown is the one covering most km.
     """
     groups: list[dict] = []
-    for (name, src), length in zip(names, reaches["LENGTH_KM"], strict=True):
+    for index, ((name, src), length) in enumerate(zip(names, reaches["LENGTH_KM"], strict=True)):
         disp = lookup_curated(name, curated) if name else None
         key = display_key(name)
         kind = "lake" if src and src.startswith("lake:") else "river"
@@ -404,6 +404,9 @@ def chain(reaches: gpd.GeoDataFrame, names: list[tuple], curated: dict) -> list[
                 "kind": kind,
                 "km": float(length),
                 "reaches": 1,
+                # Retained when steps merge: a name change is located on the source reach,
+                # never estimated from the accumulated km after lake/side-arm cleanup.
+                "_start": index,
             }
         )
     groups = _lakes_named_like_river(groups)

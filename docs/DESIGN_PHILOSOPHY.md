@@ -146,3 +146,74 @@ from a town (D8). So the parts carry over like this:
   now renders with Ruby Liquid (`recipe/tools/render.rb`).
 - **Process** (part A §6) applies as is: brainstorm, wireframes, real-render mock-ups with real town
   files, build, render sweep, device feedback.
+
+### Optional globe (author requested 2026-11-13)
+
+Full-screen views can show the same outlined, town-centred globe as Ridgelines, bottom right.
+It is off by default. It uses bundled public-domain Natural Earth land, a d3 hemisphere projection
+with 3x centre magnification, and TRMNLPaint colours/sizes. X gets the larger size. The globe is
+an SVG locator, not another network map or a moving drop. Portrait text boxes narrow when it is
+enabled; whole-route framing avoids both the box and globe. Half views/quadrants omit it.
+Missing coordinates omit it without leaving space. Regeneration and licences live in
+`recipe/tools/globe.js`, `world_map.py`, `globe-LICENSE.txt` and Shared. Render checks now verify
+globe placement, centred markers and route visibility. Hosted tiles and physical devices still
+need separate validation; offline coastline previews cannot establish either.
+
+### River labels and paired cards (author requested 2026-11-13)
+
+Normal views label the start town and named hand-offs between rivers. They use Framework
+typography and paint in SVG callouts, with leaders pointing to the route. Placement avoids
+paths, other labels, text boxes, the globe and attribution. Very small mashups can omit a
+callout when there is no clear position; the full river chain remains in the text box.
+
+The collision pass also reserves the route's stroke/casing and endpoint discs. Connectors
+prefer clear paths, and are clipped around river strokes and markers so they cannot obscure
+them. A town connector can cross a river loop with a visible gap at the river when necessary;
+river-change callouts require a clear connection. Connectors avoid other callouts and each
+other, and later labels cannot cover earlier connectors. Both town names are planned together
+before river changes.
+Full views reserve annotation space around the route bounds; smaller views keep their existing
+fit. A connector can use a different entry point on the label when a river bend blocks the
+nearest edge. At a tightly clustered start,
+a town can use a nearby label without a connector if no clear connector is possible.
+River-change labels yield when crowded, while their steps remain in the journey cards.
+After the Framework's idle placement, conflicting background city names are hidden so their
+text halos cannot cover a journey or callout. Other background names remain. Coordinates and
+route strokes are preserved; nearby geographic paths can still converge at whole-route scale.
+
+In a full-screen two-route packet, one `ds_box` sits on each bottom edge. Both use the existing
+sentence, intermediate river steps, endpoint, distance and approximate duration. Town names
+identify the routes; both strokes and start markers match. There are no letter badges and no
+map label at the sea. The destination is stated in the box; the endpoint ring remains.
+
+Coordinates for hand-offs come from source reaches retained through name/lake/side-arm cleanup.
+Those vertices are protected during simplification. Never use a percentage of displayed km to
+locate a confluence. Missing duration data must be shown as unavailable, never as an estimate
+invented for a mock-up. See `WATERSHED_BATTLE.md` for the reference-packet limitations.
+
+The comparison is opt-in through **Explore drainage divides** (`watershed_pairs`, default off),
+and applies only to Full. Other layouts use the primary journey from a paired packet, as does
+Full with the setting off. No map heading is shown. The candidate catalogue is separate from
+the normal rotation; see `PAIR_SELECTION.md` for discovery, source checks and curation.
+
+The quadrant allows up to three town/destination lines and two distance/time lines. This keeps
+the primary Nürnberg journey readable in portrait without forcing another layout or text size.
+
+Map labels are independently optional through `map_labels`, on by default. Missing/blank
+settings keep them on; boolean false and the native false/no string forms disable them.
+This controls both town names and river changes in every view. It does not hide the text
+boxes, route markers, globe or attribution.
+
+Town eligibility for comparisons is exactly the current recipe policy (`towns.region_towns`,
+including D24). The rotation uses all verified pairs, with the recipe's 15-minute cadence and
+a three-day minimum interval for the same pair. Sparse pools use ordinary single-town slots
+between comparisons. A small review sample is not a production catalogue cap.
+
+Full comparison cards allow up to eight wrapped chain lines and three town/destination
+lines. Real US/Canadian model packets required the extra wrapping in OG portrait; typography,
+the existing chain-shortening rule and bottom-edge placement remain. Source-verified feed
+selection, compact payloads and stable rotation across builds are documented in `PAIR_FEED.md`.
+
+Half vertical permits three wrapped chain lines. The ordinary Rouyn-Noranda fallback's
+shortened chain (including the count of remaining rivers) required the third line in portrait;
+the type size and shortening rule remain.

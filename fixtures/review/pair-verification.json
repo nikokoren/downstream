@@ -1,0 +1,203 @@
+{
+ "captured_on": "2026-11-13",
+ "scope": "Primary-source model checks; not an independent physical survey of canals, drains or current river conditions.",
+ "thresholds": {
+  "town_distance_km": 80,
+  "start_reach_distance_km": 1,
+  "min_each_route_km": 100,
+  "max_payload_bytes": 6144
+ },
+ "input_selection": "All 8,348 IDs from the unchanged published rotations; no new population or suburb policy.",
+ "regions": {
+  "eu": {
+   "input_towns": 5280,
+   "source_qualified_towns": 3248,
+   "feed_pairs": 1705,
+   "slot_count": 2016,
+   "normal_slots": 311,
+   "source_issue_counts": {
+    "start_reach_more_than_1km_from_town": 1941,
+    "route_contains_engineered_channel": 150,
+    "start_reach_outside_town_basin": 51,
+    "start_is_not_selected_inside_source_basin": 51,
+    "journey_does_not_end_in_a_sea": 19,
+    "town_has_no_unique_source_basin": 4
+   }
+  },
+  "us": {
+   "input_towns": 2816,
+   "source_qualified_towns": 1328,
+   "feed_pairs": 630,
+   "slot_count": 864,
+   "normal_slots": 234,
+   "source_issue_counts": {
+    "start_reach_more_than_1km_from_town": 1397,
+    "journey_does_not_end_in_a_sea": 97,
+    "route_contains_engineered_channel": 97,
+    "start_reach_outside_town_basin": 26,
+    "start_is_not_selected_inside_source_basin": 26
+   }
+  },
+  "ca": {
+   "input_towns": 252,
+   "source_qualified_towns": 139,
+   "feed_pairs": 0,
+   "slot_count": 288,
+   "normal_slots": 288,
+   "source_issue_counts": {
+    "start_reach_more_than_1km_from_town": 112,
+    "route_contains_engineered_channel": 1
+   }
+  }
+ },
+ "candidate_pairs": 6168,
+ "source_checked_pairs": 2335,
+ "removed_pairs": 3833,
+ "removed_pair_reason_counts_nonadditive": {
+  "route_contains_engineered_channel": 510,
+  "start_reach_more_than_1km_from_town": 3740,
+  "start_is_not_selected_inside_source_basin": 1,
+  "start_reach_outside_town_basin": 1
+ },
+ "source_data_urls": {
+  "RiverATLAS": "https://ndownloader.figshare.com/files/20087486",
+  "BasinATLAS": "https://ndownloader.figshare.com/files/20087237"
+ },
+ "source_file_sha256": {
+  "data/raw/reaches_eu.fgb": "c6189b23285e38956bbe15e71aff590b6b753691783b73423da308c20ae4b6b0",
+  "data/raw/basins_l12_eu.fgb": "6fec18854d0efdccd31fba160fa8e2965bf0a3dc67777eac6a94772768d956bf",
+  "data/raw/pair-validation/name_table.csv": "fb76d989ad3525847854ebcc9a8c44e2889db5cc0837e066e90b41bf63033131",
+  "data/raw/reaches_us.fgb": "2046b02fbdc3e1227ba74f2f9729cd806f3618b8b12c9f5b08bd1f0580ccd04b",
+  "data/raw/basins_l12_us.fgb": "6dc5402ac2a64a726578ab20dd58b770a8c697be08d96d954e2f1a581687b48e",
+  "data/raw/pair-validation/name_table_us.csv": "baf19744275f7d5ac52d98bb1a62587eadce35cbed8ad3e25d67b5eb89a4f7cd",
+  "data/raw/reaches_ca.fgb": "2046b02fbdc3e1227ba74f2f9729cd806f3618b8b12c9f5b08bd1f0580ccd04b",
+  "data/raw/basins_l12_ca.fgb": "ca20c215b0fa0a0b79eb88e5baa765d66c6d96dae61ffcabcb9f32abbcc3e828",
+  "data/raw/pair-validation/name_table_ca.csv": "91ead6f47bc8730603ab174e27fbd4cadc3ae141f47830ca9e8ee2b0bf51ec83"
+ },
+ "names_capture_manifest": {
+  "captured_utc": "2026-11-13T20:06:38.322144+00:00",
+  "files": [
+   {
+    "file": "data/raw/pair-validation/name_table.csv",
+    "url": "https://github.com/nikokoren/downstream/releases/download/name-table/name_table.csv",
+    "bytes": 11617056,
+    "sha256": "fb76d989ad3525847854ebcc9a8c44e2889db5cc0837e066e90b41bf63033131"
+   },
+   {
+    "file": "data/raw/pair-validation/name_table_us.csv",
+    "url": "https://github.com/nikokoren/downstream/releases/download/name-table/name_table_us.csv",
+    "bytes": 21895560,
+    "sha256": "baf19744275f7d5ac52d98bb1a62587eadce35cbed8ad3e25d67b5eb89a4f7cd"
+   },
+   {
+    "file": "data/raw/pair-validation/name_table_ca.csv",
+    "url": "https://github.com/nikokoren/downstream/releases/download/name-table/name_table_ca.csv",
+    "bytes": 21904345,
+    "sha256": "91ead6f47bc8730603ab174e27fbd4cadc3ae141f47830ca9e8ee2b0bf51ec83"
+   },
+   {
+    "file": "data/raw/pair-validation/name_en.csv",
+    "url": "https://github.com/nikokoren/downstream/releases/download/name-table/name_en.csv",
+    "bytes": 145394,
+    "sha256": "4e23d3ac73edeb543cd1ff8c28c183661bb2f6b62ff530282c3c9d45780d5d75"
+   }
+  ]
+ },
+ "captured_model_manifest_sha256": "0d1622ab96486e407bd187a837405a37e3d261e6fd0929c1d4eeb0e99cf68018",
+ "catalogue": {
+  "file": "fixtures/review/source-checked-pairs.csv",
+  "sha256": "6e37ec36f4ed0858588ff3d32f11a8a592d9ac43ef1855911b3d0f9912eb21b9",
+  "rows": 2335
+ },
+ "built_feeds": {
+  "eu": {
+   "town_slots": 5400,
+   "comparison_slots": 2016,
+   "source_checked_pairs": 1705,
+   "normal_fallback_slots": 311
+  },
+  "us": {
+   "town_slots": 2900,
+   "comparison_slots": 864,
+   "source_checked_pairs": 630,
+   "normal_fallback_slots": 234
+  },
+  "ca": {
+   "town_slots": 260,
+   "comparison_slots": 288,
+   "source_checked_pairs": 0,
+   "normal_fallback_slots": 288
+  },
+  "eu-us": {
+   "town_slots": 8250,
+   "comparison_slots": 2880,
+   "source_checked_pairs": 2335,
+   "normal_fallback_slots": 545
+  },
+  "eu-ca": {
+   "town_slots": 5650,
+   "comparison_slots": 2016,
+   "source_checked_pairs": 1705,
+   "normal_fallback_slots": 311
+  },
+  "us-ca": {
+   "town_slots": 3150,
+   "comparison_slots": 864,
+   "source_checked_pairs": 630,
+   "normal_fallback_slots": 234
+  },
+  "mix": {
+   "town_slots": 8500,
+   "comparison_slots": 2880,
+   "source_checked_pairs": 2335,
+   "normal_fallback_slots": 545
+  }
+ },
+ "maximum_payload_bytes": 5490,
+ "maximum_paired_payload_bytes": 5490,
+ "all_payloads_within_budget": true,
+ "all_existing_town_ids_preserved": true,
+ "published": false,
+ "validation": {
+  "pipeline_pytest": {
+   "passed": 149,
+   "skipped": 9
+  },
+  "actual_card_cases": {
+   "passed": 37360,
+   "failed": 0,
+   "truncated_fields": 0
+  },
+  "native_layout_setting_cases": {
+   "passed": 1920,
+   "failed": 0
+  },
+  "native_polling_url_cases": {
+   "passed": 80,
+   "failed": 0
+  },
+  "current_source_browser": {
+   "eu": {
+    "passed": 24,
+    "failed": 0,
+    "scenarios_with_omitted_change_callouts": 0,
+    "results": "recipe/tools/out/pair-feed/source-checked/eu/results.json"
+   },
+   "us": {
+    "passed": 24,
+    "failed": 0,
+    "scenarios_with_omitted_change_callouts": 0,
+    "results": "recipe/tools/out/pair-feed/source-checked/us/results.json"
+   },
+   "ca": {
+    "passed": 24,
+    "failed": 0,
+    "scenarios_with_omitted_change_callouts": 8,
+    "results": "recipe/tools/out/pair-feed/source-checked/ca/results.json"
+   }
+  },
+  "checked_numeric_json_files": 45918,
+  "ordinary_journeys_with_source_change_metadata": 8348,
+  "physical_device_tested": false
+ }
+}

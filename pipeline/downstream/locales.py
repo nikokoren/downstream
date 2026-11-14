@@ -21,6 +21,7 @@ UI = {
         "intro": "A raindrop falling on",
         "along": "travels along",
         "and": "and",  # before the endpoint line: "and ends in the Black Sea" (author 2026-10-01)
+        "travel_unavailable": "time estimate unavailable",
     },
     "de": {
         "ends_in": "Endet in",
@@ -34,6 +35,7 @@ UI = {
         "intro": "Ein Regentropfen in",
         "along": "fließt durch",
         "and": "und",
+        "travel_unavailable": "Dauer unbekannt",
     },
 }
 

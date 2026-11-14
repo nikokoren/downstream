@@ -8,7 +8,7 @@ Encoding.default_external = Encoding::UTF_8
 require "json"
 require "liquid"
 
-src = File.expand_path("../src", __dir__)
+src = ENV.fetch("DS_RECIPE_SRC", File.expand_path("../src", __dir__))
 view = ARGV.fetch(0)
 partials = {}
 shared = File.read(File.join(src, "shared.liquid")).gsub(

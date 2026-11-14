@@ -1,7 +1,22 @@
-{%- if town -%}
+{%- if ds_pairs == "yes" and routes.size == 2 -%}
 <div class="layout layout--col">
-  <div class="map stretch w--full" data-downstream-map data-polyline="{{ polyline | escape }}">
-    {% render "ds_box", place: place, chain: chain, ui: ui, end_text: end_text, distance: distance, travel: travel, lang: ds_lang, units: ds_units, max_steps: 6, chain_chars: 130, chain_lines: 3, box_width: "w--[45cqw] portrait:w--[80cqw]", town_size_long: "title lg:title--large", town_size: "title--large lg:title--xlarge", chain_size: "lg:description--large", end_size: "lg:title--large", dist_size: "lg:label--large" %}
+  <div class="map stretch w--full" data-downstream-map data-map-labels="{{ ds_labels }}">
+    {%- for route in routes -%}
+      {%- if forloop.first -%}{%- assign ds_side = "left--3" -%}{%- else -%}{%- assign ds_side = "right--3" -%}{%- endif -%}
+      {% render "ds_route", town: route.town, polyline: route.polyline, changes: route.changes, lang: ds_lang %}
+      {% render "ds_box", place: route.place, chain: route.chain, ui: ui, end_text: route.end_text, distance: route.distance, travel: route.travel, lang: ds_lang, units: ds_units, max_steps: 6, chain_chars: 130, chain_lines: 8, place_lines: 3, end_lines: 3, box_width: "w--[44cqw]", box_side: ds_side, compact_town: true, town_size_small: "title--small lg:title--large", town_size_long: "title lg:title--large", town_size: "title--large lg:title--xlarge", chain_size: "lg:description--large", end_size: "lg:title--large", dist_size: "lg:label--large", dist_lines: 2 %}
+    {%- endfor -%}
+  </div>
+</div>
+{%- elsif town -%}
+{%- assign ds_full_width = "w--[45cqw] portrait:w--[80cqw]" -%}
+{%- if ds_world == "yes" and town.lat != nil and town.lon != nil -%}
+  {%- assign ds_full_width = "w--[45cqw] portrait:w--[70cqw]" -%}
+{%- endif -%}
+<div class="layout layout--col">
+  <div class="map stretch w--full" data-downstream-map data-map-labels="{{ ds_labels }}" data-polyline="{{ polyline | escape }}"{% if ds_world == "yes" and town.lat != nil and town.lon != nil %} data-world-lat="{{ town.lat | escape }}" data-world-lon="{{ town.lon | escape }}"{% endif %}>
+    {% render "ds_route", town: town, polyline: polyline, changes: changes, lang: ds_lang %}
+    {% render "ds_box", place: place, chain: chain, ui: ui, end_text: end_text, distance: distance, travel: travel, lang: ds_lang, units: ds_units, max_steps: 6, chain_chars: 130, chain_lines: 3, box_width: ds_full_width, town_size_long: "title lg:title--large", town_size: "title--large lg:title--xlarge", chain_size: "lg:description--large", end_size: "lg:title--large", dist_size: "lg:label--large" %}
   </div>
 </div>
 {%- else -%}

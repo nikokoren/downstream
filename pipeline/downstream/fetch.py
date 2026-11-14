@@ -23,10 +23,21 @@ REGION = regions.current()
 
 
 def _gdal_env() -> None:
-    # The Claude Code container routes HTTPS through a proxy with its own CA bundle.
-    ca = "/root/.ccr/ca-bundle.crt"
-    if os.path.exists(ca):
-        os.environ.setdefault("CURL_CA_BUNDLE", ca)
+    # GDAL's bundled curl does not automatically use Python's inherited CA selection.
+    # Keep certificate verification enabled and share the managed environment's trust.
+    candidates = [
+        os.environ.get("CURL_CA_BUNDLE"),
+        os.environ.get("SSL_CERT_FILE"),
+        os.environ.get("REQUESTS_CA_BUNDLE"),
+        os.environ.get("GDAL_CURL_CA_BUNDLE"),
+        "/root/.ccr/ca-bundle.crt",
+    ]
+    for ca in candidates:
+        if ca and os.path.isfile(ca):
+            os.environ.setdefault("CURL_CA_BUNDLE", ca)
+            # Pyogrio sets a GDAL-specific certifi default at import, ahead of curl's env.
+            pyogrio.set_gdal_config_options({"GDAL_CURL_CA_BUNDLE": ca})
+            break
     os.environ.setdefault("GDAL_HTTP_MAX_RETRY", "5")
     os.environ.setdefault("GDAL_HTTP_RETRY_DELAY", "5")
     os.environ.setdefault("CPL_VSIL_CURL_CHUNK_SIZE", str(4 * 1024 * 1024))

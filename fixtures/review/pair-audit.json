@@ -1,0 +1,284 @@
+{
+ "review_only": true,
+ "capture_manifest": "data/captured-site/2026-11-13/manifest.json (ignored full capture)",
+ "capture_manifest_sha256": "0d1622ab96486e407bd187a837405a37e3d261e6fd0929c1d4eeb0e99cf68018",
+ "european_report": {
+  "source": "https://github.com/nikokoren/downstream/releases/download/build-report/towns.csv",
+  "sha256": "3ecfcd05c9716f22106d866e51471dfa19dc05f190caaf2946066c7b7bd73cbe",
+  "matching_sea_ending_towns": 5261
+ },
+ "packet_checks": "Hashes, town coordinates, encoded geometry, intermediate steps, positive distance and time, bilingual display fields. No independent hydrological or physical-device verification.",
+ "thresholds": {
+  "max_town_distance_km": 80.0,
+  "min_each_route_km": 100,
+  "max_start_distance_km_if_known": 1
+ },
+ "regions": {
+  "eu": {
+   "eligible_towns": 5280,
+   "sea_ending_towns": 5261,
+   "geographic_candidates_before_start_distance_check": 2779,
+   "packets_with_structural_issues": 0,
+   "packet_issue_counts": {},
+   "start_method_counts": {
+    "sub-basin": 5229,
+    "nearest": 51
+   },
+   "candidates": 1720,
+   "candidates_passing_packet_checks": 1720,
+   "candidates_with_packet_issues": 0,
+   "candidate_towns": 563,
+   "candidates_with_known_start_offsets": 1720,
+   "candidates_with_nearest_overall_fallback": 1,
+   "review_examples": 30,
+   "planned_slots": 1720,
+   "cycle_hours_if_all_candidates_approved": 430.0,
+   "normal_town_slots": 0,
+   "receiver_group_pair_counts": {
+    "Mediterranean Sea / North Atlantic": 44,
+    "North Atlantic / North Sea": 328,
+    "Baltic Sea / Black Sea": 210,
+    "Black Sea / North Sea": 714,
+    "Mediterranean Sea / North Sea": 106,
+    "Black Sea / Mediterranean Sea": 143,
+    "Baltic Sea / North Sea": 175
+   }
+  },
+  "us": {
+   "eligible_towns": 2816,
+   "sea_ending_towns": 2719,
+   "geographic_candidates_before_start_distance_check": 4447,
+   "packets_with_structural_issues": 0,
+   "packet_issue_counts": {},
+   "start_method_counts": {
+    "sub-basin": 2790,
+    "nearest": 26
+   },
+   "candidates": 4447,
+   "candidates_passing_packet_checks": 4447,
+   "candidates_with_packet_issues": 0,
+   "candidate_towns": 351,
+   "candidates_with_known_start_offsets": 0,
+   "candidates_with_nearest_overall_fallback": 0,
+   "review_examples": 19,
+   "planned_slots": 4447,
+   "cycle_hours_if_all_candidates_approved": 1111.75,
+   "normal_town_slots": 0,
+   "receiver_group_pair_counts": {
+    "Gulf of Mexico / North Atlantic": 4446,
+    "Gulf of Mexico / North Pacific": 1
+   }
+  },
+  "ca": {
+   "eligible_towns": 252,
+   "sea_ending_towns": 252,
+   "geographic_candidates_before_start_distance_check": 1,
+   "packets_with_structural_issues": 0,
+   "packet_issue_counts": {},
+   "start_method_counts": {
+    "sub-basin": 252
+   },
+   "candidates": 1,
+   "candidates_passing_packet_checks": 1,
+   "candidates_with_packet_issues": 0,
+   "candidate_towns": 2,
+   "candidates_with_known_start_offsets": 0,
+   "candidates_with_nearest_overall_fallback": 0,
+   "review_examples": 1,
+   "planned_slots": 288,
+   "cycle_hours_if_all_candidates_approved": 72.0,
+   "normal_town_slots": 287,
+   "receiver_group_pair_counts": {
+    "Hudson Bay / North Atlantic": 1
+   }
+  },
+  "mix": {
+   "eligible_towns": 8348,
+   "sea_ending_towns": 8232,
+   "candidates": 6168,
+   "candidates_passing_packet_checks": 6168,
+   "candidates_with_packet_issues": 0,
+   "candidate_towns": 916,
+   "candidates_with_known_start_offsets": 1720,
+   "candidates_with_nearest_overall_fallback": 1,
+   "review_examples": 30,
+   "planned_slots": 6168,
+   "cycle_hours_if_all_candidates_approved": 1542.0,
+   "normal_town_slots": 0,
+   "receiver_group_pair_counts": {
+    "Gulf of Mexico / North Atlantic": 4446,
+    "Mediterranean Sea / North Atlantic": 44,
+    "North Atlantic / North Sea": 328,
+    "Baltic Sea / Black Sea": 210,
+    "Black Sea / North Sea": 714,
+    "Mediterranean Sea / North Sea": 106,
+    "Black Sea / Mediterranean Sea": 143,
+    "Baltic Sea / North Sea": 175,
+    "Gulf of Mexico / North Pacific": 1,
+    "Hudson Bay / North Atlantic": 1
+   }
+  }
+ },
+ "us_canada_cross_border_pairs": 0,
+ "canada_proximity_diagnostic_only": {
+  "active_limit_km": 80.0,
+  "nearest_pair_km": 76.537,
+  "pairs_within_100km": 2,
+  "nearest_examples": [
+   {
+    "id": "5884588-6128577",
+    "distance_km": 76.537,
+    "towns": [
+     {
+      "geonameid": "5884588",
+      "name": "Amos",
+      "de": "Amos",
+      "country": "CA",
+      "lon": -78.11624,
+      "lat": 48.56688,
+      "population": 17918,
+      "destination": "James Bay",
+      "total_km": 392.8,
+      "start_dist_km": null,
+      "chain": "Rivière Harricana → Lac Obalski → Rivière Harricana",
+      "travel_days": 28.382,
+      "model_file": "data/captured-site/2026-11-13/ca/t/5884588.json",
+      "start_distance_source": "unavailable in published model packet",
+      "source_region": "ca",
+      "packet_audit": {
+       "issues": [],
+       "polyline_points": 118,
+       "start_method": "sub-basin 7120975730",
+       "has_model_transition_labels": false
+      }
+     },
+     {
+      "geonameid": "6128577",
+      "name": "Rouyn-Noranda",
+      "de": "Rouyn-Noranda",
+      "country": "CA",
+      "lon": -79.02311,
+      "lat": 48.23656,
+      "population": 23504,
+      "destination": "Gulf of Saint Lawrence",
+      "total_km": 1173.2,
+      "start_dist_km": null,
+      "chain": "Ruisseau Osisko → Lac Rouyn → Lac Routhier → Rivière Kinojévis → Lac Kinojévis → Rivière Kinojévis → Rivière des Outaouais → Lac Simard → Lac des Quinze → Rivière des Outaouais → Ottawa River / Rivière des Outaouais → Lac Coulonge → Ottawa River / Rivière des Outaouais → Lac des Chats → Ottawa River / Rivière des Outaouais → Lac des Deux-Montagnes → Lac Saint-Louis → St. Lawrence → Lac Saint-Pierre → St. Lawrence",
+      "travel_days": 1053.832,
+      "model_file": "data/captured-site/2026-11-13/ca/t/6128577.json",
+      "start_distance_source": "unavailable in published model packet",
+      "source_region": "ca",
+      "packet_audit": {
+       "issues": [],
+       "polyline_points": 88,
+       "start_method": "sub-basin 7120326480",
+       "has_model_transition_labels": false
+      }
+     }
+    ]
+   },
+   {
+    "id": "6128577-6173017",
+    "distance_km": 92.478,
+    "towns": [
+     {
+      "geonameid": "6128577",
+      "name": "Rouyn-Noranda",
+      "de": "Rouyn-Noranda",
+      "country": "CA",
+      "lon": -79.02311,
+      "lat": 48.23656,
+      "population": 23504,
+      "destination": "Gulf of Saint Lawrence",
+      "total_km": 1173.2,
+      "start_dist_km": null,
+      "chain": "Ruisseau Osisko → Lac Rouyn → Lac Routhier → Rivière Kinojévis → Lac Kinojévis → Rivière Kinojévis → Rivière des Outaouais → Lac Simard → Lac des Quinze → Rivière des Outaouais → Ottawa River / Rivière des Outaouais → Lac Coulonge → Ottawa River / Rivière des Outaouais → Lac des Chats → Ottawa River / Rivière des Outaouais → Lac des Deux-Montagnes → Lac Saint-Louis → St. Lawrence → Lac Saint-Pierre → St. Lawrence",
+      "travel_days": 1053.832,
+      "model_file": "data/captured-site/2026-11-13/ca/t/6128577.json",
+      "start_distance_source": "unavailable in published model packet",
+      "source_region": "ca",
+      "packet_audit": {
+       "issues": [],
+       "polyline_points": 88,
+       "start_method": "sub-basin 7120326480",
+       "has_model_transition_labels": false
+      }
+     },
+     {
+      "geonameid": "6173017",
+      "name": "Val-d'Or",
+      "de": "Val-d’Or",
+      "country": "CA",
+      "lon": -77.79737,
+      "lat": 48.0974,
+      "population": 25541,
+      "destination": "James Bay",
+      "total_km": 481.9,
+      "start_dist_km": null,
+      "chain": "(stream) → Lac Blouin → Rivière Harricana → Lac Malartic → Lac la Motte → Lac Figuery → Lac Obalski → Rivière Harricana",
+      "travel_days": 434.002,
+      "model_file": "data/captured-site/2026-11-13/ca/t/6173017.json",
+      "start_distance_source": "unavailable in published model packet",
+      "source_region": "ca",
+      "packet_audit": {
+       "issues": [],
+       "polyline_points": 113,
+       "start_method": "sub-basin 7120327450",
+       "has_model_transition_labels": false
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "captured_utc": "2026-11-13T18:36:14.521596+00:00",
+ "searched_utc": "2026-11-13T19:18:53.835645+00:00",
+ "rotation_sources": {
+  "ca": {
+   "url": "https://nikokoren.github.io/downstream/ca/rotation.csv",
+   "sha256": "165edaa4199104bcf25e2bfd09f6267fbe54d3db7f9eaac0b3781883a4cd9517",
+   "unique_towns": 252
+  },
+  "us": {
+   "url": "https://nikokoren.github.io/downstream/us/rotation.csv",
+   "sha256": "f61a595fdbacb8671b95a3409d403d461ff963cde246a7342bf1e0c575cd6765",
+   "unique_towns": 2816
+  },
+  "eu": {
+   "url": "https://nikokoren.github.io/downstream/eu/rotation.csv",
+   "sha256": "50fde585aa0e747001f4cf2fdfcec3c395ae2a3702455775d1bd0416515bb5d6",
+   "unique_towns": 5280
+  }
+ },
+ "candidate_catalogue": {
+  "file": "fixtures/review/drainage-divide-candidates.csv",
+  "sha256": "c518eb2c1727c2f313f904fcd6f23dccffb7b391dcb4d6e60bf941924f094c46",
+  "rows": 6168
+ },
+ "comparison_to_50km": {
+  "eu": {
+   "previous": 424,
+   "current": 1720,
+   "added": 1296,
+   "lost": 0
+  },
+  "us": {
+   "previous": 2205,
+   "current": 4447,
+   "added": 2242,
+   "lost": 0
+  },
+  "ca": {
+   "previous": 0,
+   "current": 1,
+   "added": 1,
+   "lost": 0
+  },
+  "mix": {
+   "previous": 2629,
+   "current": 6168,
+   "added": 3539,
+   "lost": 0
+  }
+ }
+}

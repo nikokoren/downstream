@@ -1,0 +1,25 @@
+{
+  "source": "https://github.com/nikokoren/downstream/releases/download/build-report/towns.csv",
+  "captured": "2026-11-13",
+  "source_sha256": "3ecfcd05c9716f22106d866e51471dfa19dc05f190caaf2946066c7b7bd73cbe",
+  "towns": [
+    {
+      "geonameid": "2861650",
+      "en": "Nuremberg",
+      "de": "Nürnberg",
+      "cc": "DE",
+      "total_km": "1003.4",
+      "end_name": "North Sea",
+      "chain": "Pegnitz → Regnitz → Main → Rhine"
+    },
+    {
+      "geonameid": "2867714",
+      "en": "Munich",
+      "de": "München",
+      "cc": "DE",
+      "total_km": "2587.6",
+      "end_name": "Black Sea",
+      "chain": "(stream) → Isar → Danube"
+    }
+  ]
+}

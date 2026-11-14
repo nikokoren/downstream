@@ -23,6 +23,31 @@ pre-formatted for each language and unit.
   metric**; an empty value counts as metric. Not tied to the language. The template shows
   `distance.<language>.<units>`, e.g. `distance.de.imperial` = "1.122 mi".
 
+- **Explore drainage divides** (2026-11-13): boolean `watershed_pairs`, off by default.
+  "In full screen, follow rain from two nearby towns to different seas. Smaller layouts show
+  one journey." Only Full renders both paths. Other views and the setting-off case use the
+  primary journey from a paired packet; single-town packets also work with the setting on.
+
+- **Map labels** (2026-11-13): boolean `map_labels`, on by default, independently of comparison
+  mode. "Label the starting towns and river changes on the map." Off removes map callouts in
+  every layout; the journey text boxes, path markers, globe and attribution remain visible.
+
+The two Full comparison cards allow up to **eight wrapped river-chain lines**, while keeping
+the existing shortening rule, font sizes and bottom-edge positions. Real Butte/Helena packets
+clipped the intermediate steps at three lines in OG portrait. This is a maximum, not a fixed
+height; short chains keep compact cards and whole-route framing follows the measured boxes.
+Paired cards also allow **three town/country lines and three destination lines**. Real
+Rouyn-Noranda and the Gulf of Saint Lawrence need that space in OG portrait; normal Full
+cards keep the existing two-line limits. This changes wrapping, not wording or type size.
+The full-catalogue card check also found unbroken town/country names that exceed a narrow
+paired card. Paired titles use the existing smaller native title sizes for long words or
+long place lines; normal-view title selection is unchanged. Names remain intact within the
+three-line budget, subject to the existing explicit allowance for place lines over 45 characters.
+
+Half vertical allows **three wrapped river-chain lines**. The ordinary Canadian fallback's
+`Ruisseau Osisko` chain plus its remaining-step count clipped at two lines in OG portrait
+in both languages. The shortening policy and native type size are unchanged.
+
 ## Screen states
 
 The brief's list (R9, R18, R19) predates D8 (towns instead of the user's location):
@@ -39,6 +64,14 @@ The brief's list (R9, R18, R19) predates D8 (towns instead of the user's locatio
 | Map failed to draw | any | Text still shows (DESIGN_PHILOSOPHY §4). |
 
 ## Slots
+
+2026-11-13 addition: full-screen comparisons repeat the existing `ds_box` sentence for each
+journey, including the intermediate rivers and the distance / estimated duration line. Town
+names identify map paths; there is no letter key. The map labels the starting town and named
+river changes, without a label at the sea. The author removed the map heading (2026-11-13);
+the two existing sentences in the cards explain the view.
+For captured data without an estimate, `ui.travel_unavailable` is "time estimate unavailable" /
+"Dauer unbekannt". This is an explicit missing value, not a zero or a modeled duration.
 
 **One sentence (author 2026-10-01)**, so someone who didn't install the recipe knows at once what
 the screen shows: "A raindrop falling on / Munich, Germany / travels along a stream → Isar → Danube and
