@@ -61,15 +61,15 @@ try {
   });
   console.log("Projection ready");
   const frames=process.env.DS_LABEL_FRAMES==="all" ? ["screen--og screen--md screen--1bit","screen--og screen--md screen--1bit screen--portrait",
-    "screen--v2 screen--lg screen--density-2x screen--4bit","screen--v2 screen--lg screen--density-2x screen--4bit screen--portrait"] : ["screen--og screen--md screen--1bit screen--portrait"];
+    "screen--v2 screen--lg screen--density-2x screen--4bit","screen--v2 screen--lg screen--density-2x screen--4bit screen--portrait"] : [process.env.DS_LABEL_FRAMES==="og_land"?"screen--og screen--md screen--1bit":"screen--og screen--md screen--1bit screen--portrait"];
   await page.evaluate(async frames=>{
     for(const frame of frames){document.getElementById("screen").className="screen "+frame;await document.fonts.ready;}
   },frames);
   const out=path.join(root,"recipe/tools/out/label-clearance");fs.mkdirSync(out,{recursive:true});
-  let checks=0,omittedChanges=0;const failures=[];
+  let checks=0,omittedChanges=0,crossedTowns=0;const failures=[];
   for(let start=0;start<htmls.length;start+=16) {
     const result=await page.evaluate(({batch,frames})=>{
-      const fails=[];let omitted=0;
+      const fails=[];let omitted=0,crossed=0;
       for(const [index,html] of batch.entries()) {
         const node=projection.getContainer(),view=document.getElementById("view");
         node.remove();view.innerHTML=html;
@@ -82,18 +82,25 @@ try {
           const bottom=Math.max(...[...el.querySelectorAll("[data-downstream-box]")].map(b=>el.clientHeight-b.offsetTop+g));
           TRMNLMaps.fit(projection,routes.flatMap(r=>r.coords),{padding:{top:g,left:g,right:g,bottom},maxZoom:12});
           const report=DownstreamLabels.draw(projection,el,routes);
-          if(report.labels.filter(l=>l.kind==="town").length!==2)fails.push({index,frame,reason:"start town omitted",omitted:report.omitted});
+          const towns=report.labels.filter(l=>l.kind==="town");
+          if(towns.length!==2)fails.push({index,frame,reason:"start town omitted",omitted:report.omitted});
+          // Route 0's card is bottom left: count town labels whose order is the other way round.
+          else {
+            const centre=text=>{const r=towns.find(l=>l.text===text).rect;return r.x+r.w/2;};
+            const [left,right]=routes.map(r=>r.labels.find(l=>l.kind==="town").text);
+            if(centre(left)>centre(right))crossed++;
+          }
           omitted+=report.omitted.length;
         }
       }
-      return {fails,omitted};
+      return {fails,omitted,crossed};
     },{batch:htmls.slice(start,start+16),frames});
-    checks+=Math.min(16,htmls.length-start)*frames.length;omittedChanges+=result.omitted;
+    checks+=Math.min(16,htmls.length-start)*frames.length;omittedChanges+=result.omitted;crossedTowns+=result.crossed;
     for(const item of result.fails)failures.push({...contexts[start+item.index],context:undefined,...item});
     fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:false,failures,omitted_change_callouts:omittedChanges},null,1));
     if(start%160===0)console.log(`${checks} placement cases checked; ${failures.length} town omissions`);
   }
-  fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:true,failures,omitted_change_callouts:omittedChanges},null,1));
-  console.log(`${checks} placement cases; ${failures.length} town omissions`);
+  fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:true,failures,omitted_change_callouts:omittedChanges,town_labels_against_card_order:crossedTowns},null,1));
+  console.log(`${checks} placement cases; ${failures.length} town omissions; ${crossedTowns} with town labels against card order`);
   if(failures.length)process.exitCode=1;
 } finally {await browser.close();server.close();}

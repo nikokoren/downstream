@@ -183,11 +183,15 @@ var DownstreamLabels = (() => {
     // position. River changes use the remaining space; no callout is added at the sea.
     const towns=routes.flatMap((r,i)=>r.labels.filter(l=>l.kind==="town").map(l=>prepare(l,i)));
     if (towns.length===2) {
+      // Full's comparison puts route 0's card bottom left and route 1's bottom right, so
+      // prefer town labels in the same order (author 2026-11-17). A preference, not a rule:
+      // a swapped pair is still used when it is clearly the better fit.
+      const sidePenalty=px(60), centre=r=>r.x+r.w/2;
       let pair=null;
       for (const a of towns[0].options) for (const b of towns[1].options) {
-        const score=a.score+b.score;
-        if (pair && score>=pair.score) break;
-        if (compatible(a,b)) pair={a,b,score};
+        if (pair && a.score+b.score>=pair.score) break;
+        const score=a.score+b.score+(centre(a)>centre(b)?sidePenalty:0);
+        if (score<(pair?.score??Infinity) && compatible(a,b)) pair={a,b,score};
       }
       if (pair) { commit(towns[0],pair.a); commit(towns[1],pair.b); }
       else {

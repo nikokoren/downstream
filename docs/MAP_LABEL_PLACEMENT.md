@@ -19,6 +19,17 @@ Comparison cards, Full-only comparison mode and the existing town-selection rule
 The Canadian ordinary fallback also exposed clipped Half vertical portrait river text in both
 languages. That field now permits three wrapped lines with the existing font and shortening rule.
 
+## Town labels follow the cards (17 November 2026)
+
+Full's comparison now puts the card of the path lying further west bottom left (`site.order_west_to_east`).
+The two town labels prefer the same order: the left card's town label left of the other's. It is a
+preference (a 60 px penalty in the joint town search), not a rule, so a crowded start can still
+swap them rather than lose a label. Replaying all 2,335 live pairs (feed captured 2026-11-17,
+routes reordered) × en/de through `check-map-labels.mjs`: labels against card order went from
+1,666 to 17 on OG portrait and from 1,577 to 0 on OG landscape, with 0 town labels omitted in
+both. The checker now reports this count (`town_labels_against_card_order`); `DS_LABEL_FRAMES=og_land`
+replays the landscape frame.
+
 ## Verification
 
 All inputs are actual generated packets from the captured source-checked feed. Framework
