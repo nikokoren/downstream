@@ -37,6 +37,8 @@ label if there is no clear position; they retain the existing text explanation.
   captured report rows carry the real estimate too.
 
 Full's paired packet has one shared `ui` and two complete route/display objects in `routes`.
+The routes go west to east by where most of each path lies (`site.order_west_to_east`, 2026-11-17),
+so the left card always describes the path further left.
 Each route supplies `town`, `place`, `chain`, `end_text`, `distance`, `travel`, `polyline` and
 `changes`. Units and language apply to both cards. Missing time data is explicitly marked
 unavailable. The polling URL and existing single-town rotation have not been changed; no new

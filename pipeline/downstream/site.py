@@ -18,7 +18,9 @@ Polling URL).
 """
 
 import argparse
+import itertools
 import json
+import math
 import random
 import shutil
 import tempfile
@@ -247,7 +249,56 @@ def pair_packet(first, second):
             for c in town.get("changes", [])
         ]
         routes.append(route)
-    return {"ui": UI, "routes": routes}
+    return {"ui": UI, "routes": order_west_to_east(routes)}
+
+
+def decode_polyline(text: str) -> list[tuple[float, float]]:
+    """[lng, lat] points from Google's encoded polyline (precision 5), as paths.encode_polyline
+    writes them."""
+    points, index, lat, lng = [], 0, 0, 0
+    while index < len(text):
+        deltas = []
+        for _ in range(2):
+            value = shift = 0
+            while True:
+                byte = ord(text[index]) - 63
+                index += 1
+                value |= (byte & 0x1F) << shift
+                shift += 5
+                if byte < 0x20:
+                    break
+            deltas.append(~(value >> 1) if value & 1 else value >> 1)
+        lat += deltas[0]
+        lng += deltas[1]
+        points.append((lng / 1e5, lat / 1e5))
+    return points
+
+
+def _screen_x(route: dict, ref_lon: float) -> float:
+    """Where a path lies across the map: the length-weighted mean longitude of its line in Web
+    Mercator (x is linear in longitude, so this is its horizontal centre on screen), unwrapped
+    next to ref_lon so a path across the 180th meridian stays continuous (renderWorldCopies)."""
+    points = [
+        (
+            lng - 360 * round((lng - ref_lon) / 360),
+            math.log(math.tan(math.pi / 4 + math.radians(lat) / 2)),
+        )
+        for lng, lat in decode_polyline(route["polyline"])
+    ]
+    total = weighted = 0.0
+    for (x0, y0), (x1, y1) in itertools.pairwise(points):
+        step = math.hypot(x1 - x0, math.degrees(y1 - y0))
+        total += step
+        weighted += step * (x0 + x1) / 2
+    return weighted / total if total else points[0][0]
+
+
+def order_west_to_east(routes: list[dict]) -> list[dict]:
+    """Full shows the first route's card bottom left and the second's bottom right, so each card
+    sits on the side of the screen where most of its own path is (author 2026-11-17: Leutkirch's
+    card was on the left while its path ran east to the Black Sea). Ties keep the given order."""
+    ref = decode_polyline(routes[0]["polyline"])[0][0]
+    return sorted(routes, key=lambda r: _screen_x(r, ref))
 
 
 def _compact(packet):

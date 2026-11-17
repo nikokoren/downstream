@@ -34,7 +34,11 @@ def test_compact_pair_retains_both_complete_display_journeys(pair):
         )
         <= MAX_PAIR_BYTES
     )
-    for original, route in zip(pair["towns"], packet["routes"], strict=True):
+    # Routes go west to east (test_pair_sides), so match them to their towns by id.
+    routes = {r["town"]["geonameid"]: r for r in packet["routes"]}
+    assert len(routes) == 2
+    for original in pair["towns"]:
+        route = routes[original["town"]["geonameid"]]
         expected = _display(original)
         assert route["town"] == {k: original["town"][k] for k in route["town"]}
         for key in ("travel", "distance", "place", "end_text", "polyline", "end"):

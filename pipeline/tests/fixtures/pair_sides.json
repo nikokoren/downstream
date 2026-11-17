@@ -1,0 +1,135 @@
+{
+ "source": "https://nikokoren.github.io/downstream/mix/p/<slot>.json",
+ "captured": "2026-11-17",
+ "pairs": [
+  {
+   "slot": 1372,
+   "routes": [
+    {
+     "town": {
+      "geonameid": "2878270",
+      "en": "Leutkirch",
+      "de": "Leutkirch im Allgäu",
+      "cc": "DE",
+      "lon": 10.0205,
+      "lat": 47.82672
+     },
+     "polyline": "cxybHc~b|@wyLkiFs_LmcGoh\\m}G{cw@nb]ajS{nkAecj@a}mAskJqsfDq|]}nkA_pRg{C`Yy~a@|fe@cdjCdcj@}wx@lcGq~dAnh\\}nkA|{PowH~Xu{s@r|]qddAskJiuzB{rc@_ge@pqIqbsCdii@}wx@~X{vqBj`Yc~Trgr@gpeBwsM}g{FnqIseK~wx@reK~kz@|fe@j`Y}uQ~zf@l}GfrV{aPz{Pnh\\f_rAs_Lrv^jen@pddAwou@~oRvsMpkJcoh@bmA|uQdxUjiFln[et}@guD}prBxgO}uQbmAoyo@flWk`YzaPvyLzaP{gOdaCosp@zrc@mtZsv^}jsBrkJeii@~oRowHfuDq~dArv^{xb@}fe@ktZm}Gs|]nh\\yiv@~iS~qy@nyo@g}j@jzYsxeAzxb@`{f@z{P_af@oqI_ilAtj`@kzoCymNqddAvsM}fe@kcGyou@xgOqfkB}nkAupuCc~TcdjCf{Ca}mAkzYahbByxb@qb]}fe@zaPsv^~`f@ko{Bqmq@egByxb@jzY{aP|uQwlgAc~TuyLpqIqb]ymNowHygOgyrApkJwj`@jzY_pR",
+     "end": {
+      "type": "sea",
+      "name": "Black Sea",
+      "display": {
+       "en": "Black Sea",
+       "de": "Schwarzes Meer"
+      }
+     }
+    },
+    {
+     "town": {
+      "geonameid": "2924585",
+      "en": "Friedrichshafen",
+      "de": "Friedrichshafen",
+      "cc": "DE",
+      "lon": 9.47554,
+      "lat": 47.65689
+     },
+     "polyline": "uu}aHqivx@dnCc`AjiFzaPuyL`f{@hoEx~a@m}Grgr@ltZvsMiuDnwH`s@xxb@owHb~Tt_LfrV`s@vda@kcGf{CnqIzrc@guDbxUkiFas@_vQxgOguDkiFoh\\as@}{Pu_Lu_LpqI{aPas@wda@c~TioEskJseKdgBmen@ajSglWkzYkcGcxUmtZ_vQu_Lc~T{aPseKi`Yg{CseK_jSioEjiFcdTskJcgBt_LgaCeaCc~TjcG{{Pt_L{aPerVcmAreKajStyLuyL?{gO`jSreKrxeAw~a@p|]{aPjzYegBuyLseKreKwsMcmAqkJfwk@mtZrv^}uQhuDon[~`f@owHuyLguDvsMskJgaCowHf{CqkJdxUiuDg{CowHhuDdgBnwHmcGbgBas@pqIioE`YaYmcGkiFreKowHiuDkiFxmNmcG{aPygOreKiuDmcGseKlcG?xmNwmN~XcmAbdTqqIvmNioE_YaYtyLu_LxmNm}Gbii@c~Tnh\\lcGzcw@o}Gnh\\f{Ctas@kcG`dTb~TbqoAiuDtp_@f{C~`f@u_Lpb]",
+     "end": {
+      "type": "sea",
+      "name": "North Sea",
+      "display": {
+       "en": "North Sea",
+       "de": "Nordsee"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "slot": 1020,
+   "routes": [
+    {
+     "town": {
+      "geonameid": "4153146",
+      "en": "Deltona",
+      "de": "Deltona",
+      "cc": "US",
+      "lon": -81.26367,
+      "lat": 28.90054
+     },
+     "polyline": "glpoDxyaoNbzAezAfaC?~X_YdgB~X`Y`Y?bmAhoEhuDegBhoE?`s@_Y`Ycs@aYcgBdgBegBcmAg{C?aYaY_Y`YgaC?cmAbmAas@?egBcmAas@dgBkiFfuDegBjoEeaCdaCas@`YcmAaYcs@`s@?faCcgBdaCegB?as@`s@g{Cbs@mcGnwHiuDbmAoqIjiFseKhoEcmA?aYaYmcG`YcmAaYas@bmA?bmAas@bs@cmA?aYaYcmA`Yas@cs@cmA?aY`Yg{CaYegBbmA_YbmAg{C_YiuDgaCaYkiFbs@cgBegBg{CiuDaYas@`s@`s@bmAas@bs@eaC?egBbgBegB?as@cmAaYoqIcmAcmAioEcmAkiF`s@owHhuDas@?koEbgBkcG?aY_YiuDaYguDhuDg{CjcGg{CfaCo}Gcs@_Y_Yg{C?mcGbmAioEcmAiuDgaCiuD`Yg{CdaCg{C`Yg{CeaC?cs@bs@cmA?cmAaY_YiuDcs@as@?eaCbmAcmA?aY_Y?koEf{CkcGaYcs@as@?as@as@?cmAaYaY`YcmAaYguDbmAegB?cmAas@as@",
+     "end": {
+      "type": "sea",
+      "name": "North Atlantic Ocean",
+      "display": {
+       "en": "North Atlantic Ocean",
+       "de": "Nordatlantik"
+      }
+     }
+    },
+    {
+     "town": {
+      "geonameid": "4161178",
+      "en": "Lake Butler",
+      "de": "Lake Butler",
+      "cc": "US",
+      "lon": -81.54091,
+      "lat": 28.50167
+     },
+     "polyline": "_l}lDhtrpNaf@`f@bmAbgBbmAeaCdgBas@fuD?bs@`s@aY`s@bmAf{CbmAbs@`YbmA`dTcs@dgBioEnwHioEhoEkiFnwHkiFf{CkoEdaCas@jiFkiF?eaCdgB~XjiFlcGdgB?bgBegBn}GwsMpkJseKnwHeaCdgBegBbmA?f{CcgBdaC?hoEg{Cf{C?f{CegBfaCbmAdaCaYl}GfaCf{CjcGdgBbs@dgBcs@daC?daCguDjiFiuDdgB?huDiuD~Xm}GjoEkiF`s@bmA`s@?joEeaC?egB`s@as@hoE?huDg{CdaCowHt_LqqI`YiuDbgBcgBrkJaYhoEbmAhuDhuDbgBfuD?hfXn}GzaPbmAbmAl}G?daCeaChuDcs@lcGnwH?zrc@cs@f{ChuDn}G?nqIdaCfaC`YjcGdaCbmAbs@bmA?zaPaYrkJas@f{C`s@nwHbmAbmA`s@fuD",
+     "end": {
+      "type": "sea",
+      "name": "Gulf of Mexico",
+      "display": {
+       "en": "Gulf of Mexico",
+       "de": "Golf von Mexiko"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "slot": 2122,
+   "routes": [
+    {
+     "town": {
+      "geonameid": "2988670",
+      "en": "Pamiers",
+      "de": "Pamiers",
+      "cc": "FR",
+      "lon": 1.61079,
+      "lat": 43.1165
+     },
+     "polyline": "uzzeGed{H}{PhuDkcGcmAegB~XcmAfaCegBaYm}GdgBcmA`s@aYhoEkiFn}GoqIjiFmcG~XmcGhuDg{C`YkiFkiFowH?eaCjiFmcGaYas@f{CioEbmAo}GpkJeaCcgBg{CnwHegB?_YdaCmcGbmAegBf{CcgBbmAcmAaYcmAfaCg{Ccs@cmAf{CkiFfaCiuDr_LqkJjoEegBf{CdaCr_L`YpqIeaCf{CaYhoEiuDfaC_Yf{CegBbmA`YfuDgaCreKbmArkJeaCf{CioE~XegBfaC`Yr_Lg{CjoE~XtyLcmAbmAbs@pqIo}GfuDkiFcmAcgBf{Cg{CbmAg{Cas@g{ChoEbmAhuDcs@daCkiFf{C?f{Cg{CcmAcmAf{CcgBbs@?pkJcs@bmAcgBaYcmAbmA?bmAdaCdgBg{C`s@as@lcGg{CdgB~Xr_Las@faCdgBjcGaYjoEbmAreKiuDjcGioEbmAkiFlcG?bmAioEf{C~XdgBeaC~X`YjoEgaCbmAcgBl}GegBdgBseKdaCiuDjiFioEioEm}GbgBowHcmAgaCdgB",
+     "end": {
+      "type": "sea",
+      "name": "Bay of Biscay",
+      "display": {
+       "en": "Bay of Biscay",
+       "de": "Biskaya"
+      }
+     }
+    },
+    {
+     "town": {
+      "geonameid": "3041563",
+      "en": "Andorra la Vella",
+      "de": "Andorra la Vella",
+      "cc": "AD",
+      "lon": 1.52109,
+      "lat": 42.50779
+     },
+     "polyline": "cymbGiajHfaCjiFl}GbmAdgBdaCdaCas@pkJdaCjiFxmNfaC?vmNjiFlcG`YdaCbgBbmA_YlcGdaClcGcmApkJhuD?bgBjiFnwHdgBdgB`s@as@`s@`s@`Yf{CegB`YfaCf{CcmAbmA`s@bgBaYhuDdgBdgBbmAjiFegBdaCbs@huDcmAfuD`s@rkJhoEdaC?daCf{CfaCfaC?hoEdaChuD?bgBhuDhuDdaC?bmAjiFf{CdaCpqIjoEbmAf{ChoEbgB?f{CvsMlcGpqIhuDbgBr_LflWf{Cf{CjiFbmA?kiFbmAcmAfaCbs@bgBegBdgBhuDbmA?lcGg{Ccs@seKbmAgaCg{Cm}GfaCcmA`s@m}GdgB?`s@g{Cf{C~X`s@as@?g{CjoEmcGhoEbmAl}Gg{Cbs@lcGnwHlcGaYbgBbmAf{CjiFhuD`YdaCdaC?daCeaCbmAdgBbmAegBjiFegBrkJdgBhoEkiF`YeaChoEcmAbmAg{CegB_vQhuD_pRg{CoqI",
+     "end": {
+      "type": "sea",
+      "name": "Balearic Sea",
+      "display": {
+       "en": "Balearic Sea",
+       "de": "Balearen-Meer"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
