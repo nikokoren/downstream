@@ -10,10 +10,8 @@ import csv
 import hashlib
 import json
 import math
-import random
-import re
-from collections import defaultdict, deque
-from itertools import islice, product
+from collections import defaultdict
+from itertools import product
 from pathlib import Path
 
 from pyproj import Geod
@@ -226,111 +224,11 @@ def pair_key(pair: dict) -> tuple[str, str]:
     return ids
 
 
-def rotation_order(pairs: list[dict], seed=20261113, recent=8, lookahead=64) -> list[dict]:
-    """Retain every unique pair, mixing recent origins, areas and river systems.
-
-    A seeded shuffle with bounded lookahead keeps rare areas distributed through the cycle.
-    Recency rules are preferences, so sparse regions still drain their complete pool.
-    """
-    if recent < 0 or lookahead < 1:
-        raise ValueError("invalid rotation window")
-    unique = {}
-    for pair in sorted(pairs, key=lambda p: p["id"]):
-        unique.setdefault(pair_key(pair), pair)
-    pool = [unique[k] for k in sorted(unique)]
-    random.Random(seed).shuffle(pool)
-    queue = deque(pool)
-    history = deque(maxlen=recent)
-    result = []
-
-    def features(pair):
-        ids = frozenset(pair_key(pair))
-        lon, lat = pair["midpoint"]
-        area = (math.floor(lon / 2), math.floor(lat / 2))
-        rivers = tuple(
-            sorted(" → ".join(t.get("chain", "").split(" → ")[-2:]) for t in pair["towns"])
-        )
-        return ids, area, rivers
-
-    cached = {pair_key(p): features(p) for p in pool}
-    while queue:
-        recent_ids = set().union(*(h[0] for h in history))
-        recent_areas = {h[1] for h in history}
-        recent_rivers = {h[2] for h in history}
-
-        def score(
-            item, recent_ids=recent_ids, recent_areas=recent_areas, recent_rivers=recent_rivers
-        ):
-            index, pair = item
-            ids, area, rivers = cached[pair_key(pair)]
-            return len(ids & recent_ids), area in recent_areas, rivers in recent_rivers, index
-
-        index, _ = min(enumerate(islice(queue, lookahead)), key=score)
-        queue.rotate(-index)
-        pair = queue.popleft()
-        queue.rotate(index)
-        result.append(pair)
-        history.append(cached[pair_key(pair)])
-    return result
-
-
-def rotation_slots(
-    pairs: list[dict], slot_minutes=15, min_repeat_hours=72, seed=20261113
-) -> list[dict | None]:
-    """Space pair repeats across the whole cycle, including in sparse regions.
-
-    None selects the existing single-town rotation for a slot. This keeps the cooldown
-    without lowering the town-selection standard or counting reversed pairs as new content.
-    """
-    if slot_minutes <= 0 or min_repeat_hours <= 0:
-        raise ValueError("cadence and repeat interval must be positive")
-    order = rotation_order(pairs, seed=seed)
-    count = max(len(order), math.ceil(min_repeat_hours * 60 / slot_minutes))
-    slots = [None] * count
-    for index, pair in enumerate(order):
-        slots[index * count // len(order)] = pair
-    return slots
-
-
-def stable_rotation_slots(pairs: list[dict], count: int, previous=None, seed=20261113):
-    """Keep assignments across builds, including retired IDs as reserved slots.
-
-    A restored pair gets its old slot back. Adding/removing candidates cannot move a pair
-    into its previous 72-hour window, even across a cycle boundary.
-    """
-    if count < 288:
-        raise ValueError("pair rotation needs at least 72 hours at the 15-minute cadence")
-    order = ["-".join(pair_key(p)) for p in rotation_order(pairs, seed=seed)]
-    if previous is None:
-        slots = [None] * count
-        for index, pid in enumerate(order):
-            if len(order) > count:
-                raise ValueError("pair catalogue exceeds fixed rotation capacity")
-            slots[index * count // len(order)] = pid
-        return slots
-    if len(previous) != count:
-        raise ValueError("previous pair rotation has a different capacity")
-    ids = [pid for pid in previous if pid is not None]
-    if len(ids) != len(set(ids)) or any(not re.fullmatch(r"\d+-\d+", pid) for pid in ids):
-        raise ValueError("invalid previous pair rotation")
-    slots = list(previous)
-    reserved = set(ids)
-    new = [pid for pid in order if pid not in reserved]
-    empty = [i for i, pid in enumerate(slots) if pid is None]
-    if len(new) > len(empty):
-        raise ValueError("pair catalogue exceeds fixed rotation capacity including reserved IDs")
-    for index, pid in enumerate(new):
-        slots[empty[index * len(empty) // len(new)]] = pid
-    return slots
-
-
 def source(path: Path) -> dict:
     return {"file": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
 def main():
-    from downstream.site import SLOT_SECONDS
-
     parser = argparse.ArgumentParser(description=__doc__)
     inputs = parser.add_mutually_exclusive_group(required=True)
     inputs.add_argument(
@@ -353,13 +251,6 @@ def main():
         default=30,
         help="Example count for human review only; never limits the pool",
     )
-    parser.add_argument("--seed", type=int, default=20261113)
-    parser.add_argument(
-        "--min-repeat-hours",
-        type=float,
-        default=72,
-        help="Fill sparse pools with normal town slots to prevent early repeats",
-    )
     args = parser.parse_args()
     if args.report:
         if not args.coordinates:
@@ -372,9 +263,6 @@ def main():
         sources = [source(Path(t["model_file"])) for t in towns]
     pairs = find_pairs(towns, args.max_km, args.max_start_km, args.min_path_km)
     chosen = shortlist(pairs, args.review_sample)
-    slot_minutes = SLOT_SECONDS / 60
-    slots = rotation_slots(pairs, slot_minutes, args.min_repeat_hours, args.seed)
-    order = [p for p in slots if p is not None]
     args.out.mkdir(parents=True, exist_ok=True)
     packet = {
         "review_only": True,
@@ -393,24 +281,6 @@ def main():
     }
     (args.out / "candidates.json").write_text(
         json.dumps(packet, ensure_ascii=False, indent=1) + "\n"
-    )
-    (args.out / "rotation-plan.json").write_text(
-        json.dumps(
-            {
-                "review_only": True,
-                "seed": args.seed,
-                "unique_pairs": len(order),
-                "slot_minutes": slot_minutes,
-                "minimum_repeat_hours": args.min_repeat_hours,
-                "slots": [p["id"] if p else None for p in slots],
-                "normal_town_slots": sum(p is None for p in slots),
-                "pair_ids": [p["id"] for p in order],
-                "cycle_days_if_validated": round(len(slots) * slot_minutes / 1440, 3),
-                "policy": "all unique pairs once; prefer different recent towns, areas and river systems",
-            },
-            indent=1,
-        )
-        + "\n"
     )
     with (args.out / "candidates.csv").open("w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
@@ -450,7 +320,6 @@ def main():
                 "coverage": stats,
                 "candidates": len(pairs),
                 "review_examples": len(chosen),
-                "rotation_pairs": len(order),
                 "out": str(args.out),
             }
         )

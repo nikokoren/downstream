@@ -1,5 +1,10 @@
 # Drainage-divide feed implementation — 13 November 2026
 
+> **Superseded on 2026-11-20 (D25).** The pair catalogue, its 72-hour planner and fixed pair
+> capacities are retired. `<region>/p/<n>.json` now holds slot n's town from the normal rotation
+> (`t/<n>.json`) plus its companion, chosen by `pipeline/downstream/companions.py`. Source
+> verification below still applies to companions closer than 80 km. Kept as history.
+
 The local implementation now connects `watershed_pairs` to a separate static feed at
 `<region>/p/<slot>.json`. The existing town feed remains at `<region>/t/<slot>.json`.
 Region combinations, the 15-minute cadence, Full-only comparison, primary-town fallback in

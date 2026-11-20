@@ -9,13 +9,14 @@ import {chromium} from "playwright-core";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const fw=path.join(root,"data/raw/framework/3.4.0"),site=path.join(root,"data/site/mix/p");
-const slots=JSON.parse(fs.readFileSync(path.join(site,"plan.json"),"utf8")).slots;
+// Every distinct comparison in the folder (today's town + its companion, D25), once.
 const seen=new Set(),contexts=[];
-for(const [slot,id] of slots.entries()) {
-  if(!id||seen.has(id))continue;
-  seen.add(id);
-  const packet=JSON.parse(fs.readFileSync(path.join(site,`${slot}.json`),"utf8"));
+for(const file of fs.readdirSync(site).filter(f=>/^\d+\.json$/.test(f)).sort((a,b)=>parseInt(a)-parseInt(b))) {
+  const packet=JSON.parse(fs.readFileSync(path.join(site,file),"utf8"));
   if(packet.routes?.length!==2)continue;
+  const id=packet.routes.map(r=>r.town.geonameid).sort().join("-");
+  if(seen.has(id))continue;
+  seen.add(id);
   for(const language of ["en","de"])contexts.push({id,language,context:{...packet,
     trmnl:{plugin_settings:{custom_fields_values:{language,units:"metric",watershed_pairs:true}}}}});
 }
@@ -66,10 +67,10 @@ try {
     for(const frame of frames){document.getElementById("screen").className="screen "+frame;await document.fonts.ready;}
   },frames);
   const out=path.join(root,"recipe/tools/out/label-clearance");fs.mkdirSync(out,{recursive:true});
-  let checks=0,omittedChanges=0,crossedTowns=0;const failures=[];
+  let checks=0,omittedChanges=0,crossedTowns=0;const failures=[],dots=[];
   for(let start=0;start<htmls.length;start+=16) {
     const result=await page.evaluate(({batch,frames})=>{
-      const fails=[];let omitted=0,crossed=0;
+      const fails=[];let omitted=0,crossed=0;const dots=[];
       for(const [index,html] of batch.entries()) {
         const node=projection.getContainer(),view=document.getElementById("view");
         node.remove();view.innerHTML=html;
@@ -82,6 +83,9 @@ try {
           const bottom=Math.max(...[...el.querySelectorAll("[data-downstream-box]")].map(b=>el.clientHeight-b.offsetTop+g));
           TRMNLMaps.fit(projection,routes.flatMap(r=>r.coords),{padding:{top:g,left:g,right:g,bottom},maxZoom:12});
           const report=DownstreamLabels.draw(projection,el,routes);
+          // The two start dots' distance on screen, in CSS px (the companion rule asks >= 20).
+          const [a,b]=routes.map(r=>projection.project(r.coords[0]));
+          dots.push(Math.hypot(a.x-b.x,a.y-b.y));
           const towns=report.labels.filter(l=>l.kind==="town");
           if(towns.length!==2)fails.push({index,frame,reason:"start town omitted",omitted:report.omitted});
           // Route 0's card is bottom left: count town labels whose order is the other way round.
@@ -93,14 +97,15 @@ try {
           omitted+=report.omitted.length;
         }
       }
-      return {fails,omitted,crossed};
+      return {fails,omitted,crossed,dots};
     },{batch:htmls.slice(start,start+16),frames});
-    checks+=Math.min(16,htmls.length-start)*frames.length;omittedChanges+=result.omitted;crossedTowns+=result.crossed;
+    checks+=Math.min(16,htmls.length-start)*frames.length;omittedChanges+=result.omitted;crossedTowns+=result.crossed;dots.push(...result.dots);
     for(const item of result.fails)failures.push({...contexts[start+item.index],context:undefined,...item});
     fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:false,failures,omitted_change_callouts:omittedChanges},null,1));
     if(start%160===0)console.log(`${checks} placement cases checked; ${failures.length} town omissions`);
   }
-  fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:true,failures,omitted_change_callouts:omittedChanges,town_labels_against_card_order:crossedTowns},null,1));
-  console.log(`${checks} placement cases; ${failures.length} town omissions; ${crossedTowns} with town labels against card order`);
+  fs.writeFileSync(path.join(out,"catalogue-placement.json"),JSON.stringify({pairs:contexts.length/2,checks,complete:true,failures,omitted_change_callouts:omittedChanges,town_labels_against_card_order:crossedTowns,
+    start_dots_px:{min:Math.min(...dots),under_16:dots.filter(d=>d<16).length,under_20:dots.filter(d=>d<20).length}},null,1));
+  console.log(`${checks} placement cases; ${failures.length} town omissions; ${crossedTowns} with town labels against card order; start dots min ${Math.min(...dots).toFixed(1)} px, ${dots.filter(d=>d<20).length} under 20 px, ${dots.filter(d=>d<16).length} under 16 px`);
   if(failures.length)process.exitCode=1;
 } finally {await browser.close();server.close();}

@@ -11,7 +11,6 @@ from downstream.pair_validation import checked_for_pairs
 from downstream.site import (
     BASE_URL,
     MAX_PAIR_BYTES,
-    PAIR_SLOTS,
     SLOTS,
     _display,
     pair_packet,
@@ -34,6 +33,7 @@ def test_compact_pair_retains_both_complete_display_journeys(pair):
         )
         <= MAX_PAIR_BYTES
     )
+    assert packet["primary"] == pair["towns"][0]["town"]["geonameid"]
     # Routes go west to east (test_pair_sides), so match them to their towns by id.
     routes = {r["town"]["geonameid"]: r for r in packet["routes"]}
     assert len(routes) == 2
@@ -88,11 +88,8 @@ def test_polling_url_uses_pair_feed_only_when_enabled(value, region, folder):
     assert match and match[1] == folder
     enabled = value is True or value in ("true", "yes")
     assert match[2] == ("p" if enabled else "t")
-    assert int(match[3]) < (PAIR_SLOTS if enabled else SLOTS)[folder]
-
-
-def test_pair_slots_are_whole_three_day_cycles():
-    assert all(count >= 288 and count % 288 == 0 for count in PAIR_SLOTS.values())
+    # p/ has the same slots as t/: today's town, with its companion (D25).
+    assert int(match[3]) < SLOTS[folder]
 
 
 def test_failed_source_verification_preserves_existing_site_and_history(tmp_path, monkeypatch):

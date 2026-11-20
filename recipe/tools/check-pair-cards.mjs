@@ -10,14 +10,15 @@ import {chromium} from "playwright-core";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const site=path.join(root,"data/site/mix/p"),fw=path.join(root,"data/raw/framework/3.4.0");
 const out=path.join(root,"recipe/tools/out/pair-feed");
-const plan=JSON.parse(fs.readFileSync(path.join(site,"plan.json"),"utf8")).slots;
+// Every distinct comparison in the folder (today's town + its companion, D25), once.
 const seen=new Set(),packets=[];
-plan.forEach((id,index)=>{
-  if(!id||seen.has(id))return;
-  const packet=JSON.parse(fs.readFileSync(path.join(site,`${index}.json`),"utf8"));
-  if(packet.routes?.length!==2)return;
+for(const file of fs.readdirSync(site).filter(f=>/^\d+\.json$/.test(f)).sort((a,b)=>parseInt(a)-parseInt(b))) {
+  const packet=JSON.parse(fs.readFileSync(path.join(site,file),"utf8"));
+  if(packet.routes?.length!==2)continue;
+  const id=packet.routes.map(r=>r.town.geonameid).sort().join("-");
+  if(seen.has(id))continue;
   seen.add(id);packets.push({id,packet});
-});
+}
 const contexts=[];
 for(const {id,packet} of packets)for(const language of ["en","de"])for(const units of ["metric","imperial"])
   contexts.push({id,language,units,context:{...packet,trmnl:{plugin_settings:{custom_fields_values:{language,units,watershed_pairs:true}}}}});

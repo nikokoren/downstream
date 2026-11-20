@@ -23,10 +23,12 @@ pre-formatted for each language and unit.
   metric**; an empty value counts as metric. Not tied to the language. The template shows
   `distance.<language>.<units>`, e.g. `distance.de.imperial` = "1.122 mi".
 
-- **Explore drainage divides** (2026-11-13): boolean `watershed_pairs`, off by default.
-  "In full screen, follow rain from two nearby towns to different seas. Smaller layouts show
-  one journey." Only Full renders both paths. Other views and the setting-off case use the
-  primary journey from a paired packet; single-town packets also work with the setting on.
+- **Explore drainage divides** (2026-11-13; text 2026-11-20, D25): boolean `watershed_pairs`,
+  off by default. "In full screen, show today's town next to a neighbour whose rain ends
+  somewhere else. Smaller layouts show one journey." ("Somewhere else", not "a different sea":
+  a companion can reach the same sea at a mouth 150 km or more away.) Only Full renders both
+  paths. Other views and the setting-off case use the primary journey from a paired packet;
+  single-town packets also work with the setting on.
 
 - **Map labels** (2026-11-13): boolean `map_labels`, on by default, independently of comparison
   mode. "Label the starting towns and river changes on the map." Off removes map callouts in

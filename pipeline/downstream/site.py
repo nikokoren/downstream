@@ -24,15 +24,11 @@ import math
 import random
 import shutil
 import tempfile
-import urllib.error
-import urllib.request
 from collections import Counter
 from pathlib import Path
 
 from downstream import regions
 from downstream.locales import UI, distance_text, end_text, place_text, travel_text
-from downstream.pair_validation import checked_for_pairs
-from downstream.pairs import find_pairs, model_towns, stable_rotation_slots
 from downstream.regions import DATA
 
 SITE = DATA / "site"
@@ -52,16 +48,6 @@ SLOTS = {
     "eu-ca": 5650,
     "us-ca": 3150,
     "mix": 8500,
-}
-# Fixed multiples of the 288-slot/72-hour minimum. Pair IDs retain their slot across builds.
-PAIR_SLOTS = {
-    "eu": 2016,
-    "us": 864,
-    "ca": 288,
-    "eu-us": 2880,
-    "eu-ca": 2016,
-    "us-ca": 864,
-    "mix": 2880,
 }
 MAX_PAIR_BYTES = 6144
 SLOT_SECONDS = 900  # 15 min: TRMNL's default account minimum refresh (2026-09-29)
@@ -125,7 +111,7 @@ def polling_url(published: list[str] | None = None) -> str:
     if published == ["eu"]:
         return (
             slot
-            + f"{{%- assign c = {SLOTS['eu']} -%}}{{%- assign p = {PAIR_SLOTS['eu']} -%}}"
+            + f"{{%- assign c = {SLOTS['eu']} -%}}"
             + _pair_url_switch()
             + "{%- assign n = slot | modulo: c -%}"
             + BASE_URL
@@ -134,17 +120,13 @@ def polling_url(published: list[str] | None = None) -> str:
     url = '{%- assign r = region | join: "," -%}{%- assign k = "" -%}'
     for code in published:
         url += f'{{%- if r contains "{code}" -%}}{{%- assign k = k | append: "-{code}" -%}}{{%- endif -%}}'
-    url += (
-        f'{{%- assign f = "mix" -%}}{{%- assign c = {SLOTS["mix"]} -%}}'
-        f"{{%- assign p = {PAIR_SLOTS['mix']} -%}}{{%- case k -%}}"
-    )
+    url += f'{{%- assign f = "mix" -%}}{{%- assign c = {SLOTS["mix"]} -%}}{{%- case k -%}}'
     for name in folders(published):
         if name == "mix":
             continue
         key = "".join("-" + c for c in name.split("-"))
         url += (
             f'{{%- when "{key}" -%}}{{%- assign f = "{name}" -%}}{{%- assign c = {SLOTS[name]} -%}}'
-            f"{{%- assign p = {PAIR_SLOTS[name]} -%}}"
         )
     url += "{%- endcase -%}"
     return (
@@ -161,7 +143,7 @@ def _pair_url_switch():
     return (
         '{%- assign mode = "t" -%}'
         '{%- if watershed_pairs == true or watershed_pairs == "true" or watershed_pairs == "yes" -%}'
-        '{%- assign mode = "p" -%}{%- assign c = p -%}{%- endif -%}'
+        '{%- assign mode = "p" -%}{%- endif -%}'
     )
 
 
@@ -236,7 +218,8 @@ def _wire_name(name):
 
 
 def pair_packet(first, second):
-    """Both original cards and model geometry, one UI block, without unused build fields."""
+    """Both original cards and model geometry, one UI block, without unused build fields. `first`
+    is today's town, `second` its companion."""
     routes = []
     for raw in (first, second):
         town = _display(raw)
@@ -249,7 +232,12 @@ def pair_packet(first, second):
             for c in town.get("changes", [])
         ]
         routes.append(route)
-    return {"ui": UI, "routes": order_west_to_east(routes)}
+    # Smaller views show `primary` (today's town) alone; Full shows both, west to east.
+    return {
+        "ui": UI,
+        "primary": routes[0]["town"]["geonameid"],
+        "routes": order_west_to_east(routes),
+    }
 
 
 def decode_polyline(text: str) -> list[tuple[float, float]]:
@@ -305,95 +293,74 @@ def _compact(packet):
     return json.dumps(packet, ensure_ascii=False, separators=(",", ":"))
 
 
-def _write_pair_folder(name, order, cache, previous, site=SITE):
-    out = site / name / "p"
-    out.mkdir(parents=True)
-    good = set()
-    rejected = Counter()
-    for file in order:
+def companion_table(files, cache):
+    """{geonameid: (kind, km, companion geonameid)} over every published town (companions.py).
+    Companions may come from another region (a US town's nearest other-sea town can be Canadian)."""
+    from downstream import companions
+
+    packets = {}
+    for file in files:
         packet = _town(file, cache)
-        if packet["end"]["type"] != "sea":
-            continue
         if "pair_checks" not in packet:
             raise ValueError(
                 f"missing source verification: {file}; run paths or pair_validation first"
             )
-        if checked_for_pairs(packet):
-            good.add(file)
-        else:
-            rejected.update(packet["pair_checks"].get("issues") or ["invalid_source_proof"])
-    towns = [
-        t for t in model_towns(sorted({f.parent for f in order})) if Path(t["model_file"]) in good
-    ]
-    candidates = find_pairs(towns)
-    packets, approved = {}, []
-    for pair in candidates:
-        a, b = [_town(Path(t["model_file"]), cache) for t in pair["towns"]]
-        qa, qb = a["pair_checks"], b["pair_checks"]
-        if qa["outlet_reach"] == qb["outlet_reach"] or qa["basin_id"] == qb["basin_id"]:
-            rejected["pair_shares_source_basin_or_outlet"] += 1
-            continue
-        packet = pair_packet(a, b)
-        # Allow for the largest slot index before accepting a packet into the catalogue.
-        packet["slot"] = PAIR_SLOTS[name] - 1
-        if len(_compact(packet).encode()) > MAX_PAIR_BYTES:
-            rejected["pair_payload_over_6144_bytes"] += 1
-            continue
-        packets[pair["id"]] = packet
-        approved.append(pair)
-    slots = stable_rotation_slots(approved, PAIR_SLOTS[name], previous)
+        packets[str(packet["town"]["geonameid"])] = packet
+
+    def fits(a, b):
+        # The largest slot number any folder writes, so the check holds in every folder.
+        packet = {**pair_packet(packets[a], packets[b]), "slot": max(SLOTS.values()) - 1}
+        return len(_compact(packet).encode()) <= MAX_PAIR_BYTES
+
+    return companions.choose(packets, fits), packets
+
+
+def _write_pair_folder(name, order, cache, table, packets, site=SITE):
+    """<folder>/p/<n>.json: slot n's town from the normal rotation (t/<n>.json) with its
+    companion, or alone when it has none. Same slot count and numbering as t/."""
+    out = site / name / "p"
+    out.mkdir(parents=True)
+    kinds = Counter()
     maximum = 0
-    for index, pid in enumerate(slots):
-        if pid in packets:
-            result = {**packets[pid], "slot": index}
+    for index in range(SLOTS[name]):
+        primary = _town(order[index % len(order)], cache)
+        gid = str(primary["town"]["geonameid"])
+        if gid in table:
+            kind, _, other = table[gid]
+            result = {**pair_packet(primary, packets[other]), "slot": index}
         else:
-            result = _display(_town(order[index % len(order)], cache))
-            result["slot"] = index
+            kind = "alone"
+            result = {**_display(primary), "slot": index}
+        if index < len(order):
+            kinds[kind] += 1
         text = _compact(result)
         maximum = max(maximum, len(text.encode()))
         (out / f"{index}.json").write_text(text)
-    (out / "plan.json").write_text(_compact({"version": 1, "slots": slots}) + "\n")
     report = {
-        "version": 1,
-        "max_town_distance_km": 80,
-        "source_checked_towns": len(good),
-        "pairs": len(approved),
-        "slots": len(slots),
-        "slot_minutes": 15,
-        "minimum_repeat_hours": 72,
-        "reserved_pair_ids": sum(pid is not None for pid in slots),
-        "normal_town_slots": sum(pid not in packets for pid in slots),
+        "version": 2,
+        "towns": len(order),
+        "slots": SLOTS[name],
+        "companions": dict(kinds),
         "maximum_payload_bytes": maximum,
-        "rejected": dict(rejected),
-        "pair_ids": [p["id"] for p in approved],
     }
     (out / "catalogue.json").write_text(_compact(report) + "\n")
     return report
 
 
-def previous_plans(url=None):
-    """A missing root manifest means the first launch; partial/history failures stop the build."""
-
-    def read(path):
-        if url:
-            with urllib.request.urlopen(url.rstrip("/") + "/" + path, timeout=25) as response:
-                return json.load(response)
-        return json.loads((SITE / path).read_text())
-
-    try:
-        manifest = read("pair-feed.json")
-    except FileNotFoundError:
-        return {}
-    except urllib.error.HTTPError as error:
-        if error.code == 404:
-            return {}
-        raise
-    if manifest.get("version") != 1 or manifest.get("capacities") != PAIR_SLOTS:
-        raise ValueError("previous pair feed has an incompatible version or capacity")
-    return {name: read(f"{name}/p/plan.json")["slots"] for name in manifest["folders"]}
+def _write_companions_csv(table, packets, site):
+    rows = ["geonameid,town,kind,km,companion_geonameid,companion"]
+    for gid, packet in sorted(packets.items(), key=lambda kv: int(kv[0])):
+        name = packet["town"]["en"].replace('"', "'")
+        if gid in table:
+            kind, km, other = table[gid]
+            other_name = packets[other]["town"]["en"].replace('"', "'")
+            rows.append(f'{gid},"{name}",{kind},{km},{other},"{other_name}"')
+        else:
+            rows.append(f'{gid},"{name}",alone,,,')
+    (site / "companions.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
-def build(previous=None) -> dict[str, int]:
+def build() -> dict[str, int]:
     """Every published region with town files (data/towns/<code>/), plus a folder for each
     combination of them (D23)."""
     files = {}
@@ -413,29 +380,17 @@ def build(previous=None) -> dict[str, int]:
         order = sorted((f for c in codes for f in files[c]), key=lambda p: int(p.stem))
         random.Random(SEED).shuffle(order)
         lists[name] = order
-    previous = previous_plans() if previous is None else previous
-    # A failed source check/build must not destroy the previous stable slot assignments.
+    # A failed source check or build must not destroy the published site.
     SITE.parent.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix="site-build-", dir=SITE.parent))
     try:
         cache: dict[Path, dict] = {}
         for name, order in lists.items():
             _write_folder(name, order, cache, staging)
-        reports = {
-            name: _write_pair_folder(name, order, cache, previous.get(name), staging)
-            for name, order in lists.items()
-        }
-        (staging / "pair-feed.json").write_text(
-            _compact(
-                {
-                    "version": 1,
-                    "capacities": PAIR_SLOTS,
-                    "folders": list(lists),
-                    "pairs": {name: report["pairs"] for name, report in reports.items()},
-                }
-            )
-            + "\n"
-        )
+        table, packets = companion_table([f for c in published for f in files[c]], cache)
+        for name, order in lists.items():
+            _write_pair_folder(name, order, cache, table, packets, staging)
+        _write_companions_csv(table, packets, staging)
         write_previews(staging, write_recipe=False)
         (staging / "NOTICE.md").write_text(NOTICE, encoding="utf-8")
         (staging / "index.html").write_text(
@@ -469,10 +424,6 @@ def build(previous=None) -> dict[str, int]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--previous-plans", help="Previously deployed site URL; preserve pair slots"
-    )
-    args = parser.parse_args()
-    counts = build(previous_plans(args.previous_plans) if args.previous_plans else None)
+    argparse.ArgumentParser(description=__doc__).parse_args()
+    counts = build()
     print(f"{counts} towns per folder -> {SITE}; polling URL -> {RECIPE / 'polling_url.liquid'}")

@@ -76,7 +76,7 @@ jobs:
           echo "Canada took ${SECONDS}s"
       - name: Town files for the rotation + check the committed Polling URL
         run: |
-          uv run python -m downstream.site --previous-plans https://nikokoren.github.io/downstream
+          uv run python -m downstream.site
           git diff --exit-code ../recipe/polling_url.liquid
           uv run pytest -q tests/test_site.py
       - uses: actions/upload-pages-artifact@v4

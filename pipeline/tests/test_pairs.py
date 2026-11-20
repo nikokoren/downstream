@@ -11,12 +11,8 @@ from downstream.pairs import (
     GEOD,
     destination_group,
     find_pairs,
-    pair_key,
     report_towns,
-    rotation_order,
-    rotation_slots,
     shortlist,
-    stable_rotation_slots,
 )
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures/review/pair-search.json"
@@ -92,83 +88,3 @@ def test_shortlist_does_not_repeat_towns_or_pack_every_pair_onto_one_local_divid
     assert all(
         GEOD.inv(*a["midpoint"], *b["midpoint"])[2] >= 75000 for a, b in combinations(selected, 2)
     )
-
-
-def rotation_fixture():
-    path = FIXTURE.with_name("pair-rotation.json")
-    return json.loads(path.read_text(encoding="utf-8"))["pairs"]
-
-
-def test_rotation_keeps_all_417_pairs_instead_of_the_30_review_examples():
-    pairs = rotation_fixture()
-    order = rotation_order(pairs)
-    assert len(order) == len(pairs) == 417
-    assert {pair_key(p) for p in order} == {pair_key(p) for p in pairs}
-    assert [p["id"] for p in order] == [p["id"] for p in rotation_order(pairs[::-1])]
-    assert [p["id"] for p in order] != [p["id"] for p in rotation_order(pairs, seed=20261114)]
-
-
-def test_reversing_the_towns_does_not_create_another_unique_pair():
-    pair = rotation_fixture()[0]
-    flipped = {
-        **pair,
-        "id": "-".join(reversed(pair["id"].split("-"))),
-        "towns": pair["towns"][::-1],
-    }
-    assert len(rotation_order([pair, flipped])) == 1
-
-
-def test_full_pool_covers_more_than_four_days_at_the_real_recipe_cadence():
-    from downstream.site import SLOT_SECONDS
-
-    slots = rotation_slots(rotation_fixture(), slot_minutes=SLOT_SECONDS / 60)
-    assert all(p is not None for p in slots)
-    assert len({pair_key(p) for p in slots}) == 417
-    assert len(slots) * SLOT_SECONDS > 4 * 86400
-
-
-def test_sparse_regions_use_normal_town_slots_to_keep_a_three_day_pair_cooldown():
-    from downstream.site import SLOT_SECONDS
-
-    pairs = rotation_fixture()[:26]
-    slots = rotation_slots(pairs, slot_minutes=SLOT_SECONDS / 60)
-    assert len(slots) * SLOT_SECONDS == 72 * 3600
-    assert sum(p is not None for p in slots) == 26
-    assert {pair_key(p) for p in slots if p} == {pair_key(p) for p in pairs}
-    assert max(i for i, p in enumerate(slots) if p) > len(slots) * 0.9
-    # Replaying the periodic plan cannot repeat a pair until a full cycle has elapsed.
-    seen = {}
-    for i, pair in enumerate(slots * 2):
-        if pair is None:
-            continue
-        key = pair_key(pair)
-        if key in seen:
-            assert (i - seen[key]) * SLOT_SECONDS >= 72 * 3600
-        seen[key] = i
-
-
-def test_build_updates_keep_pair_slots_and_reserve_retired_pairs():
-    pairs = rotation_fixture()[:20]
-    original = stable_rotation_slots(pairs[:10], 288)
-    extended = stable_rotation_slots(pairs, 288, original)
-    for pid in original:
-        if pid:
-            assert original.index(pid) == extended.index(pid)
-    retired = stable_rotation_slots(pairs[1:], 288, extended)
-    assert retired == extended
-    restored = stable_rotation_slots(pairs, 288, retired)
-    assert restored == extended
-    assert {p["id"] for p in pairs} == {pid for pid in restored if pid}
-
-
-def test_invalid_previous_slots_and_capacity_changes_stop_the_build():
-    pairs = rotation_fixture()[:2]
-    original = stable_rotation_slots(pairs, 288)
-    with pytest.raises(ValueError, match="different capacity"):
-        stable_rotation_slots(pairs, 576, original)
-    duplicated = list(original)
-    duplicated[1] = original[0]
-    with pytest.raises(ValueError, match="invalid previous"):
-        stable_rotation_slots(pairs, 288, duplicated)
-    with pytest.raises(ValueError, match="at least 72 hours"):
-        stable_rotation_slots(pairs, 96)

@@ -16,9 +16,11 @@
 {%- assign ds_labels = "yes" -%}
 {%- assign ds_labels_value = trmnl.plugin_settings.custom_fields_values.map_labels -%}
 {%- if ds_labels_value == false or ds_labels_value == "false" or ds_labels_value == "no" -%}{%- assign ds_labels = "no" -%}{%- endif -%}
-{% comment %} A paired packet still has a normal primary journey in smaller views or with comparison off. {% endcomment %}
+{% comment %} A paired packet still has a normal primary journey in smaller views or with comparison off:
+   today's town (`primary`, its GeoNames id, D25), whichever card side it has; older packets: the first route. {% endcomment %}
 {%- if routes.size == 2 and town == nil -%}
   {%- assign ds_primary = routes.first -%}
+  {%- for ds_route in routes -%}{%- if ds_route.town.geonameid == primary -%}{%- assign ds_primary = ds_route -%}{%- endif -%}{%- endfor -%}
   {%- assign town = ds_primary.town -%}
   {%- assign place = ds_primary.place -%}
   {%- assign chain = ds_primary.chain -%}
